@@ -1274,7 +1274,17 @@ class IndraNetwork:
                 logger.info('Reached StopIteration: all paths found. '
                             'breaking.')
                 break
-            # Todo: skip to correct length here already
+            # Check path length constraint in absence of weighted searches
+            if not (options['weight'] or
+                    (not options['strict_mesh_id_filtering']
+                     and options['mesh_ids'])):
+                if path_len and len(path) < path_len:
+                    continue
+                elif path_len and len(path) > path_len:
+                    if self.verbose > 1:
+                        logger.info('Max path length reached, returning '
+                                    'results.')
+                    return result
             hash_path = self._get_hash_path(source=source, target=target,
                                             path=path, weights=weights,
                                             edge_signs=edge_signs,
@@ -1295,13 +1305,6 @@ class IndraNetwork:
                     result[len(path)].append(pd)
                     prev_path = pd
                     added_paths += 1
-                elif path_len and len(path) < path_len:
-                    continue
-                elif path_len and len(path) > path_len:
-                    if self.verbose > 1:
-                        logger.info('Max path length reached, returning '
-                                    'results.')
-                    return result
                 elif options['weight'] and graph_type == 'signed' and\
                         len(path) > 7:
                     logger.warning('Extremely long signed paths detected, '
