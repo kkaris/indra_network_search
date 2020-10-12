@@ -29,7 +29,7 @@
     const INDRA_DB_URL_AGENTS = '{{ indra_db_url_fromagents }}?format=html&';
     let query_hash = '{{ query_hash }}';
   </script>
-  <script src="{{ url_for('static', filename='netSearch.js') }}"></script>
+  <script src="{{ url_for('static', path='/netSearch.js') }}"></script>
   <script>
     $(document).ready(function() {
       let oldQuery = {{ old_query|safe }};
