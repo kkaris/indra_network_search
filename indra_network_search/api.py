@@ -153,7 +153,7 @@ def handle_query(**json_query):
 
 @app.get('/health')
 async def health():
-    return jsonify({'status': 'pass'})
+    return {'status': 'pass'}
 
 
 @app.get('/', response_class=RedirectResponse)
