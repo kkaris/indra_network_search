@@ -6,7 +6,13 @@ import requests
 from os import makedirs, environ, path
 from sys import argv
 from time import time, gmtime, strftime
+from typing import Optional
 from datetime import datetime
+
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from flask import Flask, request, abort, Response, render_template, jsonify, \
     url_for, redirect
@@ -20,10 +26,9 @@ from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle
 from .util import *
 
-app = Flask(__name__)
-app.register_blueprint(path_temps)
-app.config['DEBUG'] = bool(environ.get('APP_DEBUG'))
-STMT_HASH_CACHE = {}
+app = FastAPI()
+app.mount('/static', StaticFiles(directory=STATIC), name='static')
+templates = Jinja2Templates(directory=TEMPLATES)
 
 logger = logging.getLogger(__name__)
 
@@ -146,29 +151,29 @@ def handle_query(**json_query):
     return res
 
 
-@app.route('/health')
-def health():
+@app.get('/health')
+async def health():
     return jsonify({'status': 'pass'})
 
 
-@app.route('/')
-def redirect_to_query():
+@app.get('/', response_class=RedirectResponse)
+async def redirect_to_query():
     """Redirects to query page"""
-    return redirect(url_for('query_page'), code=302)
+    return RedirectResponse(app.url_path_for('query_page'), status_code=307)
 
 
-@app.route('/query')
-def query_page():
+@app.get('/query', response_class=HTMLResponse)
+async def query_page(request: Request, query: Optional[int] = None):
     """Loads or responds to queries submitted on the query page"""
     logger.info('Got query')
-    logger.info('Incoming Args -----------')
-    logger.info(repr(request.args))
+    # logger.info('Incoming Args -----------')
+    # logger.info(repr(request.args))
 
     stmt_types = get_queryable_stmt_types()
-    has_signed_graph = bool(len(indra_network.signed_nodes))
+    has_signed_graph = len(indra_network.signed_nodes) > 0
 
     # Get query hash from parameters
-    qh = request.args.get('query') or ''
+    qh = query
     if qh:
         # Get query hash
         logger.info('Got query hash %s' % str(qh))
@@ -191,17 +196,21 @@ def query_page():
         query_json = {}
         source = ''
         target = ''
-    return render_template('query_template.html',
-                           query_hash=qh,
-                           stmt_types=stmt_types,
-                           node_name_spaces=list(NS_LIST_),
-                           terminal_name_spaces=list(NS_LIST),
-                           has_signed_graph=has_signed_graph,
-                           old_result=json.dumps(results_json),
-                           old_query=json.dumps(query_json),
-                           source=source,
-                           target=target,
-                           indra_db_url_fromagents=INDRA_DB_FROMAGENTS)
+    return templates.TemplateResponse(
+        'query_template.html',
+        context={
+            'request': request,
+            'query_hash': qh,
+            'stmt_types': stmt_types,
+            'node_name_spaces': list(NS_LIST_),
+            'terminal_name_spaces': list(NS_LIST),
+            'has_signed_graph': has_signed_graph,
+            'old_result': json.dumps(results_json),
+            'old_query': json.dumps(query_json),
+            'source': source,
+            'target': target,
+            'indra_db_url_fromagents': INDRA_DB_FROMAGENTS
+        })
 
 
 @app.route('/query/submit', methods=['POST'])

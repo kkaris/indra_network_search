@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 API_PATH = path.dirname(path.abspath(__file__))
 CACHE = path.join(API_PATH, '_cache')
 STATIC = path.join(API_PATH, 'static')
+TEMPLATES = path.join(API_PATH, 'templates')
 JSON_CACHE = path.join(API_PATH, '_json_res')
 
 TEST_MDG_CACHE = path.join(CACHE, 'test_mdg_network.pkl')
