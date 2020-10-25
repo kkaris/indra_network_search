@@ -6,9 +6,10 @@ import requests
 from os import makedirs, environ, path
 from sys import argv
 from time import time, gmtime, strftime
-from typing import Optional
 from datetime import datetime
+from typing import Optional, Union
 
+import asyncio
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -153,7 +154,22 @@ def handle_query(**json_query):
 
 @app.get('/health')
 async def health():
+    """Health endpoint"""
     return {'status': 'pass'}
+
+
+async def asyncio_sleep(t: Union[float, int] = 5):
+    """Sleeps without blocking the server"""
+    await asyncio.sleep(delay=t)
+    logger.info(f'Done sleeping after {t} s')
+    return t
+
+
+@app.get('/slow')
+async def slow(how_slow: Union[int, float] = 5):
+    """Endpoint that runs asyncio.sleep and then returns"""
+    t = await asyncio_sleep(how_slow)
+    return {'result': f'slept for {t} s'}
 
 
 @app.get('/', response_class=RedirectResponse)
