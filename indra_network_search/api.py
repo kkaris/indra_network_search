@@ -152,6 +152,23 @@ def handle_query(**json_query):
     return res
 
 
+async def get_page_status_code(q: str = 'fastapi') -> int:
+    """Query duckduckgo.com for a user provided query"""
+    res = requests.get('https://api.duckduckgo.com/',
+                       params={'q': q,
+                               'format': 'json',
+                               'pretty': 1})
+    return res.status_code
+
+
+@app.get('/search_ddg')
+async def search_ddg(search_string: str = 'fastapi'):
+    """Endpoint that is supposed to be slow"""
+    status_code = await get_page_status_code(search_string)
+    return {'status': f'Status for duckduckgo search with query '
+                      f'{search_string}: {status_code}'}
+
+
 @app.get('/health')
 async def health():
     """Health endpoint"""
