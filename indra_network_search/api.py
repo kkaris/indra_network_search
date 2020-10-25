@@ -39,7 +39,8 @@ FILES = {
     else None
 }
 INDRA_DB_FROMAGENTS = 'https://db.indra.bio/statements/from_agents'
-STMTS_FROM_HSH_URL = environ.get('INDRA_DB_HASHES_URL')
+INDRA_DB_HASHES_URL = 'https://db.indra.bio/statements/from_hashes'
+STMTS_FROM_HSH_URL = environ.get('INDRA_DB_HASHES_URL', INDRA_DB_HASHES_URL)
 VERBOSITY = int(environ.get('VERBOSITY', 0))
 API_DEBUG = int(environ.get('API_DEBUG', 0))
 if API_DEBUG:
