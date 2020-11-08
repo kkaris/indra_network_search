@@ -5,7 +5,7 @@ import argparse
 import requests
 from os import makedirs, environ, path
 from sys import argv
-from time import time, gmtime, strftime
+from time import time, gmtime, strftime, sleep
 from datetime import datetime
 from typing import Optional, Union
 
@@ -152,21 +152,22 @@ def handle_query(**json_query):
     return res
 
 
-async def get_page_status_code(q: str = 'fastapi') -> int:
+def get_page_status_code(q: str = 'fastapi') -> int:
     """Query duckduckgo.com for a user provided query"""
     res = requests.get('https://api.duckduckgo.com/',
                        params={'q': q,
                                'format': 'json',
                                'pretty': 1})
+    sleep(10)  # Add a sleep to make time for checking the async
     return res.status_code
 
 
 @app.get('/search_ddg')
-async def search_ddg(search_string: str = 'fastapi'):
+def search_ddg(search_string: str = 'fastapi'):
     """Endpoint that is supposed to be slow"""
-    status_code = await get_page_status_code(search_string)
+    status_code = get_page_status_code(search_string)
     return {'status': f'Status for duckduckgo search with query '
-                      f'{search_string}: {status_code}'}
+                      f'"{search_string}": {status_code}'}
 
 
 @app.get('/health')
