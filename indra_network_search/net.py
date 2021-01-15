@@ -664,6 +664,7 @@ class IndraNetwork:
                                               strict_mesh_id_filtering=strict,
                                               const_c=options['const_c'],
                                               const_tk=options['const_tk'],
+                                              readonly=True,
                                               **blacklist_options)
                 subj = source
                 obj = target
@@ -880,7 +881,8 @@ class IndraNetwork:
                                             ref_counts_from_hashes,
                                             ignore_nodes=ignore_nodes,
                                             const_c=options['const_c'],
-                                            const_tk=options['const_tk'])
+                                            const_tk=options['const_tk'],
+                                            readonly=True)
         return self._loop_open_paths(graph, dijkstra_gen,
                                      source_node=starting_node,
                                      reverse=reverse, **options)
