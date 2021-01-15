@@ -96,7 +96,7 @@ class IndraNetwork:
         self.query_receive_time = 0.0
         self.query_timed_out = False
 
-    def handle_query(self, **kwargs):
+    def handle_query(self, **kwargs) -> SearchResults:
         """Handles path query from client. Returns query result.
 
         Notes:
@@ -282,10 +282,10 @@ class IndraNetwork:
             ct = self.find_common_targets(**options)
             sr = self.find_shared_regulators(**options) if\
                 options.get('shared_regulators', False) else []
-            cp = self.get_common_parents(**options)
+            cp: Union[CommonParents, Dict] = self.get_common_parents(**options)
         else:
             ct = EMPTY_RESULT['common_targets']
-            cp = EMPTY_RESULT['common_parents']
+            cp: Union[CommonParents, Dict] = EMPTY_RESULT['common_parents']
             sr = EMPTY_RESULT['shared_regulators']
 
         if not ksp_forward and not ksp_backward and not ct and not sr and\
@@ -317,14 +317,16 @@ class IndraNetwork:
         fwd_hshs = list_all_hashes(ksp_forward) if ksp_forward else []
         bwd_hshs = list_all_hashes(ksp_backward) if ksp_backward else []
         all_path_hashes = fwd_hshs + bwd_hshs
-        return {'paths_by_node_count': {'forward': ksp_forward,
-                                        'backward': ksp_backward,
-                                        'path_hashes': all_path_hashes},
-                'common_targets': ct,
-                'shared_regulators': sr,
-                'common_parents': cp,
-                'timeout': self.query_timed_out,
-                'node_not_found': node_not_found}
+        return SearchResults(
+            **{'paths_by_node_count': {'forward': ksp_forward,
+                                       'backward': ksp_backward,
+                                       'path_hashes': all_path_hashes},
+               'common_targets': ct,
+               'shared_regulators': sr,
+               'common_parents': cp,
+               'timeout': self.query_timed_out,
+               'node_not_found': node_not_found}
+        )
 
     @staticmethod
     def sanity_check(**options):
@@ -1321,7 +1323,7 @@ class IndraNetwork:
         """Return true if there is a path from source to target"""
         return nx.has_path(self.nx_dir_graph_repr, source, target)
 
-    def get_common_parents(self, **options):
+    def get_common_parents(self, **options) -> CommonParents:
         """Find common parents between source and target"""
         # Try, in order:
         #   1. ns:id from node dict
@@ -1373,7 +1375,7 @@ class IndraNetwork:
                             f'({", ".join(options["node_filter"])})'
                             f'Aborting common parent search.')
                 cp_results['common_parents'] = []
-                return cp_results
+                return CommonParents(**cp_results)
 
         # If only target ns is given
         if not source_ns and target_ns:
@@ -1396,7 +1398,7 @@ class IndraNetwork:
                 logger.info('The namespaces for %s is not in node filter. '
                             'Aborting common parent search.' % target_id)
                 cp_results['common_parents'] = []
-                return cp_results
+                return CommonParents(**cp_results)
 
         # If only source ns is given
         if not target_ns and source_ns:
@@ -1419,7 +1421,7 @@ class IndraNetwork:
                 logger.info('The namespaces for %s is not in node filter. '
                             'Aborting common parent search.' % source_id)
                 cp_results['common_parents'] = []
-                return cp_results
+                return CommonParents(**cp_results)
 
         # If no namespaces exist
         if not source_ns and not target_ns:
@@ -1440,13 +1442,13 @@ class IndraNetwork:
         if not cp:
             logger.info('No common parents found')
             cp_results['common_parents'] = []
-            return cp_results
+            return CommonParents(**cp_results)
         else:
             cp_list = [(ns, _id, ff.get_identifiers_url(ns, _id))
                        for ns, _id in cp]
             cp_results['common_parents'] = sorted(cp_list,
                                                   key=lambda t: (t[0], t[1]))
-            return cp_results
+            return CommonParents(**cp_results)
 
     def _get_edges(self, s, o, edge_sign=None, graph='digraph'):
         """Return edges from one of the loaded graphs in a uniform format"""
