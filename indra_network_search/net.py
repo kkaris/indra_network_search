@@ -865,6 +865,8 @@ class IndraNetwork:
             ref_counts_from_hashes = _get_ref_counts_func(hash_mesh_dict)
 
             logger.info('Making graph readonly by copy')
+            # Copy graph to avoid conflicting writes if running algorithm in a
+            # parallel/threading context. This adds a penalty of ~15-25s.
             readonly_graph = graph.__class__()
             readonly_graph.add_nodes_from(graph.nodes)
             readonly_graph.add_edges_from(graph.edges)
