@@ -857,14 +857,21 @@ class IndraNetwork:
             graph = self.nx_dir_graph_repr
             starting_node = start_node
 
+        # Mesh search, copy graph
         if options['mesh_ids']:
             hash_mesh_dict = get_mesh_ref_counts(options['mesh_ids'],
                                                  require_all=False)
             related_hashes = hash_mesh_dict.keys()
             ref_counts_from_hashes = _get_ref_counts_func(hash_mesh_dict)
+
+            logger.info('Making graph readonly by copy')
+            readonly_graph = graph.__class__()
+            readonly_graph.add_nodes_from(graph.nodes)
+            readonly_graph.add_edges_from(graph.edges)
         else:
             related_hashes = None
             ref_counts_from_hashes = None
+            readonly_graph = None
 
         # Set weight style: regular or context
         weight = 'context_weight' if _is_context_weighted(
@@ -882,13 +889,15 @@ class IndraNetwork:
                                             ignore_nodes=ignore_nodes,
                                             const_c=options['const_c'],
                                             const_tk=options['const_tk'],
-                                            readonly=True)
+                                            readonly_graph=readonly_graph)
         return self._loop_open_paths(graph, dijkstra_gen,
                                      source_node=starting_node,
-                                     reverse=reverse, **options)
+                                     reverse=reverse,
+                                     readonly_graph=readonly_graph,
+                                     **options)
 
     def _loop_open_paths(self, graph, open_path_gen, source_node, reverse,
-                         **options):
+                         readonly_graph, **options):
         result = defaultdict(list)
         max_results = int(options['max_results']) \
             if options.get('max_results') is not None else self.MAX_PATHS
@@ -896,7 +905,8 @@ class IndraNetwork:
         _ = options.pop('source', None)
         _ = options.pop('target', None)
 
-        collect_weights = _get_collect_weights_func(graph, **options)
+        collect_weights = _get_collect_weights_func(
+            graph, readonly_graph=readonly_graph, **options)
 
         # Loop paths
         while True:
@@ -1656,14 +1666,15 @@ class IndraNetwork:
             return set()
 
 
-def _get_collect_weights_func(graph, **options):
+def _get_collect_weights_func(graph, readonly_graph=None, **options):
     if options['mesh_ids']:
         if options['strict_mesh_id_filtering']:
             def _f(path):
                 return ['N/A'] * (len(path) - 1)
         else:
             def _f(path):
-                return [_truncate(graph[u][v]['context_weight'])
+                g = readonly_graph if readonly_graph else graph
+                return [_truncate(g[u][v]['context_weight'])
                         for u, v in zip(path[:-1], path[1:])]
     else:
         if options.get('weight', None):
