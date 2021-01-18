@@ -893,7 +893,7 @@ class IndraNetwork:
                                             ignore_nodes=ignore_nodes,
                                             const_c=options['const_c'],
                                             const_tk=options['const_tk'],
-                                            readonly_graph=readonly_graph)
+                                            graph_copy=readonly_graph)
         return self._loop_open_paths(graph, dijkstra_gen,
                                      source_node=starting_node,
                                      reverse=reverse,
