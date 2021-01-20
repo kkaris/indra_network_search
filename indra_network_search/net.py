@@ -1275,9 +1275,8 @@ class IndraNetwork:
                             'breaking.')
                 break
             # Check path length constraint in absence of weighted searches
-            if not (options['weight'] or
-                    (not options['strict_mesh_id_filtering']
-                     and options['mesh_ids'])):
+            if _is_weighted(options['weight'], options['mesh_ids'],
+                            options['strict_mesh_id_filtering']):
                 if path_len and len(path) < path_len:
                     continue
                 elif path_len and len(path) > path_len:
