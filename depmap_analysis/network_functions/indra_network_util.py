@@ -3,7 +3,36 @@ from pydantic import BaseModel
 
 
 __all__ = ['Edge', 'PathResult', 'KShortest', 'CommonParents',
-           'SearchResults', 'QueryResult', ]
+           'SearchResults', 'QueryResult', 'JobStatus',
+           'ServiceStatus', 'BaseModel']
+
+
+# General models
+class ServiceStatus(BaseModel):
+    """Service status model"""
+    service_type: str  # Specify unsigned worker, signed worker, master etc
+    status: str  # Specify available or loading or similar
+    graph_stats: Optional[Dict[str, int]] = None
+
+
+class HealthStatus(BaseModel):
+    """Health status model"""
+    unsigned_service: str
+    signed_service: str
+    public_api: str
+
+
+class JobStatus(BaseModel):
+    """Job status model providing META data"""
+    status: str
+    id: str
+    fname: Optional[str] = None
+    location: Optional[str] = None  # e.g. URL or s3 path
+    result_location: Optional[str] = None  # e.g. URL or s3 path
+    error: Optional[str] = None  # In case something went wrong
+
+
+EMPTY_JOB_STATUS = JobStatus(status='NA', id='NA')
 
 
 # RESULT MODELS
