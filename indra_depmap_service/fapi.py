@@ -6,18 +6,29 @@ Todo: This services provides a frontend to what was previously done in
 """
 import requests
 from os import environ
+from typing import Dict
 from indra.statements.agent import default_ns_order as NS_LIST_
 from depmap_analysis.util.aws import check_existence_and_date_s3, \
     read_query_json_from_s3
 
-from fastapi import FastAPI, Request, status as http_status
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from depmap_analysis.network_functions.indra_network_util import *
 from .util import *
 
 from depmap_analysis.network_functions.indra_network import IndraNetwork, \
     EMPTY_RESULT
+
+
+class Job(BaseModel):
+    """Defines a job"""
+    id: str
+    status: str
+    query: NetworkSearchQuery
+    job_status: JobStatus
+
 
 app = FastAPI()
 app.mount('/static', StaticFiles(directory=STATIC), name='static')
@@ -97,3 +108,24 @@ async def query_page(request: Request, query: Optional[int] = None):
             'target': target,
             'indra_db_url_fromagents': INDRA_DB_FROMAGENTS
         })
+
+
+# Todo make aiohttp
+def get_hosted_file(qh: str, _type: str) -> Dict:
+    res = requests.get(f'http://localhost:8000/data/{qh}_{_type}.json')
+    res.raise_for_status()
+    if res.status_code == 200:
+        return res.json()
+
+
+# Make a depends-on here for both the actual result and the meta file
+# TodO: this could be replaced in the future with Vue querying S3 or this
+#  service querying S3
+@app.get('/data/{qh}_meta.json', response_model=JobStatus)
+def read_meta_file(qh: str):
+    return get_hosted_file(qh, 'meta')
+
+
+@app.get('/data/{qh}_result.json', response_model=QueryResult)
+def read_result_file(qh: str):
+    return get_hosted_file(qh, 'result')
