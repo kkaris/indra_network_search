@@ -97,7 +97,7 @@ async def query_page(request: Request, query: Optional[int] = None):
         source = ''
         target = ''
     return templates.TemplateResponse(
-        'query_template.html',
+        'fast_api_query_template.html',
         context={
             'request': request,
             'query_hash': qh,
