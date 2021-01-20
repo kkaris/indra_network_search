@@ -3,6 +3,9 @@
 
 Todo: This services provides a frontend to what was previously done in
  python script
+ Consider hosting the data directory (from the subservices) here as well
+ instead of calling that service (can be good to if you just want to test
+ the JS approach without runnnig all the services)
 """
 import requests
 from os import environ
