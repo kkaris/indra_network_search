@@ -1,4 +1,10 @@
-"""Serves the frontend"""
+"""Serves the frontend
+
+
+Todo: This services provides a frontend to what was previously done in
+ python script
+"""
+import requests
 from os import environ
 from indra.statements.agent import default_ns_order as NS_LIST_
 from depmap_analysis.util.aws import check_existence_and_date_s3, \
