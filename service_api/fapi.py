@@ -5,7 +5,7 @@ Todo: This services provides a frontend to what was previously done in
  python script
  Consider hosting the data directory (from the subservices) here as well
  instead of calling that service (can be good to if you just want to test
- the JS approach without runnnig all the services)
+ the JS approach without running all the services)
 """
 import requests
 from os import environ
@@ -18,10 +18,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from depmap_analysis.network_functions.indra_network_util import *
+from indra_network_service.indra_network.indra_network_util import *
 from .util import *
 
-from depmap_analysis.network_functions.indra_network import IndraNetwork, \
+from indra_network_service.indra_network.indra_network import IndraNetwork, \
     EMPTY_RESULT
 
 
