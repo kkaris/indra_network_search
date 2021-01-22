@@ -36,6 +36,9 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
 
 logger = logging.getLogger(__name__)
 
+__all__ = ['NetworkSearchQuery', 'STATIC', 'TEMPLATES',
+           'get_queryable_stmt_types', 'NS_LIST', ]
+
 API_PATH = path.dirname(path.abspath(__file__))
 CACHE = path.join(API_PATH, '_cache')
 STATIC = path.join(API_PATH, 'static')
