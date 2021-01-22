@@ -7,7 +7,6 @@ from typing import Callable, Dict, Any, Set
 from datetime import datetime
 from botocore.exceptions import ClientError
 
-import networkx as nx
 from fnvhash import fnv1a_32
 
 from indra.util.aws import get_s3_client
@@ -32,12 +31,10 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
            'load_pickled_net_from_s3', 'get_earliest_date', 'get_s3_client',
            'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
            'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE',
-           'get_default_args', 'get_mandatory_args']
+           'get_default_args', 'get_mandatory_args', 'STATIC', 'TEMPLATES',
+           'get_queryable_stmt_types', 'NS_LIST']
 
 logger = logging.getLogger(__name__)
-
-__all__ = ['NetworkSearchQuery', 'STATIC', 'TEMPLATES',
-           'get_queryable_stmt_types', 'NS_LIST', ]
 
 API_PATH = path.dirname(path.abspath(__file__))
 CACHE = path.join(API_PATH, '_cache')

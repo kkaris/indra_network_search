@@ -11,8 +11,6 @@ import logging
 from os import environ
 from typing import Optional
 from indra.statements.agent import default_ns_order as NS_LIST_
-from depmap_analysis.util.aws import check_existence_and_date_s3, \
-    read_query_json_from_s3
 
 from pydantic import BaseModel
 from fastapi import FastAPI, Request
