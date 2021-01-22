@@ -7,24 +7,30 @@ Todo: This services provides a frontend to what was previously done in
  instead of calling that service (can be good to if you just want to test
  the JS approach without running all the services)
 """
+import json
+import logging
 import requests
 from os import environ
-from typing import Dict
+from typing import Dict, Optional
 from indra.statements.agent import default_ns_order as NS_LIST_
 from depmap_analysis.util.aws import check_existence_and_date_s3, \
     read_query_json_from_s3
 
+from pydantic import BaseModel
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from indra_network_service.indra_network.indra_network_util import *
+from .net_util import *
 from .util import *
 
-from indra_network_service.indra_network.indra_network import IndraNetwork, \
-    EMPTY_RESULT
+from .net import IndraNetwork, EMPTY_RESULT
 
 
+logger = logging.getLogger(__name__)
+
+
+# defined here to not have possible import conflicts
 class Job(BaseModel):
     """Defines a job"""
     id: str
@@ -36,8 +42,6 @@ class Job(BaseModel):
 app = FastAPI()
 app.mount('/static', StaticFiles(directory=STATIC), name='static')
 templates = Jinja2Templates(directory=TEMPLATES)
-
-logger = logging.getLogger(__name__)
 
 INDRA_DB_FROMAGENTS = 'https://db.indra.bio/statements/from_agents'
 INDRA_DB_HASHES_URL = 'https://db.indra.bio/statements/from_hashes'

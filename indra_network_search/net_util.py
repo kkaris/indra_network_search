@@ -3,8 +3,7 @@ from pydantic import BaseModel
 
 
 __all__ = ['Edge', 'PathResult', 'KShortest', 'CommonParents',
-           'SearchResults', 'QueryResult', 'JobStatus',
-           'ServiceStatus', 'BaseModel']
+           'SearchResults', 'QueryResult', 'JobStatus', 'ServiceStatus']
 
 
 # General models
