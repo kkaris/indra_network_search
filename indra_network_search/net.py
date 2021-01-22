@@ -25,7 +25,7 @@ from depmap_analysis.network_functions import famplex_functions as ff
 from depmap_analysis.network_functions import net_functions as nf
 from depmap_analysis.network_functions.net_functions import \
     INT_PLUS, INT_MINUS
-from .indra_network_util import *
+from .net_util import *
 from typing import Union, Dict
 
 bfs_kwargs = inspect.signature(bfs_search).parameters.keys()
