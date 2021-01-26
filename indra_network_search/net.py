@@ -901,7 +901,7 @@ class IndraNetwork:
                                      **options)
 
     def _loop_open_paths(self, graph, open_path_gen, source_node, reverse,
-                         readonly_graph, **options):
+                         readonly_graph=None, **options):
         result = defaultdict(list)
         max_results = int(options['max_results']) \
             if options.get('max_results') is not None else self.MAX_PATHS
