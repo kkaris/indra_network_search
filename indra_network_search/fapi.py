@@ -53,7 +53,7 @@ if API_DEBUG:
 else:
     SERVICE_BASE_URL = 'https://network.indra.bio'
 
-# Fixme: This should not be here
+# Fixme: This should not be here, replace with service health check
 indra_network = IndraNetwork()
 
 
