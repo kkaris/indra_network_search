@@ -147,7 +147,7 @@ class IndraNetwork:
         weighted: Bool
             If True, do a weighted path search. Weights in the network are
             assigned as -log(belief score).
-        bsco: 0 <= float <= 1.0
+        belief_cutoff: 0 <= float <= 1.0
             Belief Score Cut-Off, a positive decimal number < 1.0 indicating
             at what belief score an edge statement should be ignored
         direct_only: Bool **currently not implemented**
@@ -997,7 +997,7 @@ class IndraNetwork:
         options : kwargs
             Options have to include (see self.handle_query for explanations):
                 *allowed_ns
-                *bsco
+                *belief_cutoff
                 *stmt_filter
                 *curated_db_only
 
@@ -1579,7 +1579,7 @@ class IndraNetwork:
             return False
 
         # Filter belief score
-        if edge_stmt['belief'] < options['bsco']:
+        if edge_stmt['belief'] < options['belief_cutoff']:
             if self.verbose:
                 logger.info('Did not pass belief score')
             return False
