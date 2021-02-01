@@ -51,9 +51,9 @@ EMPTY_RESULT = {'paths_by_node_count': {'forward': {}, 'backward': {},
                 'common_parents': {},
                 'timeout': False,
                 'node_not_found': False}
-MANDATORY = ['stmt_filter', 'node_filter',
-             'path_length', 'weighted', 'bsco', 'fplx_expand',
-             'k_shortest', 'curated_db_only', 'two_way']
+MANDATORY = ['stmt_filter', 'allowed_ns', 'path_length', 'weighted',
+             'belief_cutoff', 'fplx_expand', 'k_shortest',
+             'curated_db_only', 'two_way']
 USER_OVERRIDE = False
 
 
@@ -123,7 +123,7 @@ class IndraNetwork:
         stmt_filter: [str]
             a list of valid indra statement types or FamPlex child-parent
             connections (as 'fplx') *to exclude* in the path
-        node_filter: [str]
+        allowed_ns: [str]
             a list of node namespaces *to include* in the path
         node_blacklist: [str]
             a list of node names to ignore. If a path contains a node in this
@@ -348,11 +348,11 @@ class IndraNetwork:
         # sns, sid, snn = nf.gilda_normalization(options['source'],
         #                                    gilda_retry=True)
         # tns, tid, tnn = nf.gilda_normalization(options['target'])
-        # if (sns and sns.lower() not in options['node_filter']) or \
-        #         (tns and tns.lower() not in options['node_filter']):
-        #     if sns.lower() not in options['node_filter']:
+        # if (sns and sns.lower() not in options['allowed_ns']) or \
+        #         (tns and tns.lower() not in options['allowed_ns']):
+        #     if sns.lower() not in options['allowed_ns']:
         #         logger.warning('%s not among accepted nodes' % sns)
-        #     if tns.lower() not in options['node_filter']:
+        #     if tns.lower() not in options['allowed_ns']:
         #         logger.warning('%s not among accepted nodes' % tns)
         #     return False
 
@@ -809,7 +809,8 @@ class IndraNetwork:
                              reverse=reverse, depth_limit=depth_limit,
                              path_limit=path_limit, max_per_node=max_per_node,
                              terminal_ns=terminal_ns, hashes=related_hashes,
-                             allow_edge=allow_edge, **bfs_options)
+                             allow_edge=allow_edge,
+                             node_filter=options['allowed_ns'], **bfs_options)
         return self._loop_open_paths(graph, bfs_gen, source_node=start_node,
                                      reverse=reverse, **options)
 
@@ -995,7 +996,7 @@ class IndraNetwork:
             A list of nodes to look for shared regulators for
         options : kwargs
             Options have to include (see self.handle_query for explanations):
-                *node_filter
+                *allowed_ns
                 *bsco
                 *stmt_filter
                 *curated_db_only
@@ -1034,7 +1035,7 @@ class IndraNetwork:
             else:
                 return intrcts
 
-        allowed_ns = options['node_filter']
+        allowed_ns = options['allowed_ns']
 
         input_interactors = list_of_targets if list_of_targets else \
             list_of_regulators
@@ -1378,8 +1379,8 @@ class IndraNetwork:
 
         # If both source and target are given
         if source_ns and target_ns:
-            if source_ns.lower() in options['node_filter'] and \
-                    target_ns.lower() in options['node_filter']:
+            if source_ns.lower() in options['allowed_ns'] and \
+                    target_ns.lower() in options['allowed_ns']:
                 if self.verbose > 1:
                     logger.info('Looking for common parents using namespaces '
                                 'found in network')
@@ -1388,19 +1389,19 @@ class IndraNetwork:
             else:
                 logger.info(f'The namespaces for {source_ns} and/or '
                             f'{target_ns} are not in node filter: '
-                            f'({", ".join(options["node_filter"])})'
+                            f'({", ".join(options["allowed_ns"])})'
                             f'Aborting common parent search.')
                 cp_results['common_parents'] = []
                 return CommonParents(**cp_results)
 
         # If only target ns is given
         if not source_ns and target_ns:
-            if target_ns.lower() in options['node_filter']:
+            if target_ns.lower() in options['allowed_ns']:
                 if self.verbose > 1:
                     logger.info('No namespace found for %s, trying HGNC and '
                                 'FPLX.' % source_id)
                 for sns in ['HGNC', 'FPLX']:
-                    if sns.lower() not in options['node_filter']:
+                    if sns.lower() not in options['allowed_ns']:
                         continue
                     else:
                         cp = ff.common_parent(ns1=sns, id1=source_id,
@@ -1418,12 +1419,12 @@ class IndraNetwork:
 
         # If only source ns is given
         if not target_ns and source_ns:
-            if source_ns.lower() in options['node_filter']:
+            if source_ns.lower() in options['allowed_ns']:
                 if self.verbose > 1:
                     logger.info('No namespace found for %s, trying HGNC and '
                                 'FPLX.' % target_id)
                 for tns in ['HGNC', 'FPLX']:
-                    if tns.lower() not in options['node_filter']:
+                    if tns.lower() not in options['allowed_ns']:
                         continue
                     else:
                         cp = ff.common_parent(ns1=source_ns, id1=source_id,
@@ -1445,10 +1446,10 @@ class IndraNetwork:
                 logger.info('No namespaces found for %s and %s, trying HGNC '
                             'and FPLX' % (source_id, target_id))
             for source_ns in ['HGNC', 'FPLX']:
-                if source_ns.lower() not in options['node_filter']:
+                if source_ns.lower() not in options['allowed_ns']:
                     continue
                 for target_ns in ['HGNC', 'FPLX']:
-                    if target_ns.lower() not in options['node_filter']:
+                    if target_ns.lower() not in options['allowed_ns']:
                         continue
                     cp = ff.common_parent(ns1=source_ns, id1=source_id,
                                           ns2=target_ns, id2=target_id)
@@ -1518,18 +1519,18 @@ class IndraNetwork:
             logger.info('Building evidence for path %s' % str(path))
         for subj, obj, edge_sign, w in zip(path[:-1], path[1:], es, weights):
             # Check node filter, but ignore source or target nodes
-            # e.g., check node_filter IFF source != subj AND target != obj
+            # e.g., check allowed_ns IFF source != subj AND target != obj
             if (source != subj and target != subj and
-                self.nodes[subj]['ns'].lower() not in options['node_filter'])\
+                self.nodes[subj]['ns'].lower() not in options['allowed_ns'])\
                 or \
                 (source != obj and target != obj and
-                 self.nodes[obj]['ns'].lower() not in options['node_filter']):
+                 self.nodes[obj]['ns'].lower() not in options['allowed_ns']):
                 if self.verbose:
                     logger.info('Node namespace %s or %s not part of '
                                 'acceptable namespaces %s' %
                                 (self.nodes[subj]['ns'],
                                  self.nodes[obj]['ns'],
-                                 options['node_filter']))
+                                 options['allowed_ns']))
                 return []
 
             # Initialize edges dict
@@ -1790,7 +1791,7 @@ def translate_query(query_json):
         if k == 'edge_hash_blacklist' and options.get(k) and \
                 isinstance(options[k][0], int):
             options[k] = [str(i) for i in options[k]]
-        if k in ['node_filter', 'stmt_filter']:
+        if k in ['allowed_ns', 'stmt_filter']:
             options[k] = [s.lower() for s in options[k]]
         if k == "cull_best_node":
             options[k] = int(v) if v >= 1 else float('NaN')
