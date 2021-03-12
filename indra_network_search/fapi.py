@@ -23,7 +23,6 @@ from indra_network_search.net_util import *
 from indra_network_search.util import *
 from indra_network_search.net import IndraNetwork, EMPTY_RESULT
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -38,6 +37,7 @@ class Job(BaseModel):
 
 app = FastAPI()
 app.mount('/static', StaticFiles(directory=STATIC), name='static')
+app.mount('/vue', StaticFiles(directory=API_PATH), name='vue')
 templates = Jinja2Templates(directory=TEMPLATES)
 data_dir = '/home/klas/repos/fastapi_test/examples/data'
 app.mount('/data', StaticFiles(directory=data_dir), name='data')
