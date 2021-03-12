@@ -3,11 +3,11 @@ import json
 import inspect
 import logging
 from os import path
-import networkx as nx
 from typing import Callable, Dict, Any, Set
 from datetime import datetime
-from botocore.exceptions import ClientError
 
+import networkx as nx
+from botocore.exceptions import ClientError
 from fnvhash import fnv1a_32
 
 from indra.util.aws import get_s3_client
@@ -16,7 +16,6 @@ from indra_db.util.dump_sif import load_db_content, make_dataframe, NS_LIST
 from indra.statements import get_all_descendants, Activation, Inhibition, \
     IncreaseAmount, DecreaseAmount, AddModification, RemoveModification, \
     Complex
-
 from depmap_analysis.network_functions import net_functions as nf
 from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle, \
     DT_YmdHMS, RE_YmdHMS_, RE_YYYYMMDD, get_earliest_date, get_date_from_str, \
@@ -31,7 +30,7 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
            'dump_query_result_to_s3', 'NS_LIST', 'get_queryable_stmt_types',
            'load_pickled_net_from_s3', 'get_earliest_date', 'get_s3_client',
            'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
-           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE',
+           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE', 'API_PATH',
            'get_default_args', 'get_mandatory_args', 'STATIC', 'TEMPLATES',
            'get_queryable_stmt_types', 'NS_LIST']
 
