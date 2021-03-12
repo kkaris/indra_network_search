@@ -10,18 +10,18 @@ import json
 import logging
 from os import environ
 from typing import Optional
-from indra.statements.agent import default_ns_order as NS_LIST_
 
 from pydantic import BaseModel
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from .data_models import NetworkSearchQuery
-from .net_util import *
-from .util import *
 
-from .net import IndraNetwork, EMPTY_RESULT
+from indra.statements.agent import default_ns_order as NS_LIST_
+from indra_network_search.data_models import NetworkSearchQuery
+from indra_network_search.net_util import *
+from indra_network_search.util import *
+from indra_network_search.net import IndraNetwork, EMPTY_RESULT
 
 
 logger = logging.getLogger(__name__)
