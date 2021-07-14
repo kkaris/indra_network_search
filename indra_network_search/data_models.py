@@ -457,7 +457,7 @@ class SubgraphRestQuery(BaseModel):
         if len(node_list) < 1:
             raise ValueError('Must have at least one node in attribute '
                              '"nodes"')
-        max_nodes = 100
+        max_nodes = 4000
         if len(node_list) > max_nodes:
             raise ValueError(f'Maximum allowed nodes is {max_nodes}, '
                              f'{len(node_list)} was provided.')
