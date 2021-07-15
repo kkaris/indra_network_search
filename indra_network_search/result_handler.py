@@ -122,7 +122,8 @@ class ResultManager:
         return None
 
     def _get_stmt_data(self, stmt_dict: Dict[str, Union[str, int, float,
-                                                        Dict[str, int]]]) -> \
+                                                        Dict[str, int]]],
+                       ev_limit: Optional[int] = None) -> \
             Union[StmtData, None]:
         """If statement passes filter, return StmtData model"""
         if not self.filter_options.no_stmt_filters() and \
@@ -131,6 +132,8 @@ class ResultManager:
 
         try:
             url = DB_URL_HASH.format(stmt_hash=stmt_dict['stmt_hash'])
+            if ev_limit is not None:
+                url += f'&ev_limit={ev_limit}'
             return StmtData(db_url_hash=url, **stmt_dict)
         except ValidationError as err:
             logger.warning(
@@ -781,7 +784,7 @@ class SubgraphResultManager(ResultManager):
         ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
         stmt_dict: Dict[int, StmtData] = {}  # Collect stmt_data by hash
         for sd in ed['statements']:
-            stmt_data = self._get_stmt_data(stmt_dict=sd)
+            stmt_data = self._get_stmt_data(stmt_dict=sd, ev_limit=10)
             if stmt_data and stmt_data.stmt_hash not in stmt_dict:
                 stmt_dict[stmt_data.stmt_hash] = stmt_data
 
