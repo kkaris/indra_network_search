@@ -40,7 +40,8 @@ logger = logging.getLogger(__name__)
 DB_URL_HASH = 'https://db.indra.bio/statements/from_hash/' \
               '{stmt_hash}?format=html'
 DB_URL_EDGE = 'https://db.indra.bio/statements/from_agents?subject=' \
-              '{subj_id}@{subj_ns}&object={obj_id}@{obj_ns}&format=html'
+              '{subj_id}@{subj_ns}&object={obj_id}@' \
+              '{obj_ns}&ev_limit={ev_limit}&format=html'
 
 
 class ResultManager:
