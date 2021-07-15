@@ -735,7 +735,8 @@ class SubgraphResultManager(ResultManager):
     def __init__(self, path_generator: Iterator[Tuple[str, str]],
                  graph: DiGraph,
                  filter_options: FilterOptions, original_nodes: List[Node],
-                 nodes_in_graph: List[Node], not_in_graph: List[Node]):
+                 nodes_in_graph: List[Node], not_in_graph: List[Node],
+                 ev_limit: int = 10):
         super().__init__(path_generator=path_generator,
                          graph=graph, filter_options=filter_options,
                          input_nodes=original_nodes)
@@ -743,6 +744,7 @@ class SubgraphResultManager(ResultManager):
         self._available_nodes: Dict[str, Node] = {n.name: n for n
                                                   in nodes_in_graph}
         self._not_in_graph: List[Node] = not_in_graph
+        self._ev_limit = ev_limit
 
     def _pass_node(self, node: Node) -> bool:
         # No filters implemented yet
@@ -785,7 +787,8 @@ class SubgraphResultManager(ResultManager):
         ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
         stmt_dict: Dict[int, StmtData] = {}  # Collect stmt_data by hash
         for sd in ed['statements']:
-            stmt_data = self._get_stmt_data(stmt_dict=sd, ev_limit=10)
+            stmt_data = self._get_stmt_data(stmt_dict=sd,
+                                            ev_limit=self._ev_limit)
             if stmt_data and stmt_data.stmt_hash not in stmt_dict:
                 stmt_dict[stmt_data.stmt_hash] = stmt_data
 
@@ -797,13 +800,14 @@ class SubgraphResultManager(ResultManager):
         edge_belief = ed['belief']
         edge_weight = ed['weight']
 
-        return EdgeDataByHash(
-            edge=edge, stmts=stmt_dict, belief=edge_belief, weight=edge_weight,
-            db_url_edge=DB_URL_EDGE.format(subj_id=a_node.identifier,
-                                           subj_ns=a_node.namespace,
-                                           obj_id=b_node.identifier,
-                                           obj_ns=b_node.namespace)
-        )
+        edge_url = DB_URL_EDGE.format(subj_id=a_node.identifier,
+                                      subj_ns=a_node.namespace,
+                                      obj_id=b_node.identifier,
+                                      obj_ns=b_node.namespace,
+                                      ev_limit=self._ev_limit)
+
+        return EdgeDataByHash(edge=edge, stmts=stmt_dict, belief=edge_belief,
+                              weight=edge_weight, db_url_edge=edge_url)
 
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
