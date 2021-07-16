@@ -805,9 +805,15 @@ class SubgraphResultManager(ResultManager):
                                       obj_id=b_node.identifier,
                                       obj_ns=b_node.namespace,
                                       ev_limit=self._ev_limit)
+        edge_url_types = {}
+        for st in stmt_dict.values():
+            if st.stmt_type not in edge_url_types:
+                edge_url_types[st.stmt_type] = \
+                    edge_url + f'&type={st.stmt_type}'
 
         return EdgeDataByHash(edge=edge, stmts=stmt_dict, belief=edge_belief,
-                              weight=edge_weight, db_url_edge=edge_url)
+                              weight=edge_weight, db_url_edge=edge_url,
+                              url_by_type=edge_url_types)
 
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
