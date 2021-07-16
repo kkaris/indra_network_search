@@ -373,6 +373,7 @@ class EdgeDataByHash(BaseModel):
     belief: float
     weight: float
     db_url_edge: str  # Linkout to subj-obj level
+    url_by_type: Dict[str, str]  # Linkout per statement type
     # sign: Optional[int]  # Used for signed paths
     # context_weight: Union[str, float] = 'N/A'  # Set for context search
 
