@@ -190,7 +190,8 @@ class ResultManager:
         url: str = DB_URL_EDGE.format(subj_id=a_node.identifier,
                                       subj_ns=a_node.namespace,
                                       obj_id=b_node.identifier,
-                                      obj_ns=b_node.namespace)
+                                      obj_ns=b_node.namespace,
+                                      ev_limit=10)
         edge_data = EdgeData(edge=edge, statements=stmt_dict,
                              belief=edge_belief, weight=edge_weight,
                              db_url_edge=url, **extra_dict)
