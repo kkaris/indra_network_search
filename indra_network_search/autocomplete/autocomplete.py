@@ -33,7 +33,8 @@ class NodesTrie(SortedStringTrie):
         node = list(itertools.islice(graph.nodes, 1))[0]
         if isinstance(node, str):
             return cls(
-                **{n: (graph.nodes["ns"], graph.nodes["id"]) for n in graph.nodes}
+                **{n: (graph.nodes[n]["ns"], graph.nodes[n]["id"])
+                   for n in graph.nodes}
             )
         else:
             raise ValueError(
