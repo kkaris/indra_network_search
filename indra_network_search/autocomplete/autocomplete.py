@@ -1,34 +1,34 @@
 """
-An API wrapping SortedStringTrie from pytrie, see
-https://github.com/gsakkis/pytrie, to provide some methods relevant for an
-implementation
+An API wrapping SortedStringTrie from pytrie (see
+https://github.com/gsakkis/pytrie)
 """
 import itertools
-from typing import Union, List
+from typing import Union, List, Optional
 from networkx import DiGraph, MultiDiGraph
 from pytrie import SortedStringTrie
 
 
 DirGraph = Union[DiGraph, MultiDiGraph]
 
-__all__ = ['NodesTrie']
+__all__ = ["NodesTrie"]
 
 
 class NodesTrie(SortedStringTrie):
-
     @classmethod
-    def from_graph_nodes(cls, graph: DirGraph) -> 'NodesTrie':
-        """
+    def from_graph_nodes(cls, graph: DirGraph) -> "NodesTrie":
+        """Produce a NodesTrie instance from a graph with str node names
 
         Parameters
         ----------
         graph:
             Graph from which nodes should be searchable. It is assumed the
+            nodes are all keyed by strings
 
         Returns
         -------
         :
-            An instance of an NodesTrie containing the node names of the graph
+            An instance of a NodesTrie containing the node names of the
+            graph as keys and the corresponding (ns, id) tuple as values
         """
         node = list(itertools.islice(graph.nodes, 1))[0]
         if isinstance(node, str):
@@ -36,10 +36,11 @@ class NodesTrie(SortedStringTrie):
                 **{n: (graph.nodes["ns"], graph.nodes["id"]) for n in graph.nodes}
             )
         else:
-            raise ValueError('Graph nodes are not str, cannot create '
-                             'SortedStringTrie instance')
+            raise ValueError(
+                "Graph nodes are not str, cannot create NodesTrie instance"
+            )
 
-    def case_keys(self, prefix: str, case_sensitive: bool = True):
+    def case_keys(self, prefix: Optional[str] = None, case_sensitive: bool = True):
         """Case insensitive wrapper around NodeTrie.keys()
 
         Parameters
@@ -53,7 +54,7 @@ class NodesTrie(SortedStringTrie):
         Returns
         -------
         List[str]
-            The list of matched keys that
+            Return a list of this trie's keys
         """
         if case_sensitive:
             return self.keys(prefix)
