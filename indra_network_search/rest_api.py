@@ -98,6 +98,7 @@ def sub_graph(search_query: SubgraphRestQuery):
     logger.info(f'Got subgraph query with {len(search_query.nodes)} nodes')
     subgraph_results = network_search_api.handle_subgraph_query(
         subgraph_rest_query=search_query)
+    logger.info('Subgraph query resolved')
     return subgraph_results
 
 

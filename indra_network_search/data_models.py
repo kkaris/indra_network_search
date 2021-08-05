@@ -373,6 +373,7 @@ class EdgeDataByHash(BaseModel):
     belief: float
     weight: float
     db_url_edge: str  # Linkout to subj-obj level
+    url_by_type: Dict[str, str]  # Linkout per statement type
     # sign: Optional[int]  # Used for signed paths
     # context_weight: Union[str, float] = 'N/A'  # Set for context search
 
@@ -457,7 +458,7 @@ class SubgraphRestQuery(BaseModel):
         if len(node_list) < 1:
             raise ValueError('Must have at least one node in attribute '
                              '"nodes"')
-        max_nodes = 100
+        max_nodes = 4000
         if len(node_list) > max_nodes:
             raise ValueError(f'Maximum allowed nodes is {max_nodes}, '
                              f'{len(node_list)} was provided.')
