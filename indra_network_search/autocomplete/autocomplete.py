@@ -30,9 +30,11 @@ class NodesTrie(SortedStringTrie):
         :
             An instance of an NodesTrie containing the node names of the graph
         """
-        node = list(itertools.islice( graph.nodes, 1))[0]
+        node = list(itertools.islice(graph.nodes, 1))[0]
         if isinstance(node, str):
-            return cls(**{n: ix for ix, n in enumerate(graph.nodes)})
+            return cls(
+                **{n: (graph.nodes["ns"], graph.nodes["id"]) for n in graph.nodes}
+            )
         else:
             raise ValueError('Graph nodes are not str, cannot create '
                              'SortedStringTrie instance')
