@@ -33,7 +33,7 @@ USE_CACHE = environ.get('USE_CACHE') == "1"
 HEALTH = Health(status='booting')
 
 # Derived types
-Prefixes = List[Tuple[str, Tuple[str, str]]]
+Prefixes = List[Tuple[str, str, str]]
 
 
 @app.get('/')
@@ -85,7 +85,7 @@ def get_nodes(prefix: str) -> Prefixes:
         A list of tuples of (node name, (namespace, identifier))
     """
     logger.info('Got prefix check')
-    nodes = nodes_trie.case_items(prefix=prefix, case_sensitive=False)
+    nodes = nodes_trie.case_items(prefix=prefix)
     return nodes
 
 
