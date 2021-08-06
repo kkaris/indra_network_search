@@ -46,8 +46,22 @@ async def root_redirect():
 
 
 @app.get('/xrefs', response_model=List[List[str]])
-def get_xrefs(ns: str, id: str):
-    """Get all cross-refs given a namespace and ID"""
+def get_xrefs(ns: str, id: str) -> List[List[str]]:
+    """Get all cross-refs given a namespace and ID
+
+    Parameters
+    ----------
+    ns :
+        The namespace of the entity to find cross-refs for
+    id :
+        The identifier of the entity to find cross-regs for
+
+    Returns
+    -------
+    :
+        A list of tuples containing namespace, identifier, lookup url to
+        identifiers.org
+    """
     # Todo: offload util features and capabilities, such as this one, to a new
     #  UtilApi class
     xrefs = bio_ontology.get_mappings(ns=ns, id=id)
@@ -57,8 +71,19 @@ def get_xrefs(ns: str, id: str):
 
 
 @app.get('/nodes_in_graph', response_model=Prefixes)
-def get_nodes(prefix: str):
-    """Get the case-insensitive node names with (ns, id) starting in prefix"""
+def get_nodes(prefix: str) -> Prefixes:
+    """Get the case-insensitive node names with (ns, id) starting in prefix
+
+    Parameters
+    ----------
+    prefix :
+        The prefix of a node name to check
+
+    Returns
+    -------
+    :
+        A list of tuples of (node name, (namespace, identifier))
+    """
     logger.info('Got prefix check')
     nodes = nodes_trie.case_items(prefix=prefix, case_sensitive=False)
     return nodes
