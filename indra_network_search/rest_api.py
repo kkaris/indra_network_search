@@ -17,7 +17,6 @@ from .autocomplete import NodesTrie
 from .search_api import IndraNetworkSearchAPI
 from depmap_analysis.network_functions.net_functions import bio_ontology
 
-DEBUG = environ.get('API_DEBUG') == "1"
 
 app = FastAPI()
 
@@ -29,7 +28,8 @@ class Health(BaseModel):
     status: str
 
 
-USE_CACHE = bool(environ.get('USE_CACHE', False))
+DEBUG = environ.get('API_DEBUG') == "1"
+USE_CACHE = environ.get('USE_CACHE') == "1"
 HEALTH = Health(status='booting')
 
 # Derived types
