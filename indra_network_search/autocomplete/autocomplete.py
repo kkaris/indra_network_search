@@ -68,3 +68,33 @@ class NodesTrie(SortedStringTrie):
             upper_keys = self.keys(upper_prefix)
             merged = lower_keys + keys + upper_keys
             return sorted(merged)
+
+    def case_items(self, prefix: Optional[str] = None, case_sensitive: bool = False):
+        """Case insensitive wrapper around NodeTrie.items()
+
+        Parameters
+        ----------
+        prefix :
+            The prefix to search
+        case_sensitive :
+            If False, search for both prefix, prefix.upper() and
+            prefix.lower(), otherwise route call to NodeTrie.items().
+            Default: False
+
+        Returns
+        -------
+        List[Tuple[str, Tuple[str, str]]]
+            Return a list of key, value tuples, where the values are
+            themselves (namespace, id) tuples
+        """
+        if case_sensitive:
+            return self.items(prefix)
+        else:
+            # Do both upper and lower
+            lower_prefix = prefix.lower()
+            upper_prefix = prefix.upper()
+            lower_keys = self.items(lower_prefix)
+            keys = self.items(prefix)
+            upper_keys = self.items(upper_prefix)
+            merged = lower_keys + keys + upper_keys
+            return sorted(merged)
