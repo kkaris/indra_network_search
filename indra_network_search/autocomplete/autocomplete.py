@@ -41,7 +41,7 @@ class NodesTrie(SortedStringTrie):
                 "Graph nodes are not str, cannot create NodesTrie instance"
             )
 
-    def case_keys(self, prefix: Optional[str] = None, case_sensitive: bool = True):
+    def case_keys(self, prefix: Optional[str] = None, case_sensitive: bool = False):
         """Case insensitive wrapper around NodeTrie.keys()
 
         Parameters
@@ -50,7 +50,8 @@ class NodesTrie(SortedStringTrie):
             The prefix to search
         case_sensitive :
             If False, search for both prefix, prefix.upper() and
-            prefix.lower(). Default: True, i.e. NodesTrie.keys() is called.
+            prefix.lower(), otherwise route method call to NodesTrie.keys()
+            Default: False.
 
         Returns
         -------
