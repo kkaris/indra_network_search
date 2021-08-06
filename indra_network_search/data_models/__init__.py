@@ -31,16 +31,39 @@ from pydantic import BaseModel, validator, Extra, constr, conint
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 
-from .util import get_query_hash, is_weighted, is_context_weighted, StrNode
+from indra_network_search.util import (
+    get_query_hash,
+    is_weighted,
+    is_context_weighted,
+    StrNode,
+)
 
-__all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
-           'ShortestSimplePathOptions', 'BreadthFirstSearchOptions',
-           'DijkstraOptions', 'SharedInteractorsOptions', 'OntologyOptions',
-           'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
-           'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
-           'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
-           'DEFAULT_TIMEOUT', 'basemodels_equal', 'basemodel_in_iterable',
-           'StmtTypeSupport']
+__all__ = [
+    "NetworkSearchQuery",
+    "SubgraphRestQuery",
+    "ApiOptions",
+    "ShortestSimplePathOptions",
+    "BreadthFirstSearchOptions",
+    "DijkstraOptions",
+    "SharedInteractorsOptions",
+    "OntologyOptions",
+    "Node",
+    "StmtData",
+    "EdgeData",
+    "EdgeDataByHash",
+    "Path",
+    "PathResultData",
+    "OntologyResults",
+    "SharedInteractorsResults",
+    "Results",
+    "FilterOptions",
+    "SubgraphOptions",
+    "SubgraphResults",
+    "DEFAULT_TIMEOUT",
+    "basemodels_equal",
+    "basemodel_in_iterable",
+    "StmtTypeSupport",
+]
 
 
 logger = logging.getLogger(__name__)
@@ -53,16 +76,18 @@ DEFAULT_TIMEOUT = 30
 # Models for API options and filtering options
 class ApiOptions(BaseModel):
     """Options that determine API behaviour"""
+
     sign: Optional[int] = None
     fplx_expand: Optional[bool] = False
     user_timout: Optional[Union[float, bool]] = False
     two_way: Optional[bool] = False
     shared_regulators: Optional[bool] = False
-    format: Optional[str] = 'json'
+    format: Optional[str] = "json"
 
 
 class FilterOptions(BaseModel):
     """Options for filtering out nodes or edges"""
+
     exclude_stmts: List[constr(to_lower=True)] = []
     hash_blacklist: List[int] = []
     allowed_ns: List[constr(to_lower=True)] = []
@@ -78,18 +103,24 @@ class FilterOptions(BaseModel):
 
     def no_filters(self) -> bool:
         """Return True if all filter options are set to defaults"""
-        return len(self.exclude_stmts) == 0 and \
-            len(self.hash_blacklist) == 0 and \
-            len(self.allowed_ns) == 0 and \
-            len(self.node_blacklist) == 0 and \
-            self.path_length is None and \
-            self.belief_cutoff == 0.0 and \
-            self.curated_db_only is False
+        return (
+            len(self.exclude_stmts) == 0
+            and len(self.hash_blacklist) == 0
+            and len(self.allowed_ns) == 0
+            and len(self.node_blacklist) == 0
+            and self.path_length is None
+            and self.belief_cutoff == 0.0
+            and self.curated_db_only is False
+        )
 
     def no_stmt_filters(self):
         """Return True if the stmt filter options allow all statements"""
-        return self.belief_cutoff == 0.0 and len(self.exclude_stmts) == 0 and \
-            len(self.hash_blacklist) == 0 and self.curated_db_only is False
+        return (
+            self.belief_cutoff == 0.0
+            and len(self.exclude_stmts) == 0
+            and len(self.hash_blacklist) == 0
+            and self.curated_db_only is False
+        )
 
     def no_node_filters(self):
         """Return True if the node filter options allow all nodes"""
@@ -98,7 +129,6 @@ class FilterOptions(BaseModel):
 
 class NetworkSearchQuery(BaseModel):
     """The query model for network searches"""
-
     source: constr(strip_whitespace=True) = ""
     target: constr(strip_whitespace=True) = ""
     stmt_filter: List[constr(to_lower=True, strip_whitespace=True)] = []
@@ -123,27 +153,27 @@ class NetworkSearchQuery(BaseModel):
     two_way: bool = False
     shared_regulators: bool = False
     terminal_ns: List[str] = []
-    format: str = 'json'  # This attribute is probably obsolete now
+    format: str = "json"  # This attribute is probably obsolete now
 
-    @validator('path_length')
+    @validator("path_length")
     def is_positive_int(cls, pl: int):
         """Validate path_length >= 1 if given"""
         if isinstance(pl, int) and pl < 1:
-            raise ValueError('path_length must be integer > 0')
+            raise ValueError("path_length must be integer > 0")
         return pl
 
-    @validator('max_per_node')
+    @validator("max_per_node")
     def is_pos_int(cls, mpn: Union[int, bool]):
         """Validate max_per_node >= 1 if given"""
         if isinstance(mpn, int) and mpn < 1:
-            raise ValueError('max_per_node must be integer > 0')
+            raise ValueError("max_per_node must be integer > 0")
         return mpn
 
-    @validator('cull_best_node')
+    @validator("cull_best_node")
     def is_int_gt2(cls, cbn: Optional[int]):
         """Validate cull_best_node >= 2"""
         if isinstance(cbn, int) and cbn < 2:
-            raise ValueError('cull_best_node must be integer > 1 if provided')
+            raise ValueError("cull_best_node must be integer > 1 if provided")
         return cbn
 
     class Config:
@@ -152,22 +182,25 @@ class NetworkSearchQuery(BaseModel):
 
     def is_overall_weighted(self) -> bool:
         """Return True if this query is weighted"""
-        return is_weighted(weighted=self.weighted, mesh_ids=self.mesh_ids,
-                           strict_mesh_filtering=self.strict_mesh_id_filtering)
+        return is_weighted(
+            weighted=self.weighted,
+            mesh_ids=self.mesh_ids,
+            strict_mesh_filtering=self.strict_mesh_id_filtering,
+        )
 
     def is_context_weighted(self):
         """Return True if this query is context weighted"""
         return is_context_weighted(
-            mesh_id_list=self.mesh_ids,
-            strict_filtering=self.strict_mesh_id_filtering)
+            mesh_id_list=self.mesh_ids, strict_filtering=self.strict_mesh_id_filtering
+        )
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
-        return get_query_hash(self.dict(), ignore_keys=['format'])
+        return get_query_hash(self.dict(), ignore_keys=["format"])
 
     def reverse_search(self):
         """Return a copy of the query with source and target switched"""
-        model_copy = self.copy(deep=True).dict(exclude={'source', 'target'})
+        model_copy = self.copy(deep=True).dict(exclude={"source", "target"})
         source = self.target
         target = self.source
         return self.__class__(source=source, target=target, **model_copy)
@@ -188,26 +221,27 @@ class NetworkSearchQuery(BaseModel):
 
     def get_filter_options(self) -> FilterOptions:
         """Returns the filter options"""
-        return FilterOptions(exclude_stmts=self.stmt_filter,
-                             hash_blacklist=self.edge_hash_blacklist,
-                             allowed_ns=self.allowed_ns,
-                             node_blacklist=self.node_blacklist,
-                             path_length=self.path_length,
-                             belief_cutoff=self.belief_cutoff,
-                             curated_db_only=self.curated_db_only,
-                             max_paths=self.k_shortest,
-                             cull_best_node=self.cull_best_node,
-                             overall_weighted=is_weighted(
-                                 weighted=self.weighted,
-                                 mesh_ids=self.mesh_ids,
-                                 strict_mesh_filtering=
-                                 self.strict_mesh_id_filtering
-                             ),
-                             weighted=self.weighted,
-                             context_weighted=is_context_weighted(
-                                 mesh_id_list=self.mesh_ids,
-                                 strict_filtering=self.strict_mesh_id_filtering
-                             ))
+        return FilterOptions(
+            exclude_stmts=self.stmt_filter,
+            hash_blacklist=self.edge_hash_blacklist,
+            allowed_ns=self.allowed_ns,
+            node_blacklist=self.node_blacklist,
+            path_length=self.path_length,
+            belief_cutoff=self.belief_cutoff,
+            curated_db_only=self.curated_db_only,
+            max_paths=self.k_shortest,
+            cull_best_node=self.cull_best_node,
+            overall_weighted=is_weighted(
+                weighted=self.weighted,
+                mesh_ids=self.mesh_ids,
+                strict_mesh_filtering=self.strict_mesh_id_filtering,
+            ),
+            weighted=self.weighted,
+            context_weighted=is_context_weighted(
+                mesh_id_list=self.mesh_ids,
+                strict_filtering=self.strict_mesh_id_filtering,
+            ),
+        )
 
 
 # Models for the run options
@@ -225,6 +259,7 @@ class NetworkSearchQuery(BaseModel):
 #     Good for e.g. max_paths
 class ShortestSimplePathOptions(BaseModel):
     """Arguments for indra.explanation.pathfinding.shortest_simple_paths"""
+
     source: Union[str, Tuple[str, int]]
     target: Union[str, Tuple[str, int]]
     weight: Optional[str] = None
@@ -239,6 +274,7 @@ class ShortestSimplePathOptions(BaseModel):
 
 class BreadthFirstSearchOptions(BaseModel):
     """Arguments for indra.explanation.pathfinding.bfs_search"""
+
     source_node: Union[str, Tuple[str, int]]
     reverse: Optional[bool] = False
     depth_limit: Optional[int] = 2
@@ -248,7 +284,7 @@ class BreadthFirstSearchOptions(BaseModel):
     node_blacklist: Optional[Set[str]] = None
     terminal_ns: Optional[List[str]] = None
     sign: Optional[int] = None
-    max_memory: Optional[int] = int(2**29)
+    max_memory: Optional[int] = int(2 ** 29)
     hashes: Optional[List[int]] = None
     allow_edge: Optional[Callable[[DiGraph, StrNode, StrNode], bool]] = None
     edge_filter: Optional[EdgeFilter] = None
@@ -257,6 +293,7 @@ class BreadthFirstSearchOptions(BaseModel):
 
 class DijkstraOptions(BaseModel):
     """Arguments for open_dijkstra_search"""
+
     start: Union[str, Tuple[str, int]]
     reverse: Optional[bool] = False
     path_limit: Optional[int] = None
@@ -273,6 +310,7 @@ class DijkstraOptions(BaseModel):
 
 class SharedInteractorsOptions(BaseModel):
     """Arguments for indra_network_search.pathfinding.shared_interactors"""
+
     source: StrNode
     target: StrNode
     allowed_ns: Optional[List[str]] = None
@@ -285,6 +323,7 @@ class SharedInteractorsOptions(BaseModel):
 
 class OntologyOptions(BaseModel):
     """Arguments for indra_network_search.pathfinding.shared_parents"""
+
     source_ns: str
     source_id: str
     target_ns: str
@@ -297,6 +336,7 @@ class OntologyOptions(BaseModel):
 # Models and sub-models for the Results
 class Node(BaseModel):
     """Data for a node"""
+
     name: Optional[constr(min_length=1)]
     namespace: constr(min_length=1)
     identifier: constr(min_length=1)
@@ -305,8 +345,7 @@ class Node(BaseModel):
 
     def get_unsigned_node(self):
         """Get unsigned version of this node instance"""
-        return self.__class__(**self.dict(exclude={'sign'},
-                                          exclude_defaults=True))
+        return self.__class__(**self.dict(exclude={"sign"}, exclude_defaults=True))
 
     def signed_node_tuple(self) -> Tuple[str, int]:
         """Get a signed node tuple of node name and node sign
@@ -322,13 +361,15 @@ class Node(BaseModel):
             If sign is not defined, a TypeError
         """
         if self.sign is None:
-            raise TypeError('Node is unsigned, unable to produce a signed '
-                            'node tuple')
+            raise TypeError(
+                "Node is unsigned, unable to produce a signed " "node tuple"
+            )
         return self.name, self.sign
 
 
 class StmtData(BaseModel):
     """Data for one statement supporting an edge"""
+
     stmt_type: str
     evidence_count: int
     stmt_hash: int
@@ -337,14 +378,15 @@ class StmtData(BaseModel):
     curated: bool
     english: str
     weight: Optional[float] = None
-    residue: Optional[str] = ''
-    position: Optional[str] = ''
+    residue: Optional[str] = ""
+    position: Optional[str] = ""
     initial_sign: Optional[int] = None
     db_url_hash: str  # Linkout to hash-level
 
 
 class StmtTypeSupport(BaseModel):
     """Data per statement type"""
+
     stmt_type: str
     source_counts: Dict[str, int] = {}
     statements: List[StmtData]
@@ -352,19 +394,19 @@ class StmtTypeSupport(BaseModel):
     def set_source_counts(self):
         """Updates the source count field from the set statement data"""
         self.source_counts = sum(
-            [Counter(**sd.source_counts) for sd in self.statements],
-            Counter()
+            [Counter(**sd.source_counts) for sd in self.statements], Counter()
         )
 
 
 class EdgeData(BaseModel):
     """Data for one single edge"""
+
     edge: List[Node]  # Edge supported by statements
     statements: Dict[str, StmtTypeSupport]  # key by stmt_type
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
     sign: Optional[int]  # Used for signed paths
-    context_weight: Union[str, float] = 'N/A'  # Set for context
+    context_weight: Union[str, float] = "N/A"  # Set for context
     db_url_edge: str  # Linkout to subj-obj level
     source_counts: Dict[str, int] = {}
 
@@ -373,16 +415,16 @@ class EdgeData(BaseModel):
         return len(self.statements) == 0
 
     def set_source_counts(self):
-        """Updates the source count from the contained data in self.statements
-        """
+        """Updates the source count from the contained data in self.statements"""
         self.source_counts = sum(
             [Counter(**sts.source_counts) for sts in self.statements.values()],
-            Counter()
+            Counter(),
         )
 
 
 class EdgeDataByHash(BaseModel):
     """Data for one single edge, with data keyed by hash"""
+
     edge: List[Node]
     stmts: Dict[int, StmtData]  # Hash remain as int for JSON
     belief: float
@@ -395,6 +437,7 @@ class EdgeDataByHash(BaseModel):
 
 class Path(BaseModel):
     """Results for a single path"""
+
     # The entries are assumed to be co-ordered
     # path = [a, b, c]
     # edge_data = [EdgeData(a, b), EdgeData(b, c)]
@@ -408,6 +451,7 @@ class Path(BaseModel):
 
 class PathResultData(BaseModel):
     """Results for any of the path algorithms"""
+
     # Results for bfs_search, shortest_simple_paths and open_dijkstra_search
     # It is assumed that at least one of source or target will be set
     source: Optional[Node] = None
@@ -421,6 +465,7 @@ class PathResultData(BaseModel):
 
 class OntologyResults(BaseModel):
     """Results for shared_parents"""
+
     source: Node
     target: Node
     parents: List[Node]
@@ -432,6 +477,7 @@ class OntologyResults(BaseModel):
 
 class SharedInteractorsResults(BaseModel):
     """Results for shared targets and shared regulators"""
+
     # s->x; t->x
     source_data: List[EdgeData]
     target_data: List[EdgeData]
@@ -444,6 +490,7 @@ class SharedInteractorsResults(BaseModel):
 
 class SubgraphResults(BaseModel):
     """Results for get_subgraph_edges"""
+
     input_nodes: List[Node]
     not_in_graph: List[Node]
     available_nodes: List[Node]
@@ -452,6 +499,7 @@ class SubgraphResults(BaseModel):
 
 class Results(BaseModel):
     """The model wrapping all results from the NetworkSearchQuery"""
+
     query_hash: str
     time_limit: float
     timed_out: bool
@@ -465,29 +513,34 @@ class Results(BaseModel):
 
 class SubgraphRestQuery(BaseModel):
     """Subgraph query"""
+
     nodes: List[Node]
 
-    @validator('nodes')
+    @validator("nodes")
     def node_check(cls, node_list: List[Node]):
         """Validate there is at least one node in the list"""
         if len(node_list) < 1:
-            raise ValueError('Must have at least one node in attribute '
-                             '"nodes"')
+            raise ValueError("Must have at least one node in attribute " '"nodes"')
         max_nodes = 4000
         if len(node_list) > max_nodes:
-            raise ValueError(f'Maximum allowed nodes is {max_nodes}, '
-                             f'{len(node_list)} was provided.')
+            raise ValueError(
+                f"Maximum allowed nodes is {max_nodes}, "
+                f"{len(node_list)} was provided."
+            )
         return node_list
 
 
 class SubgraphOptions(BaseModel):
     """Argument for indra_network_search.pathfinding.get_subgraph_edges"""
+
     nodes: List[Node]
 
 
 def basemodels_equal(
-        basemodel: BaseModel, other_basemodel: BaseModel, any_item: bool,
-        exclude: Optional[Set[str]] = None
+    basemodel: BaseModel,
+    other_basemodel: BaseModel,
+    any_item: bool,
+    exclude: Optional[Set[str]] = None,
 ) -> bool:
     """Wrapper to test two basemodels for equality, can exclude irrelevant keys
 
@@ -511,13 +564,14 @@ def basemodels_equal(
     b1d = basemodel.dict(exclude=exclude)
     b2d = other_basemodel.dict(exclude=exclude)
     qual_func = any if any_item else all
-    return qual_func(_equals(b1d[k1], b2d[k2], any_item)
-                     for k1, k2 in zip(b1d, b2d))
+    return qual_func(_equals(b1d[k1], b2d[k2], any_item) for k1, k2 in zip(b1d, b2d))
 
 
-def _equals(d1: Union[str, int, float, List, Set, Tuple, Dict],
-            d2: Union[str, int, float, List, Set, Tuple, Dict],
-            any_item: bool) -> bool:
+def _equals(
+    d1: Union[str, int, float, List, Set, Tuple, Dict],
+    d2: Union[str, int, float, List, Set, Tuple, Dict],
+    any_item: bool,
+) -> bool:
     qual_func = any if any_item else all
     if d1 is None:
         return d2 is None
@@ -528,15 +582,17 @@ def _equals(d1: Union[str, int, float, List, Set, Tuple, Dict],
     elif isinstance(d1, set):
         return d1 == d2
     elif isinstance(d1, dict):
-        return qual_func(_equals(d1[k1], d2[k2], False)
-                         for k1, k2 in zip(d1, d2))
+        return qual_func(_equals(d1[k1], d2[k2], False) for k1, k2 in zip(d1, d2))
     else:
-        raise TypeError(f'Unable to do comparison of type {type(d1)}')
+        raise TypeError(f"Unable to do comparison of type {type(d1)}")
 
 
-def basemodel_in_iterable(basemodel: BaseModel, iterable: Iterable,
-                          any_item: bool,
-                          exclude: Optional[Set[str]] = None) -> bool:
+def basemodel_in_iterable(
+    basemodel: BaseModel,
+    iterable: Iterable,
+    any_item: bool,
+    exclude: Optional[Set[str]] = None,
+) -> bool:
     """Test if a basemodel object is part of a collection
 
     Parameters
@@ -556,7 +612,14 @@ def basemodel_in_iterable(basemodel: BaseModel, iterable: Iterable,
     :
         True if basemodel is found in the collection
     """
-    return any([basemodels_equal(basemodel=basemodel,
-                                 other_basemodel=ob,
-                                 any_item=any_item,
-                                 exclude=exclude) for ob in iterable])
+    return any(
+        [
+            basemodels_equal(
+                basemodel=basemodel,
+                other_basemodel=ob,
+                any_item=any_item,
+                exclude=exclude,
+            )
+            for ob in iterable
+        ]
+    )
