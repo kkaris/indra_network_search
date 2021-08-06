@@ -13,6 +13,7 @@ from indra.databases import get_identifiers_url
 from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults
+from .autocomplete import NodesTrie
 from .search_api import IndraNetworkSearchAPI
 from depmap_analysis.network_functions.net_functions import bio_ontology
 
@@ -106,17 +107,23 @@ if DEBUG:
     from .tests.util import _setup_graph, _setup_signed_node_graph
     dir_graph = _setup_graph()
     sign_node_graph = _setup_signed_node_graph(False)
-    network_search_api = IndraNetworkSearchAPI(
-        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
-    )
 else:
     dir_graph, _, sign_node_graph, _ = \
         load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
                          sign_node_graph=True, sign_edge_graph=False,
                          use_cache=USE_CACHE)
 
-    network_search_api = IndraNetworkSearchAPI(
-        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
-    )
     bio_ontology.initialize()
+
+# Get a Trie for autocomplete
+logger.info('Loading NodesTrie with unsigned graph nodes')
+nodes_trie = NodesTrie.from_graph_nodes(graph=dir_graph)
+
+# Setup search API
+logger.info('Setting up IndraNetworkSearchAPI with signed and unsigned '
+            'graphs')
+network_search_api = IndraNetworkSearchAPI(
+    unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
+)
+logger.info('Service is available')
 HEALTH.status = 'available'
