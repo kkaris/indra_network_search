@@ -3,7 +3,7 @@ The IndraNetworkSearch REST API
 """
 import logging
 from os import environ
-from typing import List
+from typing import List, Tuple
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
@@ -32,6 +32,9 @@ class Health(BaseModel):
 USE_CACHE = bool(environ.get('USE_CACHE', False))
 HEALTH = Health(status='booting')
 
+# Derived types
+Prefixes = List[Tuple[str, Tuple[str, str]]]
+
 
 @app.get('/')
 async def root_redirect():
@@ -51,6 +54,14 @@ def get_xrefs(ns: str, id: str):
     xrefs_w_lookup = [[n, i, get_identifiers_url(n, i)]
                       for n, i in xrefs]
     return xrefs_w_lookup
+
+
+@app.get('/nodes_in_graph', response_model=Prefixes)
+def get_nodes(prefix: str):
+    """Get the case-insensitive node names with (ns, id) starting in prefix"""
+    logger.info('Got prefix check')
+    nodes = nodes_trie.case_items(prefix=prefix, case_sensitive=False)
+    return nodes
 
 
 @app.get('/health', response_model=Health)
