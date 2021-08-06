@@ -7,9 +7,9 @@ from typing import List, Tuple
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
 
 from indra.databases import get_identifiers_url
+from .data_models.rest_models import Health
 from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults
@@ -21,12 +21,6 @@ from depmap_analysis.network_functions.net_functions import bio_ontology
 app = FastAPI()
 
 logger = logging.getLogger(__name__)
-
-
-class Health(BaseModel):
-    """Health status"""
-    status: str
-
 
 DEBUG = environ.get('API_DEBUG') == "1"
 USE_CACHE = environ.get('USE_CACHE') == "1"
