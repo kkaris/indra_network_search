@@ -28,12 +28,12 @@ class NodesTrie(SortedStringTrie):
         -------
         :
             An instance of a NodesTrie containing the node names of the
-            graph as keys and the corresponding (ns, id) tuple as values
+            graph as keys and the corresponding (name, ns, id) tuple as values
         """
         node = list(itertools.islice(graph.nodes, 1))[0]
         if isinstance(node, str):
             return cls(
-                **{n: (graph.nodes[n]["ns"], graph.nodes[n]["id"])
+                **{n.lower(): (n, graph.nodes[n]["ns"], graph.nodes[n]["id"])
                    for n in graph.nodes}
             )
         else:
