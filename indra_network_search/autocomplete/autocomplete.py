@@ -41,46 +41,28 @@ class NodesTrie(SortedStringTrie):
                 "Graph nodes are not str, cannot create NodesTrie instance"
             )
 
-    def case_keys(self, prefix: Optional[str] = None, case_sensitive: bool = False):
+    def case_keys(self, prefix: Optional[str] = None):
         """Case insensitive wrapper around NodeTrie.keys()
 
         Parameters
         ----------
         prefix :
             The prefix to search
-        case_sensitive :
-            If False, search for both prefix, prefix.upper() and
-            prefix.lower(), otherwise route method call to NodesTrie.keys()
-            Default: False.
 
         Returns
         -------
         List[str]
             Return a list of this trie's keys
         """
-        if case_sensitive:
-            return self.keys(prefix)
-        else:
-            # Do both upper and lower
-            lower_prefix = prefix.lower()
-            upper_prefix = prefix.upper()
-            lower_keys = self.keys(lower_prefix)
-            keys = self.keys(prefix)
-            upper_keys = self.keys(upper_prefix)
-            merged = lower_keys + keys + upper_keys
-            return sorted(merged)
+        return [w for _, (w, _, _) in self.items(prefix.lower())]
 
-    def case_items(self, prefix: Optional[str] = None, case_sensitive: bool = False):
+    def case_items(self, prefix: Optional[str] = None):
         """Case insensitive wrapper around NodeTrie.items()
 
         Parameters
         ----------
         prefix :
             The prefix to search
-        case_sensitive :
-            If False, search for both prefix, prefix.upper() and
-            prefix.lower(), otherwise route call to NodeTrie.items().
-            Default: False
 
         Returns
         -------
@@ -88,14 +70,4 @@ class NodesTrie(SortedStringTrie):
             Return a list of key, value tuples, where the values are
             themselves (namespace, id) tuples
         """
-        if case_sensitive:
-            return self.items(prefix)
-        else:
-            # Do both upper and lower
-            lower_prefix = prefix.lower()
-            upper_prefix = prefix.upper()
-            lower_keys = self.items(lower_prefix)
-            keys = self.items(prefix)
-            upper_keys = self.items(upper_prefix)
-            merged = lower_keys + keys + upper_keys
-            return sorted(merged)
+        return [t for _, t in self.items(prefix.lower())]
