@@ -22,5 +22,8 @@ export default {
   },
   getXrefs(ns, id) {
     return apiGetClient.get(`/xrefs?ns=${ns}&id=${id}`);
+  },
+  auto(prefix) {
+    return apiGetClient.get(`/nodes_in_graph?prefix=${prefix}`)
   }
 };
