@@ -43,7 +43,7 @@ export default {
       default: ''
     },
     modelValue: {
-      type: [String, Number],
+      type: String,
       default: ''
     },
     placeholder: {
