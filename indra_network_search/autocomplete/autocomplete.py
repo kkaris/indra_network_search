@@ -15,7 +15,7 @@ __all__ = ["NodesTrie"]
 
 class NodesTrie(SortedStringTrie):
     @classmethod
-    def from_graph_node_names(cls, graph: DirGraph) -> "NodesTrie":
+    def from_node_names(cls, graph: DirGraph) -> "NodesTrie":
         """Produce a NodesTrie instance from a graph with str node names
 
         Parameters
