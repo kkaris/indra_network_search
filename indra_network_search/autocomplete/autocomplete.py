@@ -50,6 +50,20 @@ class NodesTrie(SortedStringTrie):
 
         return cls(**name_indexing)
 
+    @classmethod
+    def from_node_ns_id(cls, graph: DirGraph) -> "NodesTrie":
+        _is_str_nodes(graph)
+        return cls(
+            **{
+                f'{graph.nodes[n]["ns"]}:{graph.nodes[n]["ns"]}': (
+                    n,
+                    graph.nodes[n]["ns"],
+                    graph.nodes[n]["id"],
+                )
+                for n in graph.nodes
+            }
+        )
+
     def case_keys(self, prefix: Optional[str] = None):
         """Case insensitive wrapper around NodeTrie.keys()
 
