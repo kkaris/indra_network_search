@@ -14,10 +14,11 @@
     <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
     <datalist :id="dataListID">
       <option
-          v-for="(searchName, index) in autoSearchNames"
+          v-for="(searchArr, index) in autoSearchResult"
           :key="index"
-          :value="searchName"
-      />
+          :value="searchArr[0]"
+      >{{ `${searchArr[1]}:${searchArr[2]}`}}
+      </option>
     </datalist>
     <template v-if="errors.length > 0">
       <p
