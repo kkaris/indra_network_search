@@ -69,18 +69,32 @@ export default {
     }
   },
   methods: {
-    // todo: make even faster by providing an internal autocomplete of data already existing
     getExternalAutoCompleteList() {
-      // Call rest-api autocomplete
-      AxiosMethods.auto(this.modelValue)
-      .then(response => {
-        console.log(response)
-      })
-      // this.autoSearchResult =
-    },
-    getInternalAutoCompleteList() {
-      // Autocomplete from already saved list
-      return []
+      // Call rest-api autocomplete //
+      console.log('getExternalAutoCompleteList was called')
+
+      // Check if search is allowed
+      if (this.canSearch) {
+        // Flag that we're waiting results to true and reset results to empty
+        this.awaitingResults = true
+        this.autoSearchResult = []
+        let prefix = this.modelValue
+        console.log('getExternalAutoCompleteList executed')
+        AxiosMethods.auto(prefix)
+            .then(response => {
+              this.lastPrefixSearch = prefix
+              console.log(`Got response for prefix search ${prefix}`)
+              this.autoSearchResult = response.data
+            })
+            .catch(error => {
+              console.log('getExternalAutoCompleteList errored')
+              console.log(error)
+            })
+            .then(() => {
+              console.log('getExternalAutoCompleteList setting awaitingResults to false')
+              this.awaitingResults = false
+            })
+      }
     }
   },
   setup() {
