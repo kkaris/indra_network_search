@@ -119,7 +119,7 @@ export default {
     },
     isPrefixOfPrefix() {
       // Check if current modelValue is a continuation of the most recent search
-      return this.modelValue.contains(this.lastPrefixSearch)
+      return this.modelValue.toLowerCase().startsWith(this.lastPrefixSearch.toLowerCase())
     }
   }
 }
