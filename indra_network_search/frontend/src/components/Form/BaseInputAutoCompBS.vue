@@ -10,6 +10,7 @@
       @input="$emit('update:modelValue', $event.target.value)"
       type="search"
       class="form-control"
+      :class="{ 'is-valid': isValidNode }"
     >
     <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
     <datalist :id="dataListID">
@@ -115,6 +116,10 @@ export default {
     },
     autoSearchNames() {
       return this.autoSearchResult.map(t => t[0])
+    },
+    isValidNode() {
+      // Check if modelValue is among the names in autoSearchNames
+      return this.autoSearchNames.includes(this.modelValue)
     }
   }
 }
