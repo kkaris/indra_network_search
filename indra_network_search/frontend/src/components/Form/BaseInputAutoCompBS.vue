@@ -121,9 +121,16 @@ export default {
       return this.autoSearchResult.map(t => t[0]).includes(this.modelValue)
     },
     isPrefixOfPrefix() {
-      // Check if current modelValue is a continuation of the most recent search
-      return this.modelValue.toLowerCase().startsWith(this.lastPrefixSearch.toLowerCase())
-    }
+      // true if modelValue is a continuation of the most recent search
+      if (this.modelValue.length > 0 && this.lastPrefixSearch.length > 0) {
+        return this.modelValue.toLowerCase().startsWith(this.lastPrefixSearch.toLowerCase())
+      }
+      return false
+    },
+    canSearch() {
+      // True if all conditions that allow for search are true
+      return this.modelValue.length > 0 && !this.isPrefixOfPrefix && !this.awaitingResults
+    },
   }
 }
 </script>
