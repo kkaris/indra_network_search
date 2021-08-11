@@ -116,6 +116,10 @@ export default {
     isValidNode() {
       // Check if modelValue is among the names in autoSearchNames
       return this.autoSearchResult.map(t => t[0]).includes(this.modelValue)
+    },
+    isPrefixOfPrefix() {
+      // Check if current modelValue is a continuation of the most recent search
+      return this.modelValue.contains(this.lastPrefixSearch)
     }
   }
 }
