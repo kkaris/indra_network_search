@@ -113,12 +113,9 @@ export default {
     compTitle() {
       return this.title || this.ph
     },
-    autoSearchNames() {
-      return this.autoSearchResult.map(t => t[0])
-    },
     isValidNode() {
       // Check if modelValue is among the names in autoSearchNames
-      return this.autoSearchNames.includes(this.modelValue)
+      return this.autoSearchResult.map(t => t[0]).includes(this.modelValue)
     }
   }
 }
