@@ -7,7 +7,7 @@
       :placeholder="ph"
       :title="compTitle"
       :list="dataListID"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="$emit('update:modelValue', $event.target.value), getExternalAutoCompleteList()"
       type="search"
       class="form-control"
       :class="{ 'is-valid': isValidNode }"
