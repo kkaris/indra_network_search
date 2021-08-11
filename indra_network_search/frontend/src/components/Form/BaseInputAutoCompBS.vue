@@ -64,7 +64,6 @@ export default {
   data() {
     return {
       lastPrefix: '',
-      searchName: '',
       autoSearchResult: [
         ['MAPK1', 'HGNC', '6871'],
         ['Mapk1', 'UP', 'P63085'],
