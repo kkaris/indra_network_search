@@ -55,7 +55,7 @@ class NodesTrie(SortedStringTrie):
         _is_str_nodes(graph)
         return cls(
             **{
-                f'{graph.nodes[n]["ns"]}:{graph.nodes[n]["id"]}': (
+                f'{graph.nodes[n]["ns"]}:{graph.nodes[n]["id"]}'.lower(): (
                     n,
                     graph.nodes[n]["ns"],
                     graph.nodes[n]["id"],
