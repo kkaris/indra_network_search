@@ -169,7 +169,12 @@ class NetworkSearchQuery(BaseModel):
 
     def get_int_sign(self) -> Optional[int]:
         """Return the integer representation of the sign"""
-        return SIGNS_TO_INT_SIGN.get(self.sign)
+        try:
+            sign = int(self.sign)
+            assert sign in (0, 1)
+        except (ValueError, AssertionError):
+            sign = SIGNS_TO_INT_SIGN.get(self.sign)
+        return sign
 
     def get_filter_options(self) -> FilterOptions:
         """Returns the filter options"""
