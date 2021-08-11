@@ -63,20 +63,9 @@ export default {
   },
   data() {
     return {
-      lastPrefix: '',
-      autoSearchResult: [
-        ['MAPK1', 'HGNC', '6871'],
-        ['Mapk1', 'UP', 'P63085'],
-        ['Mapk10', 'UP', 'P49187'],
-        ['Mapk11', 'UP', 'Q9WUI1'],
-        ['Mapk12', 'UP', 'Q63538'],
-        ['Mapk13', 'UP', 'Q9Z1B7'],
-        ['Mapk14', 'UP', 'P47811'],
-        ['mapk14a', 'UP', 'Q9DGE2'],
-        ['MAPK15', 'HGNC', '24667'],
-        ['Mapk1ip1', 'UP', 'Q9D7G9'],
-        ['MAPK1IP1L', 'HGNC', '19840'],
-      ],
+      lastPrefixSearch: '',
+      autoSearchResult: [],
+      awaitingResults: false,
     }
   },
   methods: {
