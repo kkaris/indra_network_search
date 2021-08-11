@@ -89,9 +89,8 @@ class NodesTrie(SortedStringTrie):
 
         Returns
         -------
-        List[Tuple[str, Tuple[str, str]]]
-            Return a list of key, value tuples, where the values are
-            themselves (namespace, id) tuples
+        List[Tuple[str, str, str]]]
+            Return a list of (name, namespace, id) tuples
         """
         return [t for _, t in self.items(prefix.lower())]
 
