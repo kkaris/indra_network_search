@@ -15,7 +15,7 @@ __all__ = ["NodesTrie"]
 
 class NodesTrie(SortedStringTrie):
     @classmethod
-    def from_graph_nodes(cls, graph: DirGraph) -> "NodesTrie":
+    def from_graph_node_names(cls, graph: DirGraph) -> "NodesTrie":
         """Produce a NodesTrie instance from a graph with str node names
 
         Parameters
@@ -30,16 +30,25 @@ class NodesTrie(SortedStringTrie):
             An instance of a NodesTrie containing the node names of the
             graph as keys and the corresponding (name, ns, id) tuple as values
         """
-        node = list(itertools.islice(graph.nodes, 1))[0]
-        if isinstance(node, str):
-            return cls(
-                **{n.lower(): (n, graph.nodes[n]["ns"], graph.nodes[n]["id"])
-                   for n in graph.nodes}
+        _is_str_nodes(graph)
+        name_indexing = {}
+        for node in graph.nodes:
+            # Get node name in lowercase
+            node_name = node.lower()
+            if node_name in name_indexing:
+                ix = 1
+                node_name = node_name + f"_{ix}"
+                # Increase index until no key is not present
+                while node_name in name_indexing:
+                    ix += 1
+                    node_name = node.lower() + f"_{ix}"
+            name_indexing[node_name] = (
+                node,
+                graph.nodes[node]["ns"],
+                graph.nodes[node]["id"],
             )
-        else:
-            raise ValueError(
-                "Graph nodes are not str, cannot create NodesTrie instance"
-            )
+
+        return cls(**name_indexing)
 
     def case_keys(self, prefix: Optional[str] = None):
         """Case insensitive wrapper around NodeTrie.keys()
@@ -71,3 +80,9 @@ class NodesTrie(SortedStringTrie):
             themselves (namespace, id) tuples
         """
         return [t for _, t in self.items(prefix.lower())]
+
+
+def _is_str_nodes(g: DirGraph):
+    node = list(itertools.islice(g.nodes, 1))[0]
+    if not isinstance(node, str):
+        raise ValueError("Graph nodes are not str, cannot create NodesTrie instance")

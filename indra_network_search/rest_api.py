@@ -147,7 +147,7 @@ else:
 
 # Get a Trie for autocomplete
 logger.info('Loading NodesTrie with unsigned graph nodes')
-nodes_trie = NodesTrie.from_graph_nodes(graph=dir_graph)
+nodes_trie = NodesTrie.from_graph_node_names(graph=dir_graph)
 
 # Setup search API
 logger.info('Setting up IndraNetworkSearchAPI with signed and unsigned '
