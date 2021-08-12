@@ -573,7 +573,8 @@ export default {
       return this.source.length > 0 && this.target.length > 0;
     },
     cannotSubmit() {
-      return this.source.length === 0 && this.target.length === 0;
+      // Source and target are both either of empty or filled only with whitespace
+      return (this.source.length === 0 && this.target.length === 0) || !/\S/.test(this.target) || !/\S/.test(this.source);
     },
     isContextWeighted() {
       return this.isContextSearch && !this.strict_mesh_id_filtering;
