@@ -21,6 +21,7 @@ todo:
    context weighted. See here for more info:
    https://stackoverflow.com/q/54023782/10478812
 """
+import logging
 from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
@@ -40,6 +41,9 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
            'DEFAULT_TIMEOUT', 'basemodels_equal', 'basemodel_in_iterable',
            'StmtTypeSupport']
+
+
+logger = logging.getLogger(__name__)
 
 
 # Set defaults
@@ -169,7 +173,17 @@ class NetworkSearchQuery(BaseModel):
 
     def get_int_sign(self) -> Optional[int]:
         """Return the integer representation of the sign"""
-        return SIGNS_TO_INT_SIGN.get(self.sign)
+        if self.sign is None or self.sign == '':
+            return None
+        try:
+            sign = int(self.sign)
+            assert sign in (0, 1)
+        except Exception as exc:
+            logger.info(f'Could not convert {self.sign} of type '
+                        f'{type(self.sign)} to int ({str(exc)}), trying '
+                        f'SIGNS mapping')
+            sign = SIGNS_TO_INT_SIGN.get(self.sign)
+        return sign
 
     def get_filter_options(self) -> FilterOptions:
         """Returns the filter options"""
