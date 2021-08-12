@@ -255,7 +255,7 @@ def _get_edge_data(edge: Tuple[StrNode, ...], graph: DiGraph, large: bool,
     stmt_dict: Dict[str, StmtTypeSupport] = {}
 
     for sd in ed['statements']:
-        url = DB_URL_HASH.format(stmt_hash=sd['stmt_hash'])
+        url = DB_URL_HASH.format(stmt_hash=sd['stmt_hash'], ev_limit=10)
         stmt_data = StmtData(db_url_hash=url, **sd)
         try:
             stmt_dict[stmt_data.stmt_type].statements.append(stmt_data)
@@ -272,7 +272,8 @@ def _get_edge_data(edge: Tuple[StrNode, ...], graph: DiGraph, large: bool,
     edge_url = DB_URL_EDGE.format(subj_id=node_edge[0].identifier,
                                   subj_ns=node_edge[0].namespace,
                                   obj_id=node_edge[1].identifier,
-                                  obj_ns=node_edge[1].namespace)
+                                  obj_ns=node_edge[1].namespace,
+                                  ev_limit=10)
 
     edge_data = EdgeData(edge=node_edge, statements=stmt_dict,
                          belief=ed['belief'], weight=ed['weight'],
