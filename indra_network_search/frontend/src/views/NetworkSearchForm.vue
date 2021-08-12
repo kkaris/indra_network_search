@@ -31,6 +31,7 @@
                 label="Source node"
                 type="text"
                 placeholder="e.g. 'MEK'"
+                :allowWhitespace="false"
                 :errors="v$.source.$errors"
                 @blur="v$.source.$touch()"
             />
@@ -41,6 +42,7 @@
                 label="Target node"
                 type="text"
                 placeholder="e.g. 'ACE2'"
+                :allowWhitespace="false"
                 :errors="v$.target.$errors"
                 @blur="v$.target.$touch()"
             />
@@ -88,6 +90,7 @@
                         v-model="hash_blacklist_text"
                         label="Hash Blacklist"
                         type="text"
+                        :allowWhitespace="false"
                     />
                   </div>
                   <div class="col">
@@ -95,6 +98,7 @@
                         v-model="node_blacklist_text"
                         label="Node Blacklist"
                         type="text"
+                        :allowWhitespace="false"
                     />
                   </div>
                 </div>
@@ -244,6 +248,7 @@
                       :disabled="weighted"
                       label="Mesh IDs (comma separated)"
                       type="text"
+                      :allowWhitespace="false"
                   />
                 </div>
                 <div class="col">
@@ -568,7 +573,8 @@ export default {
       return this.source.length > 0 && this.target.length > 0;
     },
     cannotSubmit() {
-      return this.source.length === 0 && this.target.length === 0;
+      // Source and target are both either of empty or filled only with whitespace
+      return (this.source.length === 0 && this.target.length === 0) || !/\S/.test(this.target) || !/\S/.test(this.source);
     },
     isContextWeighted() {
       return this.isContextSearch && !this.strict_mesh_id_filtering;
