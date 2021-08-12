@@ -98,11 +98,12 @@ class FilterOptions(BaseModel):
 
 class NetworkSearchQuery(BaseModel):
     """The query model for network searches"""
-    source: str = ''
-    target: str = ''
-    stmt_filter: List[constr(to_lower=True)] = []
+
+    source: constr(strip_whitespace=True) = ""
+    target: constr(strip_whitespace=True) = ""
+    stmt_filter: List[constr(to_lower=True, strip_whitespace=True)] = []
     edge_hash_blacklist: List[int] = []
-    allowed_ns: List[constr(to_lower=True)] = []
+    allowed_ns: List[constr(to_lower=True, strip_whitespace=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
     depth_limit: int = 2
