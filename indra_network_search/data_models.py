@@ -173,6 +173,8 @@ class NetworkSearchQuery(BaseModel):
 
     def get_int_sign(self) -> Optional[int]:
         """Return the integer representation of the sign"""
+        if self.sign is None or self.sign == '':
+            return None
         try:
             sign = int(self.sign)
             assert sign in (0, 1)
