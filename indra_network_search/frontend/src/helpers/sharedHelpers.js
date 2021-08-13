@@ -19,9 +19,19 @@ const isStr = function (str, emptyOK = false) {
   return isType && nonEmtpy;
 };
 
-const isPosNum = function (num) {
-  const isNum = typeof num === "number";
-  const geqZero = num >= 0;
+const isPosNum = function (num, canBeStr = false) {
+  let val
+  if (canBeStr) {
+    try {
+      val = Number(num)
+    } catch {
+      return false
+    }
+  } else {
+    val = num
+  }
+  const isNum = typeof val === "number";
+  const geqZero = val >= 0;
   return isNum && geqZero;
 };
 
@@ -110,14 +120,14 @@ const isEdgeData = function (obj) {
   // Dict[str, StmtTypeSupport]  # key by stmt_type
   const isStTpSp = isStmtTypeSupportDict(obj.statements);
   // float  # Aggregated belief
-  const blf = isPosNum(obj.belief);
+  const blf = isPosNum(obj.belief, true);
   // float  # Weight corresponding to aggregated weight
-  const wgt = isPosNum(obj.weight);
+  const wgt = isPosNum(obj.weight, true);
   // Optional[int]  # Used for signed paths
   // const XX = obj.sign;
   // Union[str, float] = 'N/A'  # Set for context
   const cw = obj.context_weight;
-  const ctxWgt = (isStr(cw) && cw === "N/A") || isPosNum(cw);
+  const ctxWgt = (isStr(cw) && cw === "N/A") || isPosNum(cw, true);
   // str  # Linkout to subj-obj level
   const url = isStr(obj.db_url_edge);
   // Dict[str, int] = {}
