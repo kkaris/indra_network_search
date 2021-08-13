@@ -14,8 +14,10 @@
           :href="`#${strUUID}`"
           :aria-expanded="false"
           :aria-controls="strUUID"
+          @click="toggleShowFlag()"
         >
-          <i title="Click to expand" class="bi-plus-circle"></i>
+          <i v-if="isExpanded" title="Click to expand" class="bi-dash-circle"></i>
+          <i v-else title="Click to expand" class="bi-plus-circle"></i>
         </a>
       </div>
       <div class="col-5 text-end">
@@ -102,6 +104,16 @@ export default {
       uuid
     }
   },
+  methods: {
+    toggleShowFlag() {
+      this.isExpanded = !this.isExpanded
+    }
+  },
+  data() {
+    return {
+      isExpanded: false // FixMe: how to read the value set in the tags?
+    }
+  },
   computed: {
     subjNode() {
       return this.edge[0]
@@ -111,6 +123,9 @@ export default {
     },
     strUUID() {
       return `collapse-${this.uuid}`
+    },
+    isCollapsed() {
+      return !document.getElementById(this.strUUID).classList.contains('show')
     }
   }
 }
