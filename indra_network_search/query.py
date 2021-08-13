@@ -581,9 +581,17 @@ def _get_ref_counts_func(hash_mesh_dict: Dict):
                              for h in hashes]
 
         # Count references
-        ref_counts: int = sum(sum(v for k, v in d.items() if k != 'total')
-                              for d in dicts)
-        total: int = sum(d['total'] for d in dicts) or 1
+        total = 1
+        ref_counts = 0
+        max_ratio = 0
+        for d in dicts:
+            rc_sum = sum(v for k, v in d.items() if k != 'total')
+            tot = d['total'] or 1
+            if rc_sum/tot > max_ratio:
+                max_ratio = rc_sum/tot
+                ref_counts = rc_sum
+                total = tot
+
         return ref_counts, total
     return _func
 
