@@ -6,17 +6,7 @@
         <i class="bi bi-arrow-right"></i>
         <NodeModal v-bind="objNode" />
       </div>
-      <div class="col-5 text-end">
-        <SourceDisplay :source_counts="source_counts" />
-      </div>
-      <div class="col">
-        <span>
-          <a :href="db_url_edge">
-            <i class="bi bi-box-arrow-up-right"></i>
-          </a>
-        </span>
-      </div>
-      <div class="col">
+      <div class="col text-start">
         <a
           role="button"
           class="text-reset"
@@ -27,6 +17,16 @@
         >
           <i title="Click to expand" class="bi-plus-circle"></i>
         </a>
+      </div>
+      <div class="col-5 text-end">
+        <SourceDisplay :source_counts="source_counts" />
+      </div>
+      <div class="col">
+        <span>
+          <a :href="db_url_edge">
+            <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+        </span>
       </div>
     </div>
     <div class="row collapse" :id="strUUID">
