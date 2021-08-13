@@ -9,8 +9,10 @@
             :href="`#${strUUID}`"
             :aria-expanded="false"
             :aria-controls="strUUID"
+            @click="toggleShowFlag()"
         >
-          <i title="Click to expand" class="bi-plus-circle fs-2"></i>
+          <i v-if="isExpanded" title="Click to expand" class="bi-dash-circle fs-2"></i>
+          <i v-else title="Click to expand" class="bi-plus-circle fs-2"></i>
         </a>
       </div>
     </div>
@@ -73,6 +75,16 @@ export default {
     const uuid = UniqueID().getID();
     return {
       uuid,
+    }
+  },
+  methods: {
+    toggleShowFlag() {
+      this.isExpanded = !this.isExpanded
+    }
+  },
+  data() {
+    return {
+      isExpanded: true
     }
   },
   computed: {
