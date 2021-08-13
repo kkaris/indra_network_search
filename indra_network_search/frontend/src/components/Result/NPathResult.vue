@@ -118,7 +118,6 @@ export default {
   methods: {
     toggleShowFlag() {
       this.isExpanded = !this.isExpanded
-      console.log(`isExpaned=${this.isExpanded}`)
     }
   },
   data() {
