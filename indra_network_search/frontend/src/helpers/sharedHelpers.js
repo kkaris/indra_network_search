@@ -19,9 +19,19 @@ const isStr = function (str, emptyOK = false) {
   return isType && nonEmtpy;
 };
 
-const isPosNum = function (num) {
-  const isNum = typeof num === "number";
-  const geqZero = num >= 0;
+const isPosNum = function (num, canBeStr = false) {
+  let val
+  if (canBeStr) {
+    try {
+      val = Number(num)
+    } catch {
+      return false
+    }
+  } else {
+    val = num
+  }
+  const isNum = typeof val === "number";
+  const geqZero = val >= 0;
   return isNum && geqZero;
 };
 
