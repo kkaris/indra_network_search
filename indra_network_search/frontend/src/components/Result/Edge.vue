@@ -16,7 +16,7 @@
           :aria-controls="strUUID"
           @click="toggleShowFlag()"
         >
-          <i v-if="isExpanded" title="Click to expand" class="bi-dash-circle"></i>
+          <i v-if="isExpanded" title="Click to collapse" class="bi-dash-circle"></i>
           <i v-else title="Click to expand" class="bi-plus-circle"></i>
         </a>
       </div>
