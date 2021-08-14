@@ -144,11 +144,12 @@ class IndraNetworkSearchAPI:
         g = self.get_graph()
         db_ns = g.nodes.get(node_name, {}).get('ns')
         db_id = g.nodes.get(node_name, {}).get('id')
-        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
         if db_id is None and db_ns is None:
             return None
-        return Node(name=node_name, namespace=db_ns,
-                    identifier=db_id, lookup=lookup)
+        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+        if lookup:
+            return Node(name=node_name, namespace=db_ns,
+                        identifier=db_id, lookup=lookup)
 
     def path_query(self, path_query: Union[Query, PathQuery],
                    is_signed: bool) -> ResultManager:
