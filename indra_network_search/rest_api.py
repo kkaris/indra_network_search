@@ -143,8 +143,9 @@ else:
     bio_ontology.initialize()
 
 # Get a Trie for autocomplete
-logger.info('Loading NodesTrie with unsigned graph nodes')
+logger.info('Loading Trie structure with unsigned graph nodes')
 nodes_trie = NodesTrie.from_node_names(graph=dir_graph)
+nsid_trie = NodesTrie.from_node_ns_id(graph=dir_graph)
 
 # Setup search API
 logger.info('Setting up IndraNetworkSearchAPI with signed and unsigned '
