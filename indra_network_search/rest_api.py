@@ -5,7 +5,7 @@ import logging
 from os import environ
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
 
 from indra.databases import get_identifiers_url
@@ -62,7 +62,7 @@ def get_xrefs(ns: str, id: str) -> List[List[str]]:
 
 
 @app.get('/nodes_in_graph', response_model=Prefixes)
-def get_nodes(prefix: str) -> Prefixes:
+def get_nodes(prefix: str = Query(..., min_length=1)) -> Prefixes:
     """Get the case-insensitive node names with (ns, id) starting in prefix
 
     Parameters
