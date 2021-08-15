@@ -75,7 +75,7 @@ def get_nodes(prefix: str = Query(..., min_length=1)) -> Prefixes:
     Parameters
     ----------
     prefix :
-        The prefix of a node name to check
+        The prefix of a node name to search for
 
     Returns
     -------
