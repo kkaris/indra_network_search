@@ -7,7 +7,7 @@
       :placeholder="ph"
       :title="compTitle"
       :list="dataListID"
-      @input="$emit('update:modelValue', $event.target.value), getExternalAutoCompleteList()"
+      @input="$emit('update:modelValue', $event.target.value), getExternalAutoCompleteList($event.target.value)"
       type="search"
       class="form-control"
       :class="{ 'is-valid': isValidNode }"
@@ -69,17 +69,42 @@ export default {
     }
   },
   methods: {
-    getExternalAutoCompleteList() {
+    isPrefixOfPrefix(value) {
+      if (value.length > 0 && this.lastPrefixSearch.length > 0) {
+        // true if value is a continuation of the most recent search OR
+        // is *not* value='chebi:', lastPrefixSearch='chebi' i.e. a prefix search
+        return value.toLowerCase().startsWith(this.lastPrefixSearch.toLowerCase())
+      }
+      return false
+    },
+    isActuallyNSIDSearch(value) {
+      // Search is for ns:id if
+      // - string includes ':' &&
+      // - previous search does not include ':' &&
+      // - current value does not end with ':', i.e. don't search all entities within a prefix
+      return value.includes(':') && !this.lastPrefixSearch.includes(':') && !value.endsWith(':')
+    },
+    canSearch(value) {
+      // True if all conditions that allow for search are true
+      // 1 or 2 letter prefix searches do exact matches,
+      // so a 2 or 3+ letter prefix needs to be searched again
+      return value.length > 0 &&
+          (!this.isPrefixOfPrefix(value) ||
+              this.lastPrefixSearch.length <= 2 ||
+              this.isActuallyNSIDSearch(value)) &&
+          !this.awaitingResults
+    },
+    getExternalAutoCompleteList(value) {
       // Call rest-api autocomplete //
       console.log('getExternalAutoCompleteList was called')
 
       // Check if search is allowed
-      if (this.canSearch) {
+      if (this.canSearch(value)) {
         // Flag that we're waiting results to true and reset results to empty
         this.awaitingResults = true
         this.autoSearchResult = []
-        let prefix = this.modelValue
-        console.log('getExternalAutoCompleteList executed')
+        let prefix = value
+        // ToDo: make async
         AxiosMethods.auto(prefix)
             .then(response => {
               this.lastPrefixSearch = prefix
@@ -119,17 +144,6 @@ export default {
     isValidNode() {
       // Check if modelValue is among the names in autoSearchNames
       return this.autoSearchResult.map(t => t[0]).includes(this.modelValue)
-    },
-    isPrefixOfPrefix() {
-      // true if modelValue is a continuation of the most recent search
-      if (this.modelValue.length > 0 && this.lastPrefixSearch.length > 0) {
-        return this.modelValue.toLowerCase().startsWith(this.lastPrefixSearch.toLowerCase())
-      }
-      return false
-    },
-    canSearch() {
-      // True if all conditions that allow for search are true
-      return this.modelValue.length > 0 && !this.isPrefixOfPrefix && !this.awaitingResults
     },
   }
 }
