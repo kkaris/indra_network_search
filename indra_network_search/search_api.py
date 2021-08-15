@@ -6,7 +6,7 @@ This class represents an API that executes search queries
 Queries for specific searches are found in indra_network_search.query
 """
 import logging
-from typing import Union, Dict
+from typing import Union, Dict, Optional
 
 from networkx import DiGraph
 
@@ -152,6 +152,19 @@ class IndraNetworkSearchAPI:
                         identifier=db_id, lookup=lookup)
         else:
             return Node(name=node_name, namespace=db_ns, identifier=db_id)
+
+    def get_node_by_ns_id(self, db_ns: str, db_id: str) -> Optional[Node]:
+        g = self.get_graph()
+        name = g.graph['node_by_ns_id'].get(f'{db_ns}:{db_id}')
+        if name:
+            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+            if lookup:
+                return Node(name=name, namespace=db_ns, identifier=db_id,
+                            lookup=lookup)
+            else:
+                return Node(name=name, namespace=db_ns, identifier=db_id)
+        else:
+            return None
 
     def path_query(self, path_query: Union[Query, PathQuery],
                    is_signed: bool) -> ResultManager:
