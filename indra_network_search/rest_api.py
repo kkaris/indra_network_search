@@ -5,7 +5,7 @@ import logging
 from os import environ
 from typing import List, Optional
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query as RestQuery
 from fastapi.responses import RedirectResponse
 
 from indra.databases import get_identifiers_url
@@ -63,7 +63,7 @@ def get_xrefs(ns: str, id: str) -> List[List[str]]:
 
 @app.get('/node-name-in-graph', response_model=Optional[Node])
 def node_name_in_graph(
-        node_name: str = Query(..., min_length=1)
+        node_name: str = RestQuery(..., min_length=1)
 ) -> Optional[Node]:
     node = network_search_api.get_node(node_name)
     if node:
@@ -72,8 +72,8 @@ def node_name_in_graph(
 
 @app.get('/node-id-in-graph', response_model=Optional[Node])
 def node_id_in_graph(
-        db_name: str = Query(..., min_length=2),
-        db_id: str = Query(..., min_length=1)
+        db_name: str = RestQuery(..., min_length=2),
+        db_id: str = RestQuery(..., min_length=1)
 ) -> Optional[Node]:
     node = network_search_api.get_node_by_ns_id(db_ns=db_name, db_id=db_id)
     if node:
@@ -81,7 +81,7 @@ def node_id_in_graph(
 
 
 @app.get('/autocomplete', response_model=Prefixes)
-def get_nodes(prefix: str = Query(..., min_length=1)) -> Prefixes:
+def get_nodes(prefix: str = RestQuery(..., min_length=1)) -> Prefixes:
     """Get the case-insensitive node names with (ns, id) starting in prefix
 
     Parameters
