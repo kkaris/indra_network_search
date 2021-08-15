@@ -48,6 +48,7 @@ class NodesTrie(SortedStringTrie):
                 node,
                 graph.nodes[node]["ns"],
                 graph.nodes[node]["id"],
+                graph.degree(node),
             )
 
         return cls(**name_indexing)
@@ -61,6 +62,7 @@ class NodesTrie(SortedStringTrie):
                     n,
                     graph.nodes[n]["ns"],
                     graph.nodes[n]["id"],
+                    graph.degree(n),
                 )
                 for n in graph.nodes
             }
