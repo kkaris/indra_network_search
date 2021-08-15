@@ -3,7 +3,7 @@ The IndraNetworkSearch REST API
 """
 import logging
 from os import environ
-from typing import List, Tuple
+from typing import List
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
@@ -13,7 +13,7 @@ from .data_models.rest_models import Health
 from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults
-from .autocomplete import NodesTrie
+from .autocomplete import NodesTrie, Prefixes
 from .search_api import IndraNetworkSearchAPI
 from depmap_analysis.network_functions.net_functions import bio_ontology
 
@@ -25,9 +25,6 @@ logger = logging.getLogger(__name__)
 DEBUG = environ.get('API_DEBUG') == "1"
 USE_CACHE = environ.get('USE_CACHE') == "1"
 HEALTH = Health(status='booting')
-
-# Derived types
-Prefixes = List[Tuple[str, str, str]]
 
 
 @app.get('/')
