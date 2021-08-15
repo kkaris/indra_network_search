@@ -150,6 +150,8 @@ class IndraNetworkSearchAPI:
         if lookup:
             return Node(name=node_name, namespace=db_ns,
                         identifier=db_id, lookup=lookup)
+        else:
+            return Node(name=node_name, namespace=db_ns, identifier=db_id)
 
     def path_query(self, path_query: Union[Query, PathQuery],
                    is_signed: bool) -> ResultManager:
