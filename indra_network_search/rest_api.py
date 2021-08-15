@@ -61,9 +61,21 @@ def get_xrefs(ns: str, id: str) -> List[List[str]]:
     return xrefs_w_lookup
 
 
-@app.get('/node-in-graph', response_model=Optional[Node])
-def node_in_graph(node_name: str) -> Optional[Node]:
+@app.get('/node-name-in-graph', response_model=Optional[Node])
+def node_name_in_graph(
+        node_name: str = Query(..., min_length=1)
+) -> Optional[Node]:
     node = network_search_api.get_node(node_name)
+    if node:
+        return node
+
+
+@app.get('/node-id-in-graph', response_model=Optional[Node])
+def node_id_in_graph(
+        db_name: str = Query(..., min_length=2),
+        db_id: str = Query(..., min_length=1)
+) -> Optional[Node]:
+    node = network_search_api.get_node_by_ns_id(db_ns=db_name, db_id=db_id)
     if node:
         return node
 
