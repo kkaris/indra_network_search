@@ -75,8 +75,42 @@ def get_nodes(prefix: str) -> Prefixes:
     :
         A list of tuples of (node name, (namespace, identifier))
     """
-    logger.info('Got prefix check')
-    nodes = nodes_trie.case_items(prefix=prefix)
+    # Catch very short entity names
+    if 1 <= len(prefix) <= 2 and ':' not in prefix:
+        logger.info('Got short node name lookup')
+        # Loop all combinations of upper and lowercase
+        if len(prefix) == 1:
+            nodes = []
+            upper_match = network_search_api.get_node(prefix.upper())
+            lower_match = network_search_api.get_node(prefix.lower())
+            if upper_match:
+                nodes.append(
+                    [upper_match.name, upper_match.namespace, upper_match.identifier]
+                )
+            if lower_match:
+                nodes.append(
+                    [lower_match.name, lower_match.namespace, lower_match.identifier]
+                )
+        else:
+            nodes = []
+            n1 = prefix.upper()
+            n2 = prefix[0].lower() + prefix.upper()[1]
+            n3 = prefix[0].upper() + prefix.lower()[1]
+            n4 = prefix.lower()
+            for p in [n1, n2, n3, n4]:
+                m = network_search_api.get_node(p)
+                if m:
+                    nodes.append(
+                        [m.name, m.namespace, m.identifier]
+                    )
+    # Look up ns:id searches
+    elif ':' in prefix:
+        logger.info('Got ns:id prefix check')
+        nodes = nsid_trie.case_items(prefix=prefix)
+    else:
+        logger.info('Got name prefix check')
+        nodes = nodes_trie.case_items(prefix=prefix)
+    logger.info(f'Prefix query resolved with {len(nodes)} suggestions')
     return nodes
 
 
