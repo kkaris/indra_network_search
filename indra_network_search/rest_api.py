@@ -61,7 +61,7 @@ def get_xrefs(ns: str, id: str) -> List[List[str]]:
     return xrefs_w_lookup
 
 
-@app.get('/nodes_in_graph', response_model=Prefixes)
+@app.get('/autocomplete', response_model=Prefixes)
 def get_nodes(prefix: str = Query(..., min_length=1)) -> Prefixes:
     """Get the case-insensitive node names with (ns, id) starting in prefix
 
