@@ -3,7 +3,7 @@ The IndraNetworkSearch REST API
 """
 import logging
 from os import environ
-from typing import List
+from typing import List, Optional
 
 from fastapi import FastAPI, Query
 from fastapi.responses import RedirectResponse
@@ -12,7 +12,7 @@ from indra.databases import get_identifiers_url
 from .data_models.rest_models import Health
 from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
-    SubgraphResults
+    SubgraphResults, Node
 from .autocomplete import NodesTrie, Prefixes
 from .search_api import IndraNetworkSearchAPI
 from depmap_analysis.network_functions.net_functions import bio_ontology
@@ -59,6 +59,13 @@ def get_xrefs(ns: str, id: str) -> List[List[str]]:
     xrefs_w_lookup = [[n, i, get_identifiers_url(n, i)]
                       for n, i in xrefs]
     return xrefs_w_lookup
+
+
+@app.get('/node-in-graph', response_model=Optional[Node])
+def node_in_graph(node_name: str) -> Optional[Node]:
+    node = network_search_api.get_node(node_name)
+    if node:
+        return node
 
 
 @app.get('/autocomplete', response_model=Prefixes)
