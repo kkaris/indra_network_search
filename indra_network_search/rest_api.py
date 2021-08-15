@@ -73,7 +73,7 @@ def get_nodes(prefix: str) -> Prefixes:
     Returns
     -------
     :
-        A list of tuples of (node name, (namespace, identifier))
+        A list of tuples of (node name, namespace, identifier)
     """
     # Catch very short entity names
     if 1 <= len(prefix) <= 2 and ':' not in prefix:
