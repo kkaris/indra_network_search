@@ -96,7 +96,6 @@ export default {
     },
     getExternalAutoCompleteList(value) {
       // Call rest-api autocomplete //
-      console.log('getExternalAutoCompleteList was called')
 
       // Check if search is allowed
       if (this.canSearch(value)) {
@@ -116,7 +115,7 @@ export default {
               console.log(error)
             })
             .then(() => {
-              console.log('getExternalAutoCompleteList setting awaitingResults to false')
+              // console.log('getExternalAutoCompleteList setting awaitingResults to false')
               this.awaitingResults = false
             })
       }
