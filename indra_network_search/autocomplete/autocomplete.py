@@ -3,14 +3,16 @@ An API wrapping SortedStringTrie from pytrie (see
 https://github.com/gsakkis/pytrie)
 """
 import itertools
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Tuple
 from networkx import DiGraph, MultiDiGraph
 from pytrie import SortedStringTrie
 
 
+# Derived types
+Prefixes = List[Tuple[str, str, str]]
 DirGraph = Union[DiGraph, MultiDiGraph]
 
-__all__ = ["NodesTrie"]
+__all__ = ["NodesTrie", "Prefixes"]
 
 
 class NodesTrie(SortedStringTrie):
@@ -64,7 +66,7 @@ class NodesTrie(SortedStringTrie):
             }
         )
 
-    def case_keys(self, prefix: Optional[str] = None):
+    def case_keys(self, prefix: Optional[str] = None) -> List[str]:
         """Case insensitive wrapper around NodeTrie.keys()
 
         Parameters
@@ -79,7 +81,7 @@ class NodesTrie(SortedStringTrie):
         """
         return [w for _, (w, _, _) in self.items(prefix.lower())]
 
-    def case_items(self, prefix: Optional[str] = None):
+    def case_items(self, prefix: Optional[str] = None) -> Prefixes:
         """Case insensitive wrapper around NodeTrie.items()
 
         Parameters
@@ -89,7 +91,7 @@ class NodesTrie(SortedStringTrie):
 
         Returns
         -------
-        List[Tuple[str, str, str]]]
+        :
             Return a list of (name, namespace, id) tuples
         """
         return [t for _, t in self.items(prefix.lower())]
