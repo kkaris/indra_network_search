@@ -7,8 +7,6 @@
           field/input is disabled. This could be done by checking
           $attrs.disabled, which will be Boolean if defined, otherwise
           undefined. Otherwise, check out vuelidate (until vuetify exists)
-        - Consider datalists for autocomplete text inputs:
-          https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
     <form id="search-form" @submit.prevent="sendForm">
       <h1 class="text-center">The INDRA Network Search</h1>
@@ -19,7 +17,8 @@
       <div class="text-center container">
         <b class="text-muted">Currently unavailable on dev endpoint:</b>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item text-muted">Automatic grounding</li>
+          <li class="list-group-item text-muted">Multi-interactors endpoint</li>
+          <li class="list-group-item text-muted">Rank by depmap correlations</li>
         </ul>
       </div>
       <h2 class="text-center">Basic Search Options</h2>
