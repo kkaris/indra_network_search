@@ -26,9 +26,9 @@
       <div class="container">
         <div class="row">
           <div class="col">
-            <BaseInputBS
+            <BaseInputAutoCompBS
                 v-model="source"
-                label="Source node"
+                label="Source node, e.g. 'ibuprofen' or 'UP:Q9T1V0'"
                 type="text"
                 placeholder="e.g. 'MEK'"
                 :allowWhitespace="false"
@@ -37,9 +37,9 @@
             />
           </div>
           <div class="col">
-            <BaseInputBS
+            <BaseInputAutoCompBS
                 v-model="target"
-                label="Target node"
+                label="Target node, e.g. 'ACE2' or 'hgnc:13557'"
                 type="text"
                 placeholder="e.g. 'ACE2'"
                 :allowWhitespace="false"
@@ -405,6 +405,7 @@
 import BaseSelectBS from "@/components/Form/BaseSelectBS";
 import BaseCheckboxBS from "@/components/Form/BaseCheckboxBS";
 import BaseInputBS from "@/components/Form/BaseInputBS";
+import BaseInputAutoCompBS from "@/components/Form/BaseInputAutoCompBS";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
@@ -419,7 +420,12 @@ const cullFreq = (val) => !helpers.req(val) || val > 0;
 
 export default {
   components: {
-    ResultArea, BaseSelectBS, BaseCheckboxBS, BaseInputBS, Multiselect
+    BaseInputAutoCompBS,
+    ResultArea,
+    BaseSelectBS,
+    BaseCheckboxBS,
+    BaseInputBS,
+    Multiselect
   },
   data() {
     return {

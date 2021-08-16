@@ -1,1 +1,1 @@
-from .autocomplete import NodesTrie
+from .autocomplete import NodesTrie, Prefixes
