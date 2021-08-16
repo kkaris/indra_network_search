@@ -27,15 +27,6 @@ USE_CACHE = environ.get('USE_CACHE') == "1"
 HEALTH = Health(status='booting')
 
 
-@app.get('/')
-async def root_redirect():
-    """Redirect to docs
-
-    This is a temporary solution until the Vue frontend is in place
-    """
-    return RedirectResponse(app.root_path + '/redoc')
-
-
 @app.get('/xrefs', response_model=List[List[str]])
 def get_xrefs(ns: str, id: str) -> List[List[str]]:
     """Get all cross-refs given a namespace and ID
