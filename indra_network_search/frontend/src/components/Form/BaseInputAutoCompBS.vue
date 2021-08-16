@@ -70,22 +70,6 @@ export default {
     }
   },
   methods: {
-    containsResult(nameNSIDTuple) {
-      const name = nameNSIDTuple[0]
-      for (let res of this.autoSearchResult) {
-        if (res[0] === name) {
-          return true
-        }
-      }
-      return false
-    },
-    appendResults(resArray) {
-      for (let item in resArray) {
-        if (!this.containsResult(item)) {
-          this.autoSearchResult.push(item)
-        }
-      }
-    },
     isContinuedSearch(value) {
       /* Defines if a new value is simply more typing another letter
       to sort among already received results */
