@@ -27,7 +27,7 @@
           <div class="col">
             <BaseInputAutoCompBS
                 v-model="source"
-                label="Source node, e.g. 'ibuprofen' or 'chebi:5855'"
+                label="Source node, e.g. 'MEK' or 'fplx:mek'"
                 type="text"
                 placeholder="e.g. 'MEK'"
                 :allowWhitespace="false"
