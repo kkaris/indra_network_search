@@ -7,8 +7,6 @@
           field/input is disabled. This could be done by checking
           $attrs.disabled, which will be Boolean if defined, otherwise
           undefined. Otherwise, check out vuelidate (until vuetify exists)
-        - Consider datalists for autocomplete text inputs:
-          https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
     <form id="search-form" @submit.prevent="sendForm">
       <h1 class="text-center">The INDRA Network Search</h1>
@@ -19,16 +17,17 @@
       <div class="text-center container">
         <b class="text-muted">Currently unavailable on dev endpoint:</b>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item text-muted">Automatic grounding</li>
+          <li class="list-group-item text-muted">Multi-interactors endpoint</li>
+          <li class="list-group-item text-muted">Rank by depmap correlations</li>
         </ul>
       </div>
       <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
           <div class="col">
-            <BaseInputBS
+            <BaseInputAutoCompBS
                 v-model="source"
-                label="Source node"
+                label="Source node, e.g. 'ibuprofen' or 'UP:Q9T1V0'"
                 type="text"
                 placeholder="e.g. 'MEK'"
                 :allowWhitespace="false"
@@ -37,9 +36,9 @@
             />
           </div>
           <div class="col">
-            <BaseInputBS
+            <BaseInputAutoCompBS
                 v-model="target"
-                label="Target node"
+                label="Target node, e.g. 'ACE2' or 'hgnc:13557'"
                 type="text"
                 placeholder="e.g. 'ACE2'"
                 :allowWhitespace="false"
@@ -405,6 +404,7 @@
 import BaseSelectBS from "@/components/Form/BaseSelectBS";
 import BaseCheckboxBS from "@/components/Form/BaseCheckboxBS";
 import BaseInputBS from "@/components/Form/BaseInputBS";
+import BaseInputAutoCompBS from "@/components/Form/BaseInputAutoCompBS";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
@@ -419,7 +419,12 @@ const cullFreq = (val) => !helpers.req(val) || val > 0;
 
 export default {
   components: {
-    ResultArea, BaseSelectBS, BaseCheckboxBS, BaseInputBS, Multiselect
+    BaseInputAutoCompBS,
+    ResultArea,
+    BaseSelectBS,
+    BaseCheckboxBS,
+    BaseInputBS,
+    Multiselect
   },
   data() {
     return {

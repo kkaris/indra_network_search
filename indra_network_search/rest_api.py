@@ -3,32 +3,27 @@ The IndraNetworkSearch REST API
 """
 import logging
 from os import environ
-from typing import List
+from typing import List, Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query as RestQuery
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
 
 from indra.databases import get_identifiers_url
+from .data_models.rest_models import Health
 from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
-    SubgraphResults
+    SubgraphResults, Node
+from .autocomplete import NodesTrie, Prefixes
 from .search_api import IndraNetworkSearchAPI
 from depmap_analysis.network_functions.net_functions import bio_ontology
 
-DEBUG = environ.get('API_DEBUG') == "1"
 
 app = FastAPI()
 
 logger = logging.getLogger(__name__)
 
-
-class Health(BaseModel):
-    """Health status"""
-    status: str
-
-
-USE_CACHE = bool(environ.get('USE_CACHE', False))
+DEBUG = environ.get('API_DEBUG') == "1"
+USE_CACHE = environ.get('USE_CACHE') == "1"
 HEALTH = Health(status='booting')
 
 
@@ -42,14 +37,135 @@ async def root_redirect():
 
 
 @app.get('/xrefs', response_model=List[List[str]])
-def get_xrefs(ns: str, id: str):
-    """Get all cross-refs given a namespace and ID"""
+def get_xrefs(ns: str, id: str) -> List[List[str]]:
+    """Get all cross-refs given a namespace and ID
+
+    Parameters
+    ----------
+    ns :
+        The namespace of the entity to find cross-refs for
+    id :
+        The identifier of the entity to find cross-regs for
+
+    Returns
+    -------
+    :
+        A list of tuples containing namespace, identifier, lookup url to
+        identifiers.org
+    """
     # Todo: offload util features and capabilities, such as this one, to a new
     #  UtilApi class
     xrefs = bio_ontology.get_mappings(ns=ns, id=id)
     xrefs_w_lookup = [[n, i, get_identifiers_url(n, i)]
                       for n, i in xrefs]
     return xrefs_w_lookup
+
+
+@app.get('/node-name-in-graph', response_model=Optional[Node])
+def node_name_in_graph(
+        node_name: str = RestQuery(..., min_length=1, alias='node-name')
+) -> Optional[Node]:
+    """Check if node by provided name (case sensitive) exists in graph
+
+    Parameters
+    ----------
+    node_name :
+        The name of the node to check
+
+    Returns
+    -------
+    :
+        When a match is found, the full information of the node is returned
+    """
+    node = network_search_api.get_node(node_name)
+    if node:
+        return node
+
+
+@app.get('/node-id-in-graph', response_model=Optional[Node])
+def node_id_in_graph(
+        db_name: str = RestQuery(..., min_length=2, alias='db-name'),
+        db_id: str = RestQuery(..., min_length=1, alias='db-id')
+) -> Optional[Node]:
+    """Check if a node by provided db name and db id exists
+
+    Parameters
+    ----------
+    db_name :
+        The database name, e.g. hgnc, chebi or up
+    db_id :
+        The identifier for the entity in the given database, e.g. 11018
+
+    Returns
+    -------
+    :
+        When a match is found, the full information of the node is returned
+    """
+    node = network_search_api.get_node_by_ns_id(db_ns=db_name, db_id=db_id)
+    if node:
+        return node
+
+
+@app.get('/autocomplete', response_model=Prefixes)
+def get_prefix_autocomplete(
+        prefix: str = RestQuery(..., min_length=1),
+        max_res: int = RestQuery(100, alias='max-results')
+) -> Prefixes:
+    """Get the case-insensitive node names with (ns, id) starting in prefix
+
+    Parameters
+    ----------
+    prefix :
+        The prefix of a node name to search for. Note: for prefixes of
+        1 and 2 characters, only exact matches are returned. For 3+
+        characters, prefix matching is done. If the prefix contains ':',
+        an namspace:id search is done.
+    max_res :
+        The top ranked (by node degree) results will be returned, cut off at
+        this many results.
+
+    Returns
+    -------
+    :
+        A list of tuples of (node name, namespace, identifier)
+    """
+    # Catch very short entity names
+    if 1 <= len(prefix) <= 2 and ':' not in prefix:
+        logger.info('Got short node name lookup')
+        # Loop all combinations of upper and lowercase
+        if len(prefix) == 1:
+            nodes = []
+            upper_match = network_search_api.get_node(prefix.upper())
+            lower_match = network_search_api.get_node(prefix.lower())
+            if upper_match:
+                nodes.append(
+                    [upper_match.name, upper_match.namespace, upper_match.identifier]
+                )
+            if lower_match:
+                nodes.append(
+                    [lower_match.name, lower_match.namespace, lower_match.identifier]
+                )
+        else:
+            nodes = []
+            n1 = prefix.upper()
+            n2 = prefix[0].lower() + prefix.upper()[1]
+            n3 = prefix[0].upper() + prefix.lower()[1]
+            n4 = prefix.lower()
+            for p in [n1, n2, n3, n4]:
+                m = network_search_api.get_node(p)
+                if m:
+                    nodes.append(
+                        [m.name, m.namespace, m.identifier]
+                    )
+    # Look up ns:id searches
+    elif ':' in prefix:
+        logger.info('Got ns:id prefix check')
+        nodes = nsid_trie.case_items(prefix=prefix, top_n=max_res)
+    else:
+        logger.info('Got name prefix check')
+        nodes = nodes_trie.case_items(prefix=prefix, top_n=max_res)
+    logger.info(f'Prefix query resolved with {len(nodes)} suggestions')
+    return nodes
 
 
 @app.get('/health', response_model=Health)
@@ -106,17 +222,24 @@ if DEBUG:
     from .tests.util import _setup_graph, _setup_signed_node_graph
     dir_graph = _setup_graph()
     sign_node_graph = _setup_signed_node_graph(False)
-    network_search_api = IndraNetworkSearchAPI(
-        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
-    )
 else:
     dir_graph, _, sign_node_graph, _ = \
         load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
                          sign_node_graph=True, sign_edge_graph=False,
                          use_cache=USE_CACHE)
 
-    network_search_api = IndraNetworkSearchAPI(
-        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
-    )
     bio_ontology.initialize()
+
+# Get a Trie for autocomplete
+logger.info('Loading Trie structure with unsigned graph nodes')
+nodes_trie = NodesTrie.from_node_names(graph=dir_graph)
+nsid_trie = NodesTrie.from_node_ns_id(graph=dir_graph)
+
+# Setup search API
+logger.info('Setting up IndraNetworkSearchAPI with signed and unsigned '
+            'graphs')
+network_search_api = IndraNetworkSearchAPI(
+    unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
+)
+logger.info('Service is available')
 HEALTH.status = 'available'

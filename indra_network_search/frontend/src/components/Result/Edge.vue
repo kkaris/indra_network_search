@@ -6,6 +6,20 @@
         <i class="bi bi-arrow-right"></i>
         <NodeModal v-bind="objNode" />
       </div>
+      <div class="col text-start">
+        <a
+          role="button"
+          class="text-reset"
+          data-bs-toggle="collapse"
+          :href="`#${strUUID}`"
+          :aria-expanded="false"
+          :aria-controls="strUUID"
+          @click="toggleShowFlag()"
+        >
+          <i v-if="isExpanded" title="Click to collapse" class="bi-dash-circle"></i>
+          <i v-else title="Click to expand" class="bi-plus-circle"></i>
+        </a>
+      </div>
       <div class="col-5 text-end">
         <SourceDisplay :source_counts="source_counts" />
       </div>
@@ -15,18 +29,6 @@
             <i class="bi bi-box-arrow-up-right"></i>
           </a>
         </span>
-      </div>
-      <div class="col">
-        <a
-          role="button"
-          class="text-reset"
-          data-bs-toggle="collapse"
-          :href="`#${strUUID}`"
-          :aria-expanded="false"
-          :aria-controls="strUUID"
-        >
-          <i title="Click to expand" class="bi-plus-circle"></i>
-        </a>
       </div>
     </div>
     <div class="row collapse" :id="strUUID">
@@ -102,6 +104,16 @@ export default {
       uuid
     }
   },
+  methods: {
+    toggleShowFlag() {
+      this.isExpanded = !this.isExpanded
+    }
+  },
+  data() {
+    return {
+      isExpanded: false // FixMe: how to read the value set in the tags?
+    }
+  },
   computed: {
     subjNode() {
       return this.edge[0]
@@ -111,6 +123,9 @@ export default {
     },
     strUUID() {
       return `collapse-${this.uuid}`
+    },
+    isCollapsed() {
+      return !document.getElementById(this.strUUID).classList.contains('show')
     }
   }
 }

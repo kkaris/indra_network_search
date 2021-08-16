@@ -88,48 +88,53 @@
     color: black;
 }
 
-.source-geneways {
+.source-gnbr {
     background-color: #a6cee3;
     color: white;
 }
 
-.source-isi {
+.source-geneways {
     background-color: #2daaff;
     color: white;
 }
 
-.source-rlimsp {
+.source-isi {
     background-color: #b2df8a;
     color: white;
 }
 
-.source-tees {
+.source-rlimsp {
     background-color: #33a02c;
     color: white;
 }
 
-.source-eidos {
-    background-color: #ff595b;
-    color: white;
-}
-
-.source-trips {
+.source-tees {
     background-color: #fb9a99;
     color: white;
 }
 
-.source-medscan {
+.source-eidos {
     background-color: #fdbf6f;
     color: white;
 }
 
-.source-sparser {
+.source-trips {
+    background-color: #ff595b;
+    color: white;
+}
+
+.source-medscan {
     background-color: #ff7f00;
     color: white;
 }
 
-.source-reach {
+.source-sparser {
     background-color: #cab2d6;
+    color: white;
+}
+
+.source-reach {
+    background-color: #8cde09;
     color: white;
 }
 
