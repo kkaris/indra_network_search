@@ -63,8 +63,20 @@ def get_xrefs(ns: str, id: str) -> List[List[str]]:
 
 @app.get('/node-name-in-graph', response_model=Optional[Node])
 def node_name_in_graph(
-        node_name: str = RestQuery(..., min_length=1)
+        node_name: str = RestQuery(..., min_length=1, alias='node-name')
 ) -> Optional[Node]:
+    """Check if node by provided name (case sensitive) exists in graph
+
+    Parameters
+    ----------
+    node_name :
+        The name of the node to check
+
+    Returns
+    -------
+    :
+        When a match is found, the full information of the node is returned
+    """
     node = network_search_api.get_node(node_name)
     if node:
         return node
@@ -72,9 +84,23 @@ def node_name_in_graph(
 
 @app.get('/node-id-in-graph', response_model=Optional[Node])
 def node_id_in_graph(
-        db_name: str = RestQuery(..., min_length=2),
-        db_id: str = RestQuery(..., min_length=1)
+        db_name: str = RestQuery(..., min_length=2, alias='db-name'),
+        db_id: str = RestQuery(..., min_length=1, alias='db-id')
 ) -> Optional[Node]:
+    """Check if a node by provided db name and db id exists
+
+    Parameters
+    ----------
+    db_name :
+        The database name, e.g. hgnc, chebi or up
+    db_id :
+        The identifier for the entity in the given database, e.g. 11018
+
+    Returns
+    -------
+    :
+        When a match is found, the full information of the node is returned
+    """
     node = network_search_api.get_node_by_ns_id(db_ns=db_name, db_id=db_id)
     if node:
         return node
