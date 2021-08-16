@@ -21,12 +21,17 @@
       >{{ `${searchArr[1]}:${searchArr[2]}`}}
       </option>
     </datalist>
-    <template v-if="errors.length > 0">
+    <template v-if="errors.length > 0 || hasWhitespaceError">
       <p
           v-for="error in errors"
           :key="error.$uid"
           style="color: #A00000">
         {{ error.$message ? error.$message : 'Invalid entry' }}
+      </p>
+      <p
+          v-if="hasWhitespaceError"
+          style="color: #A00000">
+        Check input for whitespace
       </p>
     </template>
     <p v-if="modelValue.endsWith(':')">Add a character to search for entities present from "{{ modelValue.toLowerCase().slice(0, modelValue.length-1) }}"</p>
@@ -60,6 +65,10 @@ export default {
       default: () => {
         return []
       }
+    },
+    allowWhitespace: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -130,6 +139,9 @@ export default {
     },
     compTitle() {
       return this.title || this.ph
+    },
+    hasWhitespaceError() {
+      return (!this.allowWhitespace && this.modelValue.length > 0 && !/\S/.test(this.modelValue))
     },
     isValidNode() {
       // false if nothing entered
