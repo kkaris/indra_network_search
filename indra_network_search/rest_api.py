@@ -107,13 +107,22 @@ def node_id_in_graph(
 
 
 @app.get('/autocomplete', response_model=Prefixes)
-def get_nodes(prefix: str = RestQuery(..., min_length=1)) -> Prefixes:
+def get_prefix_autocomplete(
+        prefix: str = RestQuery(..., min_length=1),
+        max_res: int = RestQuery(100, alias='max-results')
+) -> Prefixes:
     """Get the case-insensitive node names with (ns, id) starting in prefix
 
     Parameters
     ----------
     prefix :
-        The prefix of a node name to search for
+        The prefix of a node name to search for. Note: for prefixes of
+        1 and 2 characters, only exact matches are returned. For 3+
+        characters, prefix matching is done. If the prefix contains ':',
+        an namspace:id search is done.
+    max_res :
+        The top ranked (by node degree) results will be returned, cut off at
+        this many results.
 
     Returns
     -------
@@ -151,10 +160,10 @@ def get_nodes(prefix: str = RestQuery(..., min_length=1)) -> Prefixes:
     # Look up ns:id searches
     elif ':' in prefix:
         logger.info('Got ns:id prefix check')
-        nodes = nsid_trie.case_items(prefix=prefix)
+        nodes = nsid_trie.case_items(prefix=prefix, top_n=max_res)
     else:
         logger.info('Got name prefix check')
-        nodes = nodes_trie.case_items(prefix=prefix)
+        nodes = nodes_trie.case_items(prefix=prefix, top_n=max_res)
     logger.info(f'Prefix query resolved with {len(nodes)} suggestions')
     return nodes
 
