@@ -34,7 +34,6 @@
         Check input for whitespace
       </p>
     </template>
-    <p v-if="modelValue.endsWith(':')">Add a character to search for entities present from "{{ modelValue.toLowerCase().slice(0, modelValue.length-1) }}"</p>
   </div>
 </template>
 
