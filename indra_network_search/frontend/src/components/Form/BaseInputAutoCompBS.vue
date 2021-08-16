@@ -70,30 +70,37 @@ export default {
     }
   },
   methods: {
-    isPrefixOfPrefix(value) {
-      if (value.length > 0 && this.lastPrefixSearch.length > 0) {
-        // true if value is a continuation of the most recent search OR
-        // is *not* value='chebi:', lastPrefixSearch='chebi' i.e. a prefix search
-        return value.toLowerCase().startsWith(this.lastPrefixSearch.toLowerCase())
+    containsResult(nameNSIDTuple) {
+      const name = nameNSIDTuple[0]
+      for (let res of this.autoSearchResult) {
+        if (res[0] === name) {
+          return true
+        }
       }
       return false
     },
-    isActuallyNSIDSearch(value) {
-      // Search is for ns:id if
-      // - string includes ':' &&
-      // - previous search does not include ':' &&
-      // - current value does not end with ':', i.e. don't search all entities within a prefix
-      return value.includes(':') && !this.lastPrefixSearch.includes(':') && !value.endsWith(':')
+    appendResults(resArray) {
+      for (let item in resArray) {
+        if (!this.containsResult(item)) {
+          this.autoSearchResult.push(item)
+        }
+      }
+    },
+    isContinuedSearch(value) {
+      /* Defines if a new value is simply more typing another letter
+      to sort among already received results */
+      return this.lastPrefixSearch.length > 0 &&
+          value.toLowerCase().startsWith(this.lastPrefixSearch.toLowerCase()) &&
+          value.length > 3 && // 1 and 2 letter prefixes do exact matching so 3 need new search, while 4 could be new search
+          Math.abs(value.length - this.lastPrefixSearch.length) <= 1 // Jumps in length between searches could indicate copy pasting to replace the latest search
     },
     canSearch(value) {
-      // True if all conditions that allow for search are true
-      // 1 or 2 letter prefix searches do exact matches,
-      // so a 2 or 3+ letter prefix needs to be searched again
-      return value.length > 0 &&
-          (!this.isPrefixOfPrefix(value) ||
-              this.lastPrefixSearch.length <= 2 ||
-              this.isActuallyNSIDSearch(value)) &&
-          !this.awaitingResults
+      // Check conditions that allow for a search to take place
+      return value.length > 0 && // There is a value
+          !this.awaitingResults && // Search is currently not being done
+          (!this.isContinuedSearch(value) || // Either started typing something new e.g. 'abc' -> 'xyz'
+              (this.isContinuedSearch(value) && this.autoSearchResult.length >= 100) || // or need more results
+              value.endsWith(':')) // or this is an NS:ID search and only
     },
     getExternalAutoCompleteList(value) {
       // Call rest-api autocomplete //
@@ -116,7 +123,6 @@ export default {
               console.log(error)
             })
             .then(() => {
-              // console.log('getExternalAutoCompleteList setting awaitingResults to false')
               this.awaitingResults = false
             })
       }
@@ -142,8 +148,15 @@ export default {
       return this.title || this.ph
     },
     isValidNode() {
-      // Check if modelValue is among the names in autoSearchNames
-      return this.autoSearchResult.map(t => t[0]).includes(this.modelValue)
+      // false if nothing entered
+      if (!this.modelValue) {
+        return false
+      // false if we're waiting for results
+      } else if (this.awaitingResults) {
+        return false
+      }
+      // true if among results with case match
+      return this.autoSearchResult.length && this.autoSearchResult.map(t => t[0]).includes(this.modelValue)
     },
   }
 }
