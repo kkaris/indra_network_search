@@ -168,7 +168,8 @@ class PathQuery(UIQuery):
             source = '' if reverse else start
             target = start if reverse else ''
         res_options = {'filter_options': self.query.get_filter_options(),
-                       'source': source, 'target': target}
+                       'source': source, 'target': target,
+                       'timout': self.query.user_timeout}
         if not self.alg_name == shortest_simple_paths.__name__:
             res_options['reverse'] = reverse
         return res_options
