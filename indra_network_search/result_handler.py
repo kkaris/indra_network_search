@@ -301,10 +301,10 @@ class PathResultManager(UIResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool):
+                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target)
+                         target=target, timeout=timeout)
 
         self.paths: Dict[int, List[Path]] = {}
         self.reverse: bool = reverse
@@ -436,10 +436,10 @@ class DijkstraResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool):
+                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, reverse=reverse)
+                         target=target, reverse=reverse, timeout=timeout)
 
     def _check_source_target(self):
         self._check_source_or_target()
@@ -503,10 +503,10 @@ class BreadthFirstSearchResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool):
+                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, reverse=reverse)
+                         target=target, reverse=reverse, timeout=timeout)
 
     def _check_source_target(self):
         self._check_source_or_target()
@@ -552,10 +552,11 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode]):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 timeout: float = DEFAULT_TIMEOUT):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, reverse=False)
+                         target=target, reverse=False, timeout=timeout)
 
     def _check_source_target(self):
         self._check_source_and_target()
