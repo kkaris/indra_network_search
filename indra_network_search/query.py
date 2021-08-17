@@ -92,7 +92,7 @@ class Query:
         return ApiOptions(
             sign=self.query.get_int_sign(),
             fplx_expand=self.query.fplx_expand,
-            user_timout=self.query.user_timeout,
+            user_timeout=self.query.user_timeout,
             two_way=self.query.two_way,
             shared_regulators=self.query.shared_regulators,
             format=self.query.format,
@@ -187,7 +187,7 @@ class PathQuery(UIQuery):
             "filter_options": self.query.get_filter_options(),
             "source": source,
             "target": target,
-            "timout": self.query.user_timeout,
+            "timeout": self.query.user_timeout,
         }
         if not self.alg_name == shortest_simple_paths.__name__:
             res_options["reverse"] = reverse
