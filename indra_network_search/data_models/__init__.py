@@ -79,7 +79,7 @@ class ApiOptions(BaseModel):
 
     sign: Optional[int] = None
     fplx_expand: Optional[bool] = False
-    user_timout: Optional[Union[float, bool]] = False
+    user_timeout: Optional[Union[float, bool]] = False
     two_way: Optional[bool] = False
     shared_regulators: Optional[bool] = False
     format: Optional[str] = "json"
