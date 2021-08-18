@@ -418,6 +418,7 @@ import {
 const cullFreq = (val) => !helpers.req(val) || val > 0;
 
 export default {
+  inject: ['GStore'],
   components: {
     BaseInputAutoCompBS,
     ResultArea,
@@ -647,7 +648,9 @@ export default {
         return false
       }
       this.isLoading = true;
-      AxiosMethods.submitForm(this.networkSearchQuery)
+      const currentQuery = this.networkSearchQuery
+      this.GStore.currentQuery = currentQuery
+      AxiosMethods.submitForm(currentQuery)
       .then(response => {
         console.log('Query resolved!');
         console.log(response);

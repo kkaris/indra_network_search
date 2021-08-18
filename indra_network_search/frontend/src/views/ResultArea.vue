@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1 class="text-center">Results</h1>
-    <p class="text-center">Click on titles to expand results</p>
+    <p class="text-center">Click on <i title="Click to expand" class="bi-plus-circle"></i>/<i title="Click to collapse" class="bi-dash-circle"></i> to expand/collapse results</p>
     <!--Source/Target info???-->
     <!--Ontology Results-->
     <CommonParents

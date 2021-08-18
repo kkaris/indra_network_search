@@ -4,8 +4,11 @@ import "@vueform/multiselect/themes/default.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./assets/sources.css";
-import { createApp } from "vue";
+import { createApp, reactive } from "vue";
 import App from "./App.vue";
 
+const GStore = reactive({ currentQuery: {} })
+
 const app = createApp(App);
+app.provide('GStore', GStore);
 app.mount("#app");
