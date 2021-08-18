@@ -27,6 +27,7 @@
           <div class="col">
             <BaseInputAutoCompBS
                 v-model="source"
+                v-model:valid-node="validSource"
                 label="Source node, e.g. 'MEK' or 'fplx:mek'"
                 type="text"
                 placeholder="e.g. 'MEK'"
@@ -38,6 +39,7 @@
           <div class="col">
             <BaseInputAutoCompBS
                 v-model="target"
+                v-model:valid-node="validTarget"
                 label="Target node, e.g. 'ACE2' or 'hgnc:13557'"
                 type="text"
                 placeholder="e.g. 'ACE2'"
@@ -430,7 +432,9 @@ export default {
   data() {
     return {
       source: "",
+      validSource: false,
       target: "",
+      validTarget: false,
       stmt_filter: [],
       hash_blacklist_text: "",
       allowed_ns: [],
