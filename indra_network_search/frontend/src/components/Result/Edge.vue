@@ -1,24 +1,26 @@
 <template>
   <div class="container">
     <div class="row d-flex justify-content-center">
+      <div class="col text-start text-nowrap">
+        <a
+            role="button"
+            class="text-reset"
+            data-bs-toggle="collapse"
+            :href="`#${strUUID}`"
+            :aria-expanded="false"
+            :aria-controls="strUUID"
+            @click="toggleShowFlag()"
+        >
+          <i v-if="isExpanded" title="Click to collapse" class="bi-dash-circle"></i>
+          <i v-else title="Click to expand" class="bi-plus-circle"></i>
+        </a>
+        &nbsp;
+        <b title="Edge weight" v-if="showWeight">{{ weightToShow }}</b>
+      </div>
       <div class="col-5">
         <NodeModal v-bind="subjNode" />
         <i class="bi bi-arrow-right"></i>
         <NodeModal v-bind="objNode" />
-      </div>
-      <div class="col text-start">
-        <a
-          role="button"
-          class="text-reset"
-          data-bs-toggle="collapse"
-          :href="`#${strUUID}`"
-          :aria-expanded="false"
-          :aria-controls="strUUID"
-          @click="toggleShowFlag()"
-        >
-          <i v-if="isExpanded" title="Click to collapse" class="bi-dash-circle"></i>
-          <i v-else title="Click to expand" class="bi-plus-circle"></i>
-        </a><b v-if="showWeight">{{ weightToShow }}</b>
       </div>
       <div class="col-5 text-end">
         <SourceDisplay :source_counts="source_counts" />
@@ -150,9 +152,9 @@ export default {
     weightToShow() {
       // If context weighted is not "N/A", return regular weight
       if (this.context_weight.toLowerCase() === 'n/a') {
-        return this.weight
+        return Number(this.weight).toFixed(2)
       }
-      return this.context_weight
+      return this.contextWeightFixed
     }
   }
 }
