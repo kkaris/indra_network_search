@@ -8,7 +8,6 @@
   </td>
   <td>
     <div class="container">
-      <!-- Fixme: add some headers: edges, weight, support button, sources, linkout -->
       <div class="row">
         <div class="col text-nowrap text-end"><b>Weight</b></div>
         <div class="col-5"><b>Edge</b></div>
