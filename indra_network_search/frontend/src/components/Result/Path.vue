@@ -10,7 +10,10 @@
     <div class="container">
       <template v-for="(edge, index) in edge_data" :key="index">
         <div class="row">
-          <Edge v-bind="edge" />
+          <Edge
+              v-bind="edge"
+              :show-weight="true"
+          />
         </div>
       </template>
     </div>
