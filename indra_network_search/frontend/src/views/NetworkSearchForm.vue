@@ -674,10 +674,6 @@ export default {
         return [];
       }
     },
-    validateForm() {
-      return true;
-      // Here go over all form parts and validate them
-    },
   },
   setup() {
     const uuid = UniqueID().getID();
