@@ -18,7 +18,7 @@
         >
           <i v-if="isExpanded" title="Click to collapse" class="bi-dash-circle"></i>
           <i v-else title="Click to expand" class="bi-plus-circle"></i>
-        </a>
+        </a><b v-if="showWeight">{{ weightToShow }}</b>
       </div>
       <div class="col-5 text-end">
         <SourceDisplay :source_counts="source_counts" />
@@ -96,6 +96,10 @@ export default {
       validator: obj => {
         return sharedHelpers.isSourceCount(obj)
       }
+    },
+    showWeight: {
+      type: Boolean,
+      default: false
     }
   },
   setup() {
@@ -126,6 +130,29 @@ export default {
     },
     isCollapsed() {
       return !document.getElementById(this.strUUID).classList.contains('show')
+    },
+    contextWeightFixed() {
+      if (this.context_weight.toLowerCase() === 'n/a') {
+        return this.context_weight
+      }
+      try {
+        return Number(this.context_weight).toFixed(2)
+      } catch (err) {
+        try {
+          // Find index of '.'
+          const decIndex = this.context_weight.indexOf('.') + 3
+          return this.context_weight.slice(0, decIndex);
+        } catch (err) {
+          return this.context_weight;
+        }
+      }
+    },
+    weightToShow() {
+      // If context weighted is not "N/A", return regular weight
+      if (this.context_weight.toLowerCase() === 'n/a') {
+        return this.weight
+      }
+      return this.context_weight
     }
   }
 }
