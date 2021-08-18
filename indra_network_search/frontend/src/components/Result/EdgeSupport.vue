@@ -5,7 +5,7 @@
       <tr>
         <th scope="col">Statement Type</th>
         <th scope="col">Sources</th>
-        <th scope="col">Link to DB</th>
+        <th scope="col">DB Link</th>
       </tr>
     </thead>
     <tbody>

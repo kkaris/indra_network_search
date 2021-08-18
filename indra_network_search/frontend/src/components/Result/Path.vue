@@ -8,14 +8,19 @@
   </td>
   <td>
     <div class="container">
-      <template v-for="(edge, index) in edge_data" :key="index">
-        <div class="row">
-          <Edge
-              v-bind="edge"
-              :show-weight="true"
-          />
-        </div>
-      </template>
+      <!-- Fixme: add some headers: edges, weight, support button, sources, linkout -->
+      <div class="row">
+        <div class="col text-nowrap text-end"><b>Weight</b></div>
+        <div class="col-5"><b>Edge</b></div>
+        <div class="col-4"><b>Sources</b></div>
+        <div class="col"><b>DB Link</b></div>
+      </div>
+      <Edge
+          v-for="(edge, index) in edge_data"
+          :key="index"
+          v-bind="edge"
+          :show-weight="true"
+      />
     </div>
   </td>
 </template>
