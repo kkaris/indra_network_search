@@ -50,6 +50,7 @@ import sharedHelpers from "@/helpers/sharedHelpers";
 import UniqueID from "@/helpers/BasicHelpers";
 import SourceDisplay from "@/components/Result/SourceDisplay";
 export default {
+  inject: ['GStore'],
   components: {SourceDisplay, EdgeSupport, NodeModal},
   props: {
     // Follows BaseModel indra_network_search.data_models::EdgeData
@@ -99,6 +100,7 @@ export default {
         return sharedHelpers.isSourceCount(obj)
       }
     },
+    // Flag whether the edge should display weight at all
     showWeight: {
       type: Boolean,
       default: false
@@ -113,6 +115,20 @@ export default {
   methods: {
     toggleShowFlag() {
       this.isExpanded = !this.isExpanded
+    },
+    fixDecimals(num, fractionDigits = 2) {
+      try {
+        return Number(num).toFixed(fractionDigits)
+      } catch (err) {
+        try {
+          // Find index of '.'
+          const decIndex = num.indexOf('.') + 3
+          // Slice to get two decimals
+          return num.slice(0, decIndex);
+        } catch (err) {
+          return num;
+        }
+      }
     }
   },
   data() {
@@ -133,29 +149,20 @@ export default {
     isCollapsed() {
       return !document.getElementById(this.strUUID).classList.contains('show')
     },
-    contextWeightFixed() {
-      if (this.context_weight.toLowerCase() === 'n/a') {
-        return this.context_weight
-      }
-      try {
-        return Number(this.context_weight).toFixed(2)
-      } catch (err) {
-        try {
-          // Find index of '.'
-          const decIndex = this.context_weight.indexOf('.') + 3
-          return this.context_weight.slice(0, decIndex);
-        } catch (err) {
-          return this.context_weight;
-        }
-      }
+    isContextWeighted() {
+      return !this.GStore.currentQuery.strict_mesh_id_filtering &&
+          this.GStore.currentQuery.mesh_ids.length > 0
     },
     weightToShow() {
-      // If context weighted is not "N/A", return regular weight
-      if (this.context_weight.toLowerCase() === 'n/a') {
-        return Number(this.weight).toFixed(2)
+      // No weighted query
+      if (this.isContextWeighted) {
+        return this.fixDecimals(this.context_weight)
       }
-      return this.contextWeightFixed
-    }
+      if (this.GStore.currentQuery.weighted) {
+        return this.fixDecimals(this.weight)
+      }
+      return 'N/A'
+    },
   }
 }
 </script>
