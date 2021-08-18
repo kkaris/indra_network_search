@@ -68,6 +68,10 @@ export default {
     allowWhitespace: {
       type: Boolean,
       default: true
+    },
+    validNode: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -118,6 +122,9 @@ export default {
               this.awaitingResults = false
             })
       }
+    },
+    emitValidNode(isValid) {
+      this.$emit('update:validNode', isValid)
     }
   },
   setup() {
@@ -144,14 +151,18 @@ export default {
     },
     isValidNode() {
       // false if nothing entered
+      let vn
       if (!this.modelValue) {
-        return false
+        vn = false
       // false if we're waiting for results
       } else if (this.awaitingResults) {
-        return false
+        vn = false
       }
       // true if among results with case match
-      return this.autoSearchResult.length && this.autoSearchResult.map(t => t[0]).includes(this.modelValue)
+      vn = Boolean(this.autoSearchResult.length &&
+                   this.autoSearchResult.map(t => t[0]).includes(this.modelValue))
+      this.emitValidNode(vn)
+      return vn
     },
   }
 }
