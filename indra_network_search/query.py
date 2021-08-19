@@ -18,8 +18,8 @@ from indra.explanation.pathfinding import (
 )
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from indra_network_search.rest_util import StrNode, StrEdge
-from .data_models import *
-from .pathfinding import *
+from indra_network_search.data_models import *
+from indra_network_search.pathfinding import *
 
 # Constants
 INT_PLUS = 0
@@ -157,7 +157,7 @@ class PathQuery(UIQuery):
             start_node, reverse = self.query.target, True
         else:
             raise InvalidParametersError(
-                f"Cannot use {self.alg_name} with both source and target " f"set."
+                f"Cannot use {self.alg_name} with both source and target set."
             )
         signed_node = get_open_signed_node(
             node=start_node, reverse=reverse, sign=self.query.get_int_sign()
