@@ -217,7 +217,8 @@ class UIResultManager(ResultManager):
     def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 timeout: Optional[float] = DEFAULT_TIMEOUT):
+                 timeout: Optional[float] = DEFAULT_TIMEOUT,
+                 hash_blacklist: Optional[Set[int]] = None):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options,
                          input_nodes=[],  # Set in _set_source_target
@@ -302,10 +303,11 @@ class PathResultManager(UIResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
+                 reverse: bool, timeout: float = DEFAULT_TIMEOUT,
+                 hash_blacklist: Optional[Set[int]] = None):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, timeout=timeout)
+                         target=target, timeout=timeout, hash_blacklist=hash_blacklist)
 
         self.paths: Dict[int, List[Path]] = {}
         self.reverse: bool = reverse
@@ -437,10 +439,12 @@ class DijkstraResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
+                 reverse: bool, timeout: float = DEFAULT_TIMEOUT,
+                 hash_blacklist: Optional[Set[int]] = None):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, reverse=reverse, timeout=timeout)
+                         target=target, reverse=reverse, timeout=timeout,
+                         hash_blacklist=hash_blacklist)
 
     def _check_source_target(self):
         self._check_source_or_target()
@@ -504,10 +508,12 @@ class BreadthFirstSearchResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
+                 reverse: bool, timeout: float = DEFAULT_TIMEOUT,
+                 hash_blacklist: Optional[Set[int]] = None):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, reverse=reverse, timeout=timeout)
+                         target=target, reverse=reverse, timeout=timeout,
+                         hash_blacklist=hash_blacklist)
 
     def _check_source_target(self):
         self._check_source_or_target()
@@ -554,10 +560,12 @@ class ShortestSimplePathsResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 timeout: float = DEFAULT_TIMEOUT):
+                 timeout: float = DEFAULT_TIMEOUT, hash_blacklist: Optional[
+                Set[int]] = None):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, reverse=False, timeout=timeout)
+                         target=target, reverse=False, timeout=timeout,
+                         hash_blacklist=hash_blacklist)
 
     def _check_source_target(self):
         self._check_source_and_target()
@@ -617,10 +625,10 @@ class SharedInteractorsResultManager(UIResultManager):
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  filter_options: FilterOptions, graph: DiGraph,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 is_targets_query: bool):
+                 is_targets_query: bool, hash_blacklist: Optional[Set[int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target)
+                         target=target, hash_blacklist=hash_blacklist)
         self._downstream: bool = is_targets_query
 
     def _check_source_target(self):
@@ -671,10 +679,11 @@ class OntologyResultManager(UIResultManager):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode]):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 hash_blacklist: Optional[Set[int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target)
+                         target=target, hash_blacklist=hash_blacklist)
         self._parents: List[Node] = []
 
     def _check_source_target(self):
