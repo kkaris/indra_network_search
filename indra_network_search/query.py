@@ -32,6 +32,7 @@ __all__ = [
     "SharedTargetsQuery",
     "SharedRegulatorsQuery",
     "OntologyQuery",
+    "UIQuery",
     "Query",
     "PathQuery",
     "alg_func_mapping",
