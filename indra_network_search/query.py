@@ -17,7 +17,7 @@ from indra.explanation.pathfinding import (
     EdgeFilter,
 )
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
-from .util import StrNode, StrEdge
+from indra_network_search.rest_util import StrNode, StrEdge
 from .data_models import *
 from .pathfinding import *
 

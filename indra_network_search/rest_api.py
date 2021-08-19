@@ -209,7 +209,8 @@ def sub_graph(search_query: SubgraphRestQuery):
 
 
 if DEBUG:
-    from .tests.util import _setup_graph, _setup_signed_node_graph
+    from indra_network_search.tests.util import _setup_graph, \
+        _setup_signed_node_graph
     dir_graph = _setup_graph()
     sign_node_graph = _setup_signed_node_graph(False)
 else:

@@ -19,7 +19,7 @@ from indra_network_search.net import IndraNetwork, EMPTY_RESULT, \
     list_all_hashes
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from depmap_analysis.util.io_functions import file_opener
-from .util import *
+from indra_network_search.rest_util import *
 
 app = Flask(__name__)
 app.register_blueprint(path_temps)

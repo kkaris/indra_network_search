@@ -31,7 +31,7 @@ from pydantic import BaseModel, validator, Extra, constr, conint
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 
-from indra_network_search.util import (
+from indra_network_search.rest_util import (
     get_query_hash,
     is_weighted,
     is_context_weighted,

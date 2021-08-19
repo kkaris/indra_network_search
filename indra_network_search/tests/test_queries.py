@@ -14,7 +14,7 @@ from non-hms and non-AWS IP addresses, unless explicitly added.
 from inspect import signature
 import networkx as nx
 from typing import Set, Callable
-from indra_network_search.util import get_mandatory_args
+from indra_network_search.rest_util import get_mandatory_args
 from indra_network_search.data_models import NetworkSearchQuery
 from indra_network_search.query import SharedTargetsQuery,\
     SharedRegulatorsQuery, ShortestSimplePathsQuery, BreadthFirstSearchQuery,\

@@ -21,7 +21,7 @@ from indra_network_search.result_handler import ResultManager, DB_URL_HASH, \
     DB_URL_EDGE
 from indra_network_search.search_api import IndraNetworkSearchAPI
 from indra_network_search.tests import nodes
-from indra_network_search.util import get_mandatory_args, StrNode
+from indra_network_search.rest_util import get_mandatory_args, StrNode
 
 
 def _setup_graph() -> DiGraph:
