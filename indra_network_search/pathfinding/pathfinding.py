@@ -66,7 +66,7 @@ def shared_interactors(graph: DiGraph,
                        max_results: int = 50,
                        regulators: bool = False,
                        sign: Optional[int] = None,
-                       hash_blacklist: Optional[List[str]] = None,
+                       hash_blacklist: Optional[Set[str]] = None,
                        node_blacklist: Optional[List[str]] = None,
                        belief_cutoff: float = 0.0,
                        curated_db_only: bool = False) \
@@ -101,7 +101,7 @@ def shared_interactors(graph: DiGraph,
         If provided, match edges to sign:
             - positive: edges must have same sign
             - negative: edges must have opposite sign
-    hash_blacklist : Optional[List[int]]
+    hash_blacklist : Optional[Set[int]]
         A list of hashes to exclude from the edges
     node_blacklist : Optional[List[str]]
         A list of node names to exclude
