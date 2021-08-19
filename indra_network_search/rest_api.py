@@ -10,7 +10,7 @@ from fastapi.responses import RedirectResponse
 
 from indra.databases import get_identifiers_url
 from .data_models.rest_models import Health
-from .util import load_indra_graph
+from .rest_util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults, Node
 from .autocomplete import NodesTrie, Prefixes
