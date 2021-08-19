@@ -78,6 +78,7 @@ class ResultManager:
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        """Remove filters already applied in algorithm"""
         raise NotImplementedError
 
     def _get_node(self, node_name: StrNode, apply_filter: bool = True) -> \
