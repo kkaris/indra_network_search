@@ -227,6 +227,7 @@ class UIResultManager(ResultManager):
         # calling _check_source_target *after* super.__init__() is called
         self._set_source_target(source=source, target=target)
         self._check_source_target()
+        self._hash_blacklist: Set[int] = hash_blacklist or set()
 
     def _set_source_target(self, source: Union[Node, StrNode],
                            target: Union[Node, StrNode]):
@@ -282,6 +283,9 @@ class UIResultManager(ResultManager):
     def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
                                                     Dict[str, int]]]) -> bool:
         raise NotImplementedError
+
+    def _hash_in_blacklist(self, stmt_hash: int) -> bool:
+        return stmt_hash in self._hash_blacklist
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
