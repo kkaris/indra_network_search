@@ -7,32 +7,40 @@ logger = logging.getLogger(__name__)
 
 
 class CurationCache:
-    def __init__(self):
-        logger.info("Loading incorrect curations")
-        curations = self._get_new_curations()
-        incc = {
-            cur["pa_hash"]: cur["date"]
-            for cur in curations
-            if cur["tag"] not in {"correct", "hypothesis", "act_vs_amt"}
-        }
-        self._curation_cache: Dict[int, datetime] = incc
-        logger.info(f"Loaded {len(incc)} curations")
+    _correct_set = {"correct", "hypothesis", "act_vs_amt"}
 
-    @staticmethod
-    def _get_new_curations():
+    def __init__(self):
+        self._curation_cache: Dict[int, datetime] = {}
+        self.update_cache()
+
+    def _get_new_curations(self) -> Dict[int, datetime]:
         try:
-            return get_curations()
+            curations = get_curations()
+            incc = {
+                cur["pa_hash"]: cur["date"]
+                for cur in curations
+                if cur["tag"] not in self._correct_set
+            }
+            return incc
         except Exception as exc:
             logger.error(f"Could not connect to the DB: {exc}")
-            return []
+            return {}
 
     def update_cache(self):
+        """Update the hash: datetime dict"""
         before = len(self._curation_cache)
         curations = self._get_new_curations()
-        for cur in curations:
-            if cur["pa_hash"] not in self._curation_cache:
-                self._curation_cache[cur["pa_hash"]] = cur["date"]
+        for hsh, dt in curations.items():
+            if hsh not in self._curation_cache:
+                self._curation_cache[hsh] = dt
         logger.info(f"Added {len(self._curation_cache) - before} curations")
 
     def get_all_hashes(self) -> Set[int]:
+        """Get all hashes present in the cache as a set
+
+        Returns
+        -------
+        :
+            The set of all hashes stored in the cache
+        """
         return {h for h in self._curation_cache}
