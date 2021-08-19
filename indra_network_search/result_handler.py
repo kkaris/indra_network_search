@@ -511,12 +511,11 @@ class BreadthFirstSearchResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool, timeout: float = DEFAULT_TIMEOUT,
-                 hash_blacklist: Optional[Set[int]] = None):
+                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse, timeout=timeout,
-                         hash_blacklist=hash_blacklist)
+                         hash_blacklist=None)
 
     def _check_source_target(self):
         self._check_source_or_target()
@@ -628,10 +627,10 @@ class SharedInteractorsResultManager(UIResultManager):
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  filter_options: FilterOptions, graph: DiGraph,
                  source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 is_targets_query: bool, hash_blacklist: Optional[Set[int]]):
+                 is_targets_query: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, hash_blacklist=hash_blacklist)
+                         target=target, hash_blacklist=None)
         self._downstream: bool = is_targets_query
 
     def _check_source_target(self):
