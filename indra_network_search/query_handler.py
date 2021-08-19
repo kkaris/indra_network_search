@@ -2,7 +2,7 @@
 The QueryHandler's job is to act as a middle layer between the network
 search functionalities and the REST API that receives queries.
 """
-from typing import List, Tuple, Union, Dict
+from typing import List, Tuple, Union, Dict, Set
 
 from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
 from indra_network_search.query import (
@@ -39,7 +39,9 @@ class QueryHandler:
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
         self._query_dict: Dict[str, UIQuery] = {}
         cc = CurationCache()
-        self._hash_bl = cc.get_all_hashes() if rest_query.filter_curated else set()
+        self._hash_bl: Set[int] = (
+            cc.get_all_hashes() if rest_query.filter_curated else set()
+        )
 
     def _get_queries(self) -> Dict[str, UIQuery]:
         """This method maps the rest_query to different eligible queries"""
