@@ -37,7 +37,9 @@ class CurationCache:
         # Filter to range
         if start is not None:
             hdd = {h: dt for h, dt in hdd.items() if dt > start}
-        return {h for h, dt in hdd.items() if dt < end}
+        if end is not None:
+            hdd = {h for h, dt in hdd.items() if dt < end}
+        return hdd
 
     def get_all_hashes(self) -> Set[int]:
         """Get all hashes present in the cache as a set
