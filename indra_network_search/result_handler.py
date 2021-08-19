@@ -21,7 +21,7 @@ from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from pydantic import ValidationError
 from indra_network_search.rest_util import StrNode
-from .pathfinding import *
+from indra_network_search.pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
     EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT, basemodel_in_iterable,\
