@@ -498,8 +498,7 @@ class DijkstraResultManager(PathResultManager):
         if self.filter_options.curated_db_only and not stmt_dict['curated']:
             return False
 
-        if self.filter_options.hash_blacklist and \
-                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
+        if self._hash_blacklist and stmt_dict['stmt_hash'] in self._hash_blacklist:
             return False
 
         return True
