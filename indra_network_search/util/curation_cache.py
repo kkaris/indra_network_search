@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Set
+from typing import Dict, Set, Optional
 from datetime import datetime
 from indra_db.client.principal.curation import get_curations
 
@@ -11,34 +11,33 @@ class CurationCache:
 
     def __init__(self):
         self._curation_cache: Dict[int, datetime] = {}
-        self.update_cache()
+        self._update_cache()
 
-    def _get_new_curations(self) -> Dict[int, datetime]:
+    def _update_cache(self):
         try:
             curations = get_curations()
-            incc = {
+            self._curation_cache = {
                 cur["pa_hash"]: cur["date"]
                 for cur in curations
                 if cur["tag"] not in self._correct_set
             }
-            return incc
+            logger.info(f"Got {len(self._curation_cache)} curations")
         except Exception as exc:
             logger.error(f"Could not connect to the DB: {exc}")
-            return {}
 
-    def update_cache(self):
-        """Update the hash: datetime dict"""
-        curations = self._get_new_curations()
-        added_curations = 0
-        for hsh, dt in curations.items():
-            if hsh not in self._curation_cache:
-                self._curation_cache[hsh] = dt
-                added_curations += 1
+    def get_hashes(
+        self, start: Optional[datetime] = None, end: Optional[datetime] = None
+    ) -> Set[int]:
+        # Update cache
+        self._update_cache()
 
-        if added_curations > 0:
-            logger.info(f"Added {added_curations} curations")
-        else:
-            logger.info("No New curations")
+        # Get cache
+        hdd = self._curation_cache
+
+        # Filter to range
+        if start is not None:
+            hdd = {h: dt for h, dt in hdd.items() if dt > start}
+        return {h for h, dt in hdd if dt < end}
 
     def get_all_hashes(self) -> Set[int]:
         """Get all hashes present in the cache as a set
@@ -48,5 +47,5 @@ class CurationCache:
         :
             The set of all hashes stored in the cache
         """
-        self.update_cache()
+        self._update_cache()
         return {h for h in self._curation_cache}
