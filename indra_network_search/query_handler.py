@@ -97,14 +97,15 @@ class QueryHandler:
         return self._query_dict
 
 
-def _is_context_weighted(mesh_id_list: bool, strict_filtering: bool):
+def _is_context_weighted(mesh_id_list: bool, strict_filtering: bool) -> bool:
     """Context weighted search: provide mesh ids without strict filtering"""
     if mesh_id_list and not strict_filtering:
         return True
     return False
 
 
-def _is_weighted(weight: bool, mesh_ids: bool, strict_mesh_id_filtering: bool):
+def _is_weighted(weight: bool, mesh_ids: bool, strict_mesh_id_filtering:
+bool) -> bool:
     """Any type of weighted search"""
     if mesh_ids:
         ctx_w = _is_context_weighted(mesh_id_list=mesh_ids,
