@@ -2,13 +2,15 @@
 The QueryHandler's job is to act as a middle layer between the network
 search functionalities and the REST API that receives queries.
 """
-from typing import List, Tuple, Union, Dict
+from typing import List, Tuple, Union, Dict, Set
 
 from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
-from .query import Query, ShortestSimplePathsQuery, BreadthFirstSearchQuery, \
-    DijkstraQuery, SharedTargetsQuery, OntologyQuery, SharedRegulatorsQuery
-from .data_models import NetworkSearchQuery
-from .pathfinding import shared_parents
+from indra_network_search.query import Query, ShortestSimplePathsQuery, \
+    BreadthFirstSearchQuery, DijkstraQuery, SharedTargetsQuery, \
+    OntologyQuery, SharedRegulatorsQuery
+from indra_network_search.data_models import NetworkSearchQuery
+from indra_network_search.pathfinding import shared_parents
+from indra_network_search.util.curation_cache import CurationCache
 
 __all__ = ['QueryHandler']
 
@@ -30,6 +32,10 @@ class QueryHandler:
         self.mesh: bool = bool(rest_query.mesh_ids)
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
         self._query_dict: Dict[str, Query] = {}
+        self._curation_cache = CurationCache()
+
+    def _get_hash_blacklist(self) -> Set[int]:
+        return self._curation_cache.get_all_hashes()
 
     def _get_queries(self) -> Dict[str, Query]:
         """This method maps the rest_query to different eligible queries"""
