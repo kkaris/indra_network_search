@@ -32,10 +32,8 @@ class QueryHandler:
         self.mesh: bool = bool(rest_query.mesh_ids)
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
         self._query_dict: Dict[str, UIQuery] = {}
-        self._curation_cache = CurationCache()
-
-    def _get_hash_blacklist(self) -> Set[int]:
-        return self._curation_cache.get_all_hashes()
+        self._hash_bl = CurationCache().get_all_hashes() if \
+            rest_query.filter_curated else set()
 
     def _get_queries(self) -> Dict[str, UIQuery]:
         """This method maps the rest_query to different eligible queries"""
@@ -43,27 +41,34 @@ class QueryHandler:
         # If not open: Add shortest_simple_paths and add other queries
         if not self.open:
             query_dict['path_query'] = \
-                ShortestSimplePathsQuery(self.rest_query)
+                ShortestSimplePathsQuery(self.rest_query, hash_blacklist=self._hash_bl)
             query_dict.update(self._aux_queries())
             if self.rest_query.two_way:
                 query_dict['reverse_path_query'] = \
-                    ShortestSimplePathsQuery(self.rest_query.reverse_search())
+                    ShortestSimplePathsQuery(self.rest_query.reverse_search(
+
+                    ), hash_blacklist=self._hash_bl)
         # If open: check if weighted options
         else:
             if _is_weighted(weight=self.weighted,
                             mesh_ids=self.mesh,
                             strict_mesh_id_filtering=self.strict_mesh):
-                query_dict['path_query'] = DijkstraQuery(self.rest_query)
+                query_dict['path_query'] = DijkstraQuery(self.rest_query,
+                                                         hash_blacklist=self._hash_bl)
                 if self.rest_query.two_way:
                     query_dict['reverse_path_query'] = \
-                        DijkstraQuery(self.rest_query.reverse_search())
+                        DijkstraQuery(self.rest_query.reverse_search(),
+                                      hash_blacklist=self._hash_bl)
 
             else:
                 query_dict['path_query'] = \
-                    BreadthFirstSearchQuery(self.rest_query)
+                    BreadthFirstSearchQuery(self.rest_query,
+                                            hash_blacklist=self._hash_bl)
             if self.rest_query.two_way:
                 query_dict['reverse_path_query'] = \
-                    BreadthFirstSearchQuery(self.rest_query.reverse_search())
+                    BreadthFirstSearchQuery(self.rest_query.reverse_search(
+
+                    ), hash_blacklist=self._hash_bl)
 
         return query_dict
 
@@ -72,11 +77,11 @@ class QueryHandler:
                             OntologyQuery]]:
         """Get shared interactors and ontological query"""
         aux_queries = \
-            {'shared_targets': SharedTargetsQuery(self.rest_query),
-             shared_parents.__name__: OntologyQuery(self.rest_query)}
+            {'shared_targets': SharedTargetsQuery(self.rest_query, self._hash_bl),
+             shared_parents.__name__: OntologyQuery(self.rest_query, self._hash_bl)}
         if self.rest_query.shared_regulators:
             aux_queries['shared_regulators'] = \
-                SharedRegulatorsQuery(self.rest_query)
+                SharedRegulatorsQuery(self.rest_query, self._hash_bl)
 
         return aux_queries
 
