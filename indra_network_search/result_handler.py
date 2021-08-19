@@ -683,11 +683,10 @@ class OntologyResultManager(UIResultManager):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 hash_blacklist: Optional[Set[int]]):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, hash_blacklist=hash_blacklist)
+                         target=target, hash_blacklist=None)
         self._parents: List[Node] = []
 
     def _check_source_target(self):
