@@ -6,7 +6,6 @@ from os import environ
 from typing import List, Optional
 
 from fastapi import FastAPI, Query as RestQuery
-from fastapi.responses import RedirectResponse
 
 from indra.databases import get_identifiers_url
 from .data_models.rest_models import Health
