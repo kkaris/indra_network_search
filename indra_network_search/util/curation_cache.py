@@ -11,9 +11,9 @@ class CurationCache:
 
     def __init__(self):
         self._curation_cache: Dict[int, datetime] = {}
-        self._update_cache()
 
     def _update_cache(self):
+        # todo: make a wrapper and wrap like the bio_ontology
         try:
             curations = get_curations()
             self._curation_cache = {
