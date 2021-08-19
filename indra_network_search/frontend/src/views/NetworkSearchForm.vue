@@ -87,11 +87,9 @@
               <div class="container">
                 <div class="row">
                   <div class="col">
-                    <BaseInputBS
-                        v-model="hash_blacklist_text"
-                        label="Hash Blacklist"
-                        type="text"
-                        :allowWhitespace="false"
+                    <BaseCheckboxBS
+                        v-model="filter_curated"
+                        label="Filter Curated"
                     />
                   </div>
                   <div class="col">
@@ -436,7 +434,7 @@ export default {
       target: "",
       validTarget: false,
       stmt_filter: [],
-      hash_blacklist_text: "",
+      filter_curated: true,
       allowed_ns: [],
       node_blacklist_text: "",
       path_length: null,
@@ -552,7 +550,7 @@ export default {
         source: this.source,
         target: this.target,
         stmt_filter: this.stmt_filter,
-        edge_hash_blacklist: this.splitTrim(this.hash_blacklist_text),
+        filter_curated: this.filter_curated,
         allowed_ns: this.allowed_ns, // Pick from multi-select
         node_blacklist: this.splitTrim(this.node_blacklist_text),
         path_length: this.path_length,

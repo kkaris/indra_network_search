@@ -132,7 +132,7 @@ class NetworkSearchQuery(BaseModel):
     source: constr(strip_whitespace=True) = ""
     target: constr(strip_whitespace=True) = ""
     stmt_filter: List[constr(to_lower=True, strip_whitespace=True)] = []
-    edge_hash_blacklist: List[int] = []
+    filter_curated: bool
     allowed_ns: List[constr(to_lower=True, strip_whitespace=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
