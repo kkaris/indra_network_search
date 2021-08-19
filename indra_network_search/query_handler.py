@@ -5,7 +5,7 @@ search functionalities and the REST API that receives queries.
 from typing import List, Tuple, Union, Dict, Set
 
 from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
-from indra_network_search.query import Query, ShortestSimplePathsQuery, \
+from indra_network_search.query import UIQuery, ShortestSimplePathsQuery, \
     BreadthFirstSearchQuery, DijkstraQuery, SharedTargetsQuery, \
     OntologyQuery, SharedRegulatorsQuery
 from indra_network_search.data_models import NetworkSearchQuery
@@ -31,15 +31,15 @@ class QueryHandler:
         self.weighted: bool = bool(rest_query.weighted)
         self.mesh: bool = bool(rest_query.mesh_ids)
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
-        self._query_dict: Dict[str, Query] = {}
+        self._query_dict: Dict[str, UIQuery] = {}
         self._curation_cache = CurationCache()
 
     def _get_hash_blacklist(self) -> Set[int]:
         return self._curation_cache.get_all_hashes()
 
-    def _get_queries(self) -> Dict[str, Query]:
+    def _get_queries(self) -> Dict[str, UIQuery]:
         """This method maps the rest_query to different eligible queries"""
-        query_dict: Dict[str, Query] = {}
+        query_dict: Dict[str, UIQuery] = {}
         # If not open: Add shortest_simple_paths and add other queries
         if not self.open:
             query_dict['path_query'] = \
@@ -80,12 +80,12 @@ class QueryHandler:
 
         return aux_queries
 
-    def get_queries(self) -> Dict[str, Query]:
-        """Returns a dict of {query name: Query} for all eligible queries
+    def get_queries(self) -> Dict[str, UIQuery]:
+        """Returns a dict of {query name: UIQuery} for all eligible queries
 
         Returns
         -------
-        List[Tuple[str, Query]]
+        List[Tuple[str, UIQuery]]
         """
         if not self._query_dict:
             self._query_dict = self._get_queries()
