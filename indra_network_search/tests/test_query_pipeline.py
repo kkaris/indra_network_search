@@ -371,7 +371,7 @@ def test_shortest_simple_paths():
     # edge_hash_blacklist
     # Remove ('AR', 'CHEK1')
     hash_bl_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
-                                       edge_hash_blacklist=[915990])
+                                       filter_curated=True)
     hash_bl_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                      ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
     hash_bl_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
@@ -683,7 +683,7 @@ def test_bfs_hash_blacklist():
     brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
     stmt_filter_query = NetworkSearchQuery(
-        source=brca1.name, edge_hash_blacklist=[5603789525715921]
+        source=brca1.name, filter_curated=True
     )
     str_paths2 = [('BRCA1', n) for n in
                   ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
