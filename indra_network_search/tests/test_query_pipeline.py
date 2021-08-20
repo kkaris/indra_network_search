@@ -388,6 +388,14 @@ def test_ssp_belief_weighted():
     belief_weighted_query = NetworkSearchQuery(
         filter_curated=False, source=brca1.name, target=brca2.name, weighted=True
     )
+    str_paths = [
+        ("BRCA1", n, "CHEK1", "BRCA2")
+        for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    str_paths5 = [
+        ("BRCA1", n, "CHEK1", "NCOA", "BRCA2")
+        for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
     paths = {
         4: _get_path_list(
             str_paths=str_paths, graph=unsigned_graph, large=False, signed=False
