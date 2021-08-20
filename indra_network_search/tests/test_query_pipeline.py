@@ -280,7 +280,7 @@ def _check_pipeline(
     return results
 
 
-def test_shortest_simple_paths():
+# test shortest_simple_paths #
     # Test:
     # - normal search
     # - signed search
@@ -299,12 +299,10 @@ def test_shortest_simple_paths():
     # - cull_best_node
     # Todo:
     #  - user_timeout
+
+def test_ssp_default():
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
-    brca1_up = Node(name="BRCA1", namespace="HGNC", identifier="1100", sign=0)
-    brca1_down = Node(name="BRCA1", namespace="HGNC", identifier="1100", sign=1)
     brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
-    brca2_up = Node(name="BRCA2", namespace="HGNC", identifier="1101", sign=0)
-    brca2_down = Node(name="BRCA2", namespace="HGNC", identifier="1101", sign=1)
 
     # Create rest query - normal search
     rest_query = NetworkSearchQuery(
@@ -336,7 +334,10 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
-    # Create rest query - signed search
+
+def test_ssp_signed_query1():
+    brca2_up = Node(name="BRCA2", namespace="HGNC", identifier="1101", sign=0)
+    brca1_up = Node(name="BRCA1", namespace="HGNC", identifier="1100", sign=0)
     signed_rest_query = NetworkSearchQuery(
         filter_curated=False, source="BRCA1", target="BRCA2", sign="+"
     )
@@ -356,6 +357,10 @@ def test_shortest_simple_paths():
         expected_res=expected_sign_paths,
     )
 
+
+def test_ssp_signed_query2():
+    brca2_up = Node(name="BRCA2", namespace="HGNC", identifier="1101", sign=0)
+    brca1_down = Node(name="BRCA1", namespace="HGNC", identifier="1100", sign=1)
     signed_rest_query2 = NetworkSearchQuery(
         filter_curated=False, source="BRCA2", target="BRCA1", sign="-"
     )
@@ -375,7 +380,11 @@ def test_shortest_simple_paths():
         expected_res=expected_sign_paths2,
     )
 
+
+def test_ssp_belief_weighted():
     # Create rest query - belief weighted
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     belief_weighted_query = NetworkSearchQuery(
         filter_curated=False, source=brca1.name, target=brca2.name, weighted=True
     )
@@ -397,7 +406,13 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
-    # reverse
+
+def test_ssp_reverse():
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
+    rest_query = NetworkSearchQuery(
+        filter_curated=False, source="BRCA1", target="BRCA2"
+    )
     reverse_query = rest_query.reverse_search()
     rev_str_paths = [("BRCA2", "BRCA1")]
     rev_paths = {
@@ -415,13 +430,17 @@ def test_shortest_simple_paths():
         expected_res=expected_rev_paths,
     )
 
-    # context weighted
-    # Todo: Figure out how to get correct edges to mesh ids
+# context weighted
+# Todo: Figure out how to get correct edges to mesh ids
 
-    # strict context
-    # Todo: Figure out how to get correct edges to mesh ids
+# strict context
+# Todo: Figure out how to get correct edges to mesh ids
 
-    # stmt_filter - should remove ('testosterone', 'CHEK1'), ('NR2C2', 'CHEK1')
+
+def test_ssp_stmt_filter():
+    # Filter should remove ('testosterone', 'CHEK1'), ('NR2C2', 'CHEK1')
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     stmt_filter_query = NetworkSearchQuery(
         filter_curated=False,
         source="BRCA1",
@@ -456,8 +475,11 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
-    # edge_hash_blacklist
+
+def test_ssp_edge_hash_blacklist():
     # Remove ('AR', 'CHEK1')
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     hash_bl_query = NetworkSearchQuery(
         source="BRCA1", target="BRCA2", filter_curated=True
     )
@@ -487,8 +509,11 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
-    # allowed_ns
+
+def test_ssp_allowed_ns1():
     # Only allow HGNC: will remove testosterone and NCOA as node
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     ns_query = NetworkSearchQuery(
         filter_curated=False, source="BRCA1", target="BRCA2", allowed_ns=["HGNC"]
     )
@@ -510,9 +535,12 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
+
+def test_ssp_allow_ns2():
     # Only allow CHEBI, start on BRCA1, end on CHEK1: source and target node
     # should always be allowed but any forbidden NS in between should be
     # filtered out
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     chek1 = Node(name="CHEK1", namespace="HGNC", identifier="1925")
     ns_query2 = NetworkSearchQuery(
         filter_curated=False, source="BRCA1", target="CHEK1", allowed_ns=["CHEBI"]
@@ -533,8 +561,11 @@ def test_shortest_simple_paths():
         expected_res=expected_paths2,
     )
 
-    # node_blacklist
+
+def test_ssp_node_blacklist():
     # Blacklist testosterone
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     node_bl_query = NetworkSearchQuery(
         filter_curated=False,
         source="BRCA1",
@@ -565,7 +596,10 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
-    # path_length
+
+def test_ssp_path_length():
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     pl5_query = NetworkSearchQuery(
         filter_curated=False, source="BRCA1", target="BRCA2", path_length=5
     )
@@ -588,7 +622,11 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
+
+def test_ssp_belief_cutoff():
     # belief_cutoff - filter out NCOA edges
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     belief_query = NetworkSearchQuery(
         filter_curated=False, source="BRCA1", target="BRCA2", belief_cutoff=0.71
     )
@@ -611,7 +649,10 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
-    # curated_db_only
+
+def test_ssp_curated_db_only():
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     curated_query = NetworkSearchQuery(
         filter_curated=False, source="BRCA1", target="BRCA2", curated_db_only=True
     )
@@ -633,6 +674,10 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
+
+def test_ssp_k_shortests():
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     # k_shortest <-- number of paths to return
     k_short_query = NetworkSearchQuery(
         filter_curated=False, source="BRCA1", target="BRCA2", k_shortest=4
@@ -655,7 +700,10 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
-    # cull_best_node
+
+def test_ssp_cull_best_node():
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     cull_query = NetworkSearchQuery(
         filter_curated=False, source="BRCA1", target="BRCA2", cull_best_node=3
     )
@@ -677,8 +725,8 @@ def test_shortest_simple_paths():
         expected_res=expected_paths,
     )
 
-    # user_timeout <-- not yet implemented
-    # todo: add timeout test
+# user_timeout <-- not yet implemented
+# todo: add timeout test
 
 
 def test_dijkstra():
