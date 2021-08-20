@@ -21,7 +21,7 @@ from indra_network_search.result_handler import ResultManager, DB_URL_HASH, \
     DB_URL_EDGE
 from indra_network_search.search_api import IndraNetworkSearchAPI
 from indra_network_search.tests import nodes
-from indra_network_search.rest_util import get_mandatory_args, StrNode
+from indra_network_search.rest_util import get_mandatory_args, StrNode, StrEdge
 
 
 def _setup_graph() -> DiGraph:
@@ -165,7 +165,7 @@ def _edge_data_equals(edge_model: EdgeData,
     return True
 
 
-def _get_node(name: Union[str, Tuple[str, int]],
+def _get_node(name: StrNode,
               graph: DiGraph) -> Optional[Node]:
     # Signed node
     if isinstance(name, tuple):
@@ -237,7 +237,7 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
         raise ValueError(f'Unrecognized Query class {type(query)}')
 
 
-def _get_edge_data_list(edge_list: List[Tuple[StrNode, StrNode]],
+def _get_edge_data_list(edge_list: List[StrEdge],
                         graph: DiGraph, large: bool, signed: bool) \
         -> List[EdgeData]:
     edges: List[EdgeData] = []
@@ -248,7 +248,7 @@ def _get_edge_data_list(edge_list: List[Tuple[StrNode, StrNode]],
     return edges
 
 
-def _get_edge_data(edge: Tuple[StrNode, ...], graph: DiGraph, large: bool,
+def _get_edge_data(edge: StrEdge, graph: DiGraph, large: bool,
                    signed: bool) -> EdgeData:
     edge_data = _get_edge_data_dict(large=large, signed=signed)
     ed = edge_data[edge]
@@ -297,6 +297,15 @@ def _get_path_list(str_paths: List[Tuple[StrNode, ...]],
             edl.append(e_data)
         paths.append(Path(path=path, edge_data=edl))
     return paths
+
+
+def _get_edge_hash(edge: StrEdge, graph: DiGraph, large: bool, signed: bool):
+    edge_data = _get_edge_data(edge=edge, graph=graph, large=large,
+                               signed=signed)
+    hashes = set()
+    for sd in edge_data.statements.values():
+        hashes.update(st.stmt_hash for st in sd.statements)
+    return hashes
 
 
 unsigned_graph = _setup_graph()
