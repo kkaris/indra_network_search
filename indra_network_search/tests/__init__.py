@@ -60,7 +60,7 @@ edge_data = {
         ('BRCA1', 'PATZ1'): {'belief': 0.99,
                              'weight': wm(0.99),
                              'statements': [{
-            'stmt_hash': 5603789525715924, 'stmt_type': 'Complex',
+            'stmt_hash': 5603789525715925, 'stmt_type': 'Complex',
             'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
             'residue': None, 'weight': 2, 'curated': False, 'position': None,
             'english': 'BRCA1 binds PATZ1.'}]
