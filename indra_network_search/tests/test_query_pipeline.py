@@ -104,7 +104,7 @@ def _check_path_queries(
             results.target, expected_res.target
         ), f"Got node {results.target}; expected {expected_res.target}"
     if expected_res.source is None and expected_res.target is None:
-        raise ValueError("Both source and target of expected results are " "None")
+        raise ValueError("Both source and target of expected results are None")
 
     for exp_len, expected in expected_res.paths.items():
         try:
@@ -123,7 +123,7 @@ def _check_path_queries(
             for rp, ep in zip(res_paths, expected):
                 for rn, en in zip(rp.path, ep.path):
                     assert _node_equals(rn, en), (
-                        "Paths are out of order or nodes in path are not " "the same"
+                        "Paths are out of order or nodes in path are not the same"
                     )
         else:
             # Check that sets of paths are the same
