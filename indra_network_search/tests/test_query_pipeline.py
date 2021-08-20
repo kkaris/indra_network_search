@@ -31,10 +31,11 @@ from indra_network_search.query import SharedTargetsQuery, Query, \
     DijkstraQuery, OntologyQuery
 from indra_network_search.result_handler import ResultManager, \
     alg_manager_mapping, OntologyResultManager
+from indra_network_search.tests.test_curation_cache import MockCurationCache
 from indra_network_search.tests.util import _match_args, _node_equals, \
     _edge_data_equals, _get_path_gen, _get_api_res, _get_edge_data_list, \
     _get_path_list, unsigned_graph, expanded_unsigned_graph, \
-    exp_signed_node_graph, signed_node_graph
+    exp_signed_node_graph, signed_node_graph, _get_edge_data
 
 
 def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
@@ -186,7 +187,34 @@ def _check_pipeline(rest_query: NetworkSearchQuery, alg_name: str,
     """Checks pipeline from incoming Query to result model"""
     # Map to Query:
     QueryCls = alg_name_query_mapping[alg_name]
-    query = QueryCls(rest_query)
+
+    # Inject hash blacklist. This is done in the QueryHandler
+    if rest_query.filter_curated:
+        # BRCA1-AR, AR-CHEK1 are blacklisted
+        brca1_ar_hash = list(
+            _get_edge_data(
+                ('BRCA1', 'AR'),
+                unsigned_graph,
+                large=False,
+                signed=False
+            ).statements.values()
+        )[0].statements[0].stmt_hash
+        ar_chek1_hash = list(
+            _get_edge_data(
+                ('AR', 'CHEK1'),
+                unsigned_graph,
+                large=False,
+                signed=False
+            ).statements.values()
+        )[0].statements[0].stmt_hash
+        hash_blacklist = MockCurationCache(
+            [brca1_ar_hash, ar_chek1_hash]
+        ).get_hashes()
+    else:
+        hash_blacklist = None
+
+    # Create instance of Query
+    query = QueryCls(rest_query, hash_blacklist=hash_blacklist)
 
     # Get run options, the query class will run some checks on its own
     options = query.run_options(graph=graph)
