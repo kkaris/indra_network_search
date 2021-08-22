@@ -1,5 +1,5 @@
 from inspect import signature
-from typing import Dict, Set, Callable, Optional, Union, List, Tuple, Any
+from typing import Dict, Set, Callable, Optional, List, Tuple, Any
 
 from networkx import DiGraph, MultiDiGraph
 
