@@ -55,6 +55,7 @@ from indra_network_search.tests.util import (
     signed_node_graph,
     _get_edge_data,
 )
+from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2
 
 
 def _check_path_queries(

@@ -300,3 +300,5 @@ for edge, v in edge_data.items():
             "CHEK1", "H2AZ1"
         )
         more_edge_data[parallel_edge] = v
+hash_bl_edge1 = ('BRCA1', 'AR')
+hash_bl_edge2 = ('AR', 'CHEK1')
