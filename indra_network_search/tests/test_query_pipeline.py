@@ -1173,33 +1173,6 @@ def test_shared_interactors():
         sign=0,
         lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
     )
-    brca1_down = Node(
-        name="BRCA1",
-        namespace="HGNC",
-        identifier="1100",
-        sign=1,
-        lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
-    )
-    brca2 = Node(
-        name="BRCA2",
-        namespace="HGNC",
-        identifier="1101",
-        lookup=get_identifiers_url(db_name="HGNC", db_id="1101"),
-    )
-    brca2_up = Node(
-        name="BRCA2",
-        namespace="HGNC",
-        identifier="1101",
-        sign=0,
-        lookup=get_identifiers_url(db_name="HGNC", db_id="1101"),
-    )
-    brca2_down = Node(
-        name="BRCA2",
-        namespace="HGNC",
-        identifier="1101",
-        sign=1,
-        lookup=get_identifiers_url(db_name="HGNC", db_id="1101"),
-    )
 
     # 'HDAC3': {'ns': 'HGNC', 'id': '4854'}
     hdac3 = Node(
@@ -1213,13 +1186,6 @@ def test_shared_interactors():
         namespace="HGNC",
         identifier="4854",
         sign=0,
-        lookup=get_identifiers_url(db_name="HGNC", db_id="4854"),
-    )
-    hdac3_down = Node(
-        name="HDAC3",
-        namespace="HGNC",
-        identifier="4854",
-        sign=1,
         lookup=get_identifiers_url(db_name="HGNC", db_id="4854"),
     )
 
@@ -1237,12 +1203,6 @@ def test_shared_interactors():
         sign=0,
         lookup=get_identifiers_url(db_name="HGNC", db_id="1925"),
     )
-    chek1_down = Node(
-        name="CHEK1",
-        namespace="HGNC",
-        identifier="1925",
-        lookup=get_identifiers_url(db_name="HGNC", db_id="1925"),
-    )
 
     # 'H2AZ1': {'ns': 'HGNC', 'id': '4741'}
     h2az1 = Node(
@@ -1256,13 +1216,6 @@ def test_shared_interactors():
         namespace="HGNC",
         identifier="4741",
         sign=0,
-        lookup=get_identifiers_url(db_name="HGNC", db_id="4741"),
-    )
-    h2az1_down = Node(
-        name="H2AZ1",
-        namespace="HGNC",
-        identifier="4741",
-        sign=1,
         lookup=get_identifiers_url(db_name="HGNC", db_id="4741"),
     )
 
