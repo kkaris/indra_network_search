@@ -9,6 +9,7 @@ from indra_network_search.pathfinding import *
 from indra_network_search.query import SubgraphQuery
 from indra_network_search.result_handler import SubgraphResultManager, \
     DB_URL_EDGE, DB_URL_HASH
+from indra_network_search.tests.util import expanded_unsigned_graph
 
 
 def test_shared_parents():
@@ -33,6 +34,21 @@ def test_shared_targets():
                              regulators=False)
     res_list = [t for t in res]
     assert ([source, shared_target], [target, shared_target]) in res_list
+
+
+def test_shared_targets_w_big_graph():
+    source_edges = [
+        ("BRCA1", n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    target_edges = [
+        ("HDAC3", n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    edges = shared_interactors(graph=expanded_unsigned_graph,
+                               source="BRCA1", target="HDAC3", regulators=False)
+    edges_list = list(edges)
+    for ix, (se, te) in enumerate(edges_list):
+        assert tuple(se) == source_edges[ix]
+        assert tuple(te) == target_edges[ix]
 
 
 def test_shared_regulators():
