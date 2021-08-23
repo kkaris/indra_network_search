@@ -27,6 +27,7 @@ from indra_network_search.data_models import *
 from indra_network_search.query import (
     SharedTargetsQuery,
     Query,
+    PathQuery,
     SharedRegulatorsQuery,
     ShortestSimplePathsQuery,
     BreadthFirstSearchQuery,
@@ -60,7 +61,7 @@ from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2
 
 def _check_path_queries(
     graph: DiGraph,
-    QueryCls: Type[Query],
+    QueryCls: Type[PathQuery],
     rest_query: NetworkSearchQuery,
     expected_res: PathResultData,
 ) -> bool:
