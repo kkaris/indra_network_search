@@ -438,9 +438,7 @@ class PathResultManager(UIResultManager):
                 self.timed_out = True
                 break
             if paths_built >= self.filter_options.max_paths:
-                logger.info(
-                    f"Found all {self.filter_options.max_paths} shortest paths"
-                )
+                logger.info(f"Found all {self.filter_options.max_paths} shortest paths")
                 break
 
             try:
