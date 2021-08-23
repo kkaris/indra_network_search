@@ -39,7 +39,6 @@ from indra_network_search.query import (
 from indra_network_search.result_handler import (
     ResultManager,
     alg_manager_mapping,
-    OntologyResultManager,
 )
 from indra_network_search.tests.test_curation_cache import MockCurationCache
 from indra_network_search.tests.util import (
@@ -54,7 +53,7 @@ from indra_network_search.tests.util import (
     expanded_unsigned_graph,
     exp_signed_node_graph,
     signed_node_graph,
-    _get_edge_data,
+    _get_edge_hash,
 )
 from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2
 
