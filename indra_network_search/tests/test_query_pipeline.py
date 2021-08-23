@@ -133,7 +133,24 @@ def _check_path_queries(
             assert set_of_paths == exp_path_sets, "Paths are not the same"
 
     # Check search api
-    query = QueryCls(query=rest_query)
+    if rest_query.filter_curated:
+        large = len(graph.nodes) in (len(expanded_unsigned_graph.nodes),
+                                     len(exp_signed_node_graph.nodes))
+        brca1_ar_hash = _get_edge_hash(
+            edge=hash_bl_edge1, graph=graph, large=large,
+            signed=rest_query.sign is not None
+        )
+        ar_chek1_hash = _get_edge_hash(
+            edge=hash_bl_edge2, graph=graph, large=large,
+            signed=rest_query.sign is not None
+        )
+        hashes = list(brca1_ar_hash.union(ar_chek1_hash))
+        hash_blacklist = MockCurationCache(hashes).get_hashes()
+        assert set(hash_blacklist) == set(hashes)
+    else:
+        hash_blacklist = None
+
+    query = QueryCls(query=rest_query, hash_blacklist=hash_blacklist)
     signed = rest_query.sign is not None
     api_res_mngr = _get_api_res(query=query, is_signed=signed, large=False)
     api_res = api_res_mngr.get_results()
