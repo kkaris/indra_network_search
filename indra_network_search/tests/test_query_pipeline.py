@@ -123,9 +123,9 @@ def _check_path_queries(
         if rest_query.is_overall_weighted():
             for rp, ep in zip(res_paths, expected):
                 for rn, en in zip(rp.path, ep.path):
-                    assert _node_equals(rn, en), (
-                        "Paths are out of order or nodes in path are not the same"
-                    )
+                    assert _node_equals(
+                        rn, en
+                    ), "Paths are out of order or nodes in path are not the same"
         else:
             # Check that sets of paths are the same
             set_of_paths = {tuple(n.name for n in p.path) for p in res_paths}
@@ -134,15 +134,21 @@ def _check_path_queries(
 
     # Check search api
     if rest_query.filter_curated:
-        large = len(graph.nodes) in (len(expanded_unsigned_graph.nodes),
-                                     len(exp_signed_node_graph.nodes))
+        large = len(graph.nodes) in (
+            len(expanded_unsigned_graph.nodes),
+            len(exp_signed_node_graph.nodes),
+        )
         brca1_ar_hash = _get_edge_hash(
-            edge=hash_bl_edge1, graph=graph, large=large,
-            signed=rest_query.sign is not None
+            edge=hash_bl_edge1,
+            graph=graph,
+            large=large,
+            signed=rest_query.sign is not None,
         )
         ar_chek1_hash = _get_edge_hash(
-            edge=hash_bl_edge2, graph=graph, large=large,
-            signed=rest_query.sign is not None
+            edge=hash_bl_edge2,
+            graph=graph,
+            large=large,
+            signed=rest_query.sign is not None,
         )
         hashes = list(brca1_ar_hash.union(ar_chek1_hash))
         hash_blacklist = MockCurationCache(hashes).get_hashes()
@@ -153,7 +159,7 @@ def _check_path_queries(
     query = QueryCls(query=rest_query, hash_blacklist=hash_blacklist)
     signed = rest_query.sign is not None
     api_res_mngr = _get_api_res(query=query, is_signed=signed, large=False)
-    if rest_query.filter_curated and api_res_mngr.alg_name != 'bfs_search':
+    if rest_query.filter_curated and api_res_mngr.alg_name != "bfs_search":
         assert api_res_mngr._hash_blacklist
     api_res = api_res_mngr.get_results()
     assert isinstance(api_res, PathResultData)
@@ -245,10 +251,10 @@ def _check_pipeline(
     rest_query: NetworkSearchQuery, alg_name: str, graph: DiGraph
 ) -> BaseModel:
     """Checks pipeline from incoming Query to result model"""
-    # Map to Query:
+    # Map to Query: tests that the query mapping works
     QueryCls = alg_name_query_mapping[alg_name]
 
-    # Inject hash blacklist. This is done in the QueryHandler
+    # Inject hash blacklist. This is done in the QueryHandler otherwise
     if rest_query.filter_curated:
         large = len(graph.nodes) in (
             len(expanded_unsigned_graph.nodes),
@@ -311,25 +317,30 @@ def _check_pipeline(
     return results
 
 
+#########
+# TESTS #
+#########
+
 # test shortest_simple_paths #
-    # Test:
-    # - normal search
-    # - signed search
-    # - belief weighted
-    # - reverse
-    # - context weighted
-    # - strict context
-    # - stmt_filter
-    # - edge_hash_blacklist
-    # - allowed_ns
-    # - node_blacklist
-    # - path_length <-- path length
-    # - belief_cutoff
-    # - curated_db_only
-    # - k_shortest <-- number of paths
-    # - cull_best_node
-    # Todo:
-    #  - user_timeout
+# Test:
+# - normal search
+# - signed search
+# - belief weighted
+# - reverse
+# - context weighted
+# - strict context
+# - stmt_filter
+# - edge_hash_blacklist
+# - allowed_ns
+# - node_blacklist
+# - path_length <-- path length
+# - belief_cutoff
+# - curated_db_only
+# - k_shortest <-- number of paths
+# - cull_best_node
+# Todo:
+#  - user_timeout
+
 
 def test_ssp_default():
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
@@ -469,6 +480,7 @@ def test_ssp_reverse():
         expected_res=expected_rev_paths,
     )
 
+
 # context weighted
 # Todo: Figure out how to get correct edges to mesh ids
 
@@ -516,7 +528,7 @@ def test_ssp_stmt_filter():
 
 
 def test_ssp_edge_hash_blacklist():
-    # Remove ('AR', 'CHEK1')
+    # Remove ('BRCA1', 'AR') ('AR', 'CHEK1')
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     hash_bl_query = NetworkSearchQuery(
@@ -765,6 +777,7 @@ def test_ssp_cull_best_node():
         expected_res=expected_paths,
     )
 
+
 # user_timeout <-- not yet implemented
 # todo: add timeout test
 
@@ -1012,7 +1025,7 @@ def test_bfs_hash_blacklist():
         identifier="1100",
         lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
     )
-    stmt_filter_query = NetworkSearchQuery(source=brca1.name)
+    stmt_filter_query = NetworkSearchQuery(source=brca1.name, filter_curated=True)
     str_paths2 = [("BRCA1", n) for n in ["testosterone", "NR2C2", "MBD2", "PATZ1"]]
     str_paths3 = [("BRCA1", "testosterone", "CHEK1")]
     paths = {
@@ -1385,6 +1398,7 @@ def test_signed_shared_regulators():
     # - curated db only
 
 
+# fixme: this is slow bc it loads the ontology
 def test_ontology_query():
     g = DiGraph()
     n1 = "BRCA1"
