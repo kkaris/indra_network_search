@@ -29,7 +29,11 @@ class QueryHandler:
     queries are eligible from the input query.
     """
 
-    def __init__(self, rest_query: NetworkSearchQuery):
+    def __init__(
+        self,
+        rest_query: NetworkSearchQuery,
+        curation_cache: CurationCache = CurationCache(),
+    ):
         self.rest_query: NetworkSearchQuery = rest_query
         self.rest_query_hash: int = rest_query.get_hash()
         self.signed: bool = SIGN_TO_STANDARD.get(rest_query.sign) in ("+", "-")
@@ -38,7 +42,7 @@ class QueryHandler:
         self.mesh: bool = bool(rest_query.mesh_ids)
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
         self._query_dict: Dict[str, UIQuery] = {}
-        cc = CurationCache()
+        cc = curation_cache
         self._hash_bl: Set[int] = (
             cc.get_all_hashes() if rest_query.filter_curated else set()
         )
