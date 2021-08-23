@@ -1,27 +1,46 @@
 from inspect import signature
-from typing import Dict, Set, Callable, Optional, Union, List, Tuple, Any
+from typing import Dict, Set, Callable, Optional, List, Tuple, Any
 
 from networkx import DiGraph, MultiDiGraph
 
 from indra.assemblers.indranet.net import default_sign_dict
-from indra.explanation.model_checker.model_checker import \
-    signed_edges_to_signed_nodes
-from indra.explanation.pathfinding import bfs_search, shortest_simple_paths, \
-    open_dijkstra_search
-from indra_network_search.data_models import Node, EdgeData, StmtData, Path, \
-    basemodels_equal, StmtTypeSupport
-from indra_network_search.pathfinding import shared_parents, \
-    shared_interactors, get_subgraph_edges
-from indra_network_search.query import MissingParametersError, \
-    InvalidParametersError, Query, BreadthFirstSearchQuery, \
-    ShortestSimplePathsQuery, DijkstraQuery, OntologyQuery, \
-    SharedTargetsQuery, \
-    SharedRegulatorsQuery, SubgraphQuery
-from indra_network_search.result_handler import ResultManager, DB_URL_HASH, \
-    DB_URL_EDGE
+from indra.explanation.model_checker.model_checker import signed_edges_to_signed_nodes
+from indra.explanation.pathfinding.util import signed_nodes_to_signed_edge
+from indra.explanation.pathfinding import (
+    bfs_search,
+    shortest_simple_paths,
+    open_dijkstra_search,
+)
+
+from indra_network_search.data_models import (
+    Node,
+    EdgeData,
+    StmtData,
+    Path,
+    basemodels_equal,
+    StmtTypeSupport,
+)
+from indra_network_search.pathfinding import (
+    shared_parents,
+    shared_interactors,
+    get_subgraph_edges,
+)
+from indra_network_search.query import (
+    MissingParametersError,
+    InvalidParametersError,
+    Query,
+    BreadthFirstSearchQuery,
+    ShortestSimplePathsQuery,
+    DijkstraQuery,
+    OntologyQuery,
+    SharedTargetsQuery,
+    SharedRegulatorsQuery,
+    SubgraphQuery,
+)
+from indra_network_search.result_handler import ResultManager, DB_URL_HASH, DB_URL_EDGE
 from indra_network_search.search_api import IndraNetworkSearchAPI
 from indra_network_search.tests import nodes
-from indra_network_search.rest_util import get_mandatory_args, StrNode
+from indra_network_search.rest_util import get_mandatory_args, StrNode, StrEdge
 
 
 def _setup_graph() -> DiGraph:
@@ -59,8 +78,8 @@ def _setup_signed_node_graph(large: bool) -> DiGraph:
     dg = _setup_bigger_graph() if large else _setup_graph()
     for u, v in dg.edges:
         edge_dict = dg.edges[(u, v)]
-        if edge_dict['statements'][0]['stmt_type'] in default_sign_dict:
-            sign = default_sign_dict[edge_dict['statements'][0]['stmt_type']]
+        if edge_dict["statements"][0]["stmt_type"] in default_sign_dict:
+            sign = default_sign_dict[edge_dict["statements"][0]["stmt_type"]]
             # Add nodes if not previously present
             if u not in seg.nodes:
                 seg.add_node(u, **dg.nodes[u])
@@ -73,15 +92,15 @@ def _setup_signed_node_graph(large: bool) -> DiGraph:
         # If not signed type
         else:
             continue
-    return signed_edges_to_signed_nodes(graph=seg, copy_edge_data=True,
-                                        prune_nodes=True)
+    return signed_edges_to_signed_nodes(
+        graph=seg, copy_edge_data=True, prune_nodes=True
+    )
 
 
 def _setup_api(large: bool) -> IndraNetworkSearchAPI:
     g = expanded_unsigned_graph if large else unsigned_graph
     sg = exp_signed_node_graph if large else signed_node_graph
-    return IndraNetworkSearchAPI(unsigned_graph=g,
-                                 signed_node_graph=sg)
+    return IndraNetworkSearchAPI(unsigned_graph=g, signed_node_graph=sg)
 
 
 def _get_signed_node_edge_dict(large: bool) -> Dict:
@@ -94,6 +113,7 @@ def _get_edge_data_dict(large: bool, signed: bool) -> Dict:
         return _get_signed_node_edge_dict(large=large)
     else:
         from . import edge_data, more_edge_data
+
         if large:
             return more_edge_data
         else:
@@ -119,19 +139,20 @@ def _match_args(run_options: Set[str], alg_fun: Callable) -> bool:
     # kwargs parameter
 
     # Do the run options contain all mandatory args?
-    mand_args = get_mandatory_args(alg_fun).difference({'kwargs'})
+    mand_args = get_mandatory_args(alg_fun).difference({"kwargs"})
     if len(run_options.intersection(mand_args)) < len(mand_args) - 1:
         raise MissingParametersError(
-            f'Missing at least one of mandatory parameters (excl. graph/g/G '
+            f"Missing at least one of mandatory parameters (excl. graph/g/G "
             f'args, kwargs). Mandatory parameters: "{", ".join(mand_args)}". '
-            f'Provided parameters: "{", ".join(run_options)}".')
+            f'Provided parameters: "{", ".join(run_options)}".'
+        )
 
     # Are all the run options part of the function args?
     all_args = set(signature(alg_fun).parameters.keys())
     invalid = run_options.difference(all_args)
     if len(invalid):
         raise InvalidParametersError(
-            f'Invalid args provided for algorithm {alg_fun.__name__}: '
+            f"Invalid args provided for algorithm {alg_fun.__name__}: "
             f'"{", ".join(invalid)}"'
         )
 
@@ -141,54 +162,65 @@ def _match_args(run_options: Set[str], alg_fun: Callable) -> bool:
 def _node_equals(node: Node, other_node: Node) -> bool:
     # Check node name, namespace, identifier.
     # Ignore 'lookup' if either node does not have it.
-    exclude = {'lookup'} if node.lookup is None \
-                            or other_node.lookup is None else set()
+    exclude = {"lookup"} if node.lookup is None or other_node.lookup is None else set()
     other_node_dict = other_node.dict(exclude=exclude)
-    return all(v == other_node_dict[k] for k, v in
-               node.dict(exclude=exclude).items())
+    return all(v == other_node_dict[k] for k, v in node.dict(exclude=exclude).items())
 
 
-def _edge_data_equals(edge_model: EdgeData,
-                      other_edge_model: EdgeData) -> bool:
+def _edge_data_equals(edge_model: EdgeData, other_edge_model: EdgeData) -> bool:
     # Check nodes of edge
-    assert all(_node_equals(n1, n2) for n1, n2 in zip(edge_model.edge,
-                                                      other_edge_model.edge))
+    assert all(
+        _node_equals(n1, n2) for n1, n2 in zip(edge_model.edge, other_edge_model.edge)
+    )
     assert edge_model.db_url_edge == other_edge_model.db_url_edge
     assert edge_model.sign == other_edge_model.sign
     assert edge_model.belief == other_edge_model.belief
     assert edge_model.context_weight == other_edge_model.context_weight
     assert edge_model.weight == other_edge_model.weight
-    assert \
-        all(all(basemodels_equal(s1, s2, False) for s1, s2 in
-                zip(other_edge_model.statements[k], st_data_lst))
-            for k, st_data_lst in edge_model.statements.items())
+    assert all(
+        other_edge_model.source_counts[k] == v
+        for k, v in edge_model.source_counts.items()
+    )
+    assert all(
+        basemodels_equal(
+            basemodel=st_type_sup,
+            other_basemodel=other_edge_model.statements[stmt_type],
+            any_item=False,
+        )
+        for stmt_type, st_type_sup in edge_model.statements.items()
+    )
     return True
 
 
-def _get_node(name: Union[str, Tuple[str, int]],
-              graph: DiGraph) -> Optional[Node]:
+def _get_node(name: StrNode, graph: DiGraph) -> Optional[Node]:
     # Signed node
     if isinstance(name, tuple):
         if name in graph.nodes:
             node_name, sign = name
-            return Node(name=node_name, namespace=graph.nodes[name]['ns'],
-                        identifier=graph.nodes[name]['id'], sign=sign)
+            return Node(
+                name=node_name,
+                namespace=graph.nodes[name]["ns"],
+                identifier=graph.nodes[name]["id"],
+                sign=sign,
+            )
         else:
             pass
     # Unsigned node
     else:
         node_name = name
         if node_name in graph.nodes:
-            return Node(name=node_name, namespace=graph.nodes[name]['ns'],
-                        identifier=graph.nodes[name]['id'])
+            return Node(
+                name=node_name,
+                namespace=graph.nodes[name]["ns"],
+                identifier=graph.nodes[name]["id"],
+            )
         else:
             pass
 
-    raise ValueError(f'{name} not in graph')
+    raise ValueError(f"{name} not in graph")
 
 
-def _get_path_gen(alg_func: Callable, graph: DiGraph,
-                  run_options: Dict[str, Any]):
+def _get_path_gen(alg_func: Callable, graph: DiGraph, run_options: Dict[str, Any]):
     # This helper mostly does the job of using the correct keyword for the
     # graph argument
     if alg_func.__name__ == bfs_search.__name__:
@@ -206,7 +238,7 @@ def _get_path_gen(alg_func: Callable, graph: DiGraph,
     elif alg_func.__name__ == get_subgraph_edges.__name__:
         return get_subgraph_edges(graph=graph, **run_options)
     else:
-        raise ValueError(f'Unrecognized function {alg_func.__name__}')
+        raise ValueError(f"Unrecognized function {alg_func.__name__}")
 
 
 def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
@@ -224,65 +256,82 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
     elif query.alg_name == shared_parents.__name__:
         assert isinstance(query, OntologyQuery)
         return api.shared_parents(query)
-    elif query.alg_name == 'shared_targets':
+    elif query.alg_name == "shared_targets":
         assert isinstance(query, SharedTargetsQuery)
         return api.shared_targets(query, is_signed)
-    elif query.alg_name == 'shared_regulators':
+    elif query.alg_name == "shared_regulators":
         assert isinstance(query, SharedRegulatorsQuery)
         return api.shared_regulators(query, is_signed)
     elif query.alg_name == get_subgraph_edges.__name__:
         assert isinstance(query, SubgraphQuery)
         return api.subgraph_query(query)
     else:
-        raise ValueError(f'Unrecognized Query class {type(query)}')
+        raise ValueError(f"Unrecognized Query class {type(query)}")
 
 
-def _get_edge_data_list(edge_list: List[Tuple[StrNode, StrNode]],
-                        graph: DiGraph, large: bool, signed: bool) \
-        -> List[EdgeData]:
+def _get_edge_data_list(
+    edge_list: List[StrEdge], graph: DiGraph, large: bool, signed: bool
+) -> List[EdgeData]:
     edges: List[EdgeData] = []
     for a, b in edge_list:
-        edata = _get_edge_data(edge=(a, b), graph=graph, large=large,
-                               signed=signed)
+        edata = _get_edge_data(edge=(a, b), graph=graph, large=large, signed=signed)
         edges.append(edata)
     return edges
 
 
-def _get_edge_data(edge: Tuple[StrNode, ...], graph: DiGraph, large: bool,
-                   signed: bool) -> EdgeData:
+def _get_edge_data(
+    edge: StrEdge, graph: DiGraph, large: bool, signed: bool
+) -> EdgeData:
     edge_data = _get_edge_data_dict(large=large, signed=signed)
     ed = edge_data[edge]
     stmt_dict: Dict[str, StmtTypeSupport] = {}
 
-    for sd in ed['statements']:
-        url = DB_URL_HASH.format(stmt_hash=sd['stmt_hash'])
+    for sd in ed["statements"]:
+        url = DB_URL_HASH.format(stmt_hash=sd["stmt_hash"], ev_limit=10)
         stmt_data = StmtData(db_url_hash=url, **sd)
         try:
             stmt_dict[stmt_data.stmt_type].statements.append(stmt_data)
         except KeyError:
-            stmt_dict[stmt_data.stmt_type] = \
-                StmtTypeSupport(stmt_type=stmt_data.stmt_type,
-                                statements=[stmt_data])
+            stmt_dict[stmt_data.stmt_type] = StmtTypeSupport(
+                stmt_type=stmt_data.stmt_type, statements=[stmt_data]
+            )
 
     # Set source counts
     for sts in stmt_dict.values():
         sts.set_source_counts()
 
     node_edge = [_get_node(edge[0], graph), _get_node(edge[1], graph)]
-    edge_url = DB_URL_EDGE.format(subj_id=node_edge[0].identifier,
-                                  subj_ns=node_edge[0].namespace,
-                                  obj_id=node_edge[1].identifier,
-                                  obj_ns=node_edge[1].namespace)
+    edge_url = DB_URL_EDGE.format(
+        subj_id=node_edge[0].identifier,
+        subj_ns=node_edge[0].namespace,
+        obj_id=node_edge[1].identifier,
+        obj_ns=node_edge[1].namespace,
+        ev_limit=10,
+    )
 
-    edge_data = EdgeData(edge=node_edge, statements=stmt_dict,
-                         belief=ed['belief'], weight=ed['weight'],
-                         db_url_edge=edge_url)
+    if signed:
+        assert isinstance(edge[0], tuple), (
+            "expected signed node when requesting signed edge data"
+        )
+        _, _, sign = signed_nodes_to_signed_edge(*edge)
+    else:
+        sign = None
+
+    edge_data = EdgeData(
+        edge=node_edge,
+        statements=stmt_dict,
+        belief=ed["belief"],
+        weight=ed["weight"],
+        db_url_edge=edge_url,
+        sign=sign,
+    )
     edge_data.set_source_counts()
     return edge_data
 
 
-def _get_path_list(str_paths: List[Tuple[Union[str, Tuple[str, int]], ...]],
-                   graph: DiGraph, large: bool, signed: bool) -> List[Path]:
+def _get_path_list(
+    str_paths: List[Tuple[StrNode, ...]], graph: DiGraph, large: bool, signed: bool
+) -> List[Path]:
     paths: List[Path] = []
     for spath in str_paths:
         path: List[Node] = []
@@ -291,11 +340,18 @@ def _get_path_list(str_paths: List[Tuple[Union[str, Tuple[str, int]], ...]],
         edl: List[EdgeData] = []
         for a, b in zip(spath[:-1], spath[1:]):
             edge = (a, b)
-            e_data = _get_edge_data(edge=edge, graph=graph, large=large,
-                                    signed=signed)
+            e_data = _get_edge_data(edge=edge, graph=graph, large=large, signed=signed)
             edl.append(e_data)
         paths.append(Path(path=path, edge_data=edl))
     return paths
+
+
+def _get_edge_hash(edge: StrEdge, graph: DiGraph, large: bool, signed: bool):
+    edge_data = _get_edge_data(edge=edge, graph=graph, large=large, signed=signed)
+    hashes = set()
+    for sd in edge_data.statements.values():
+        hashes.update(st.stmt_hash for st in sd.statements)
+    return hashes
 
 
 unsigned_graph = _setup_graph()
