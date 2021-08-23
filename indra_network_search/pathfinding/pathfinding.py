@@ -26,6 +26,7 @@ from depmap_analysis.network_functions.famplex_functions import (
 from indra_network_search.rest_util import StrNode, StrNodeSeq
 
 logger = logging.getLogger(__name__)
+FilterOption = Union[List[str], List[int], float, None]
 
 __all__ = ["shared_interactors", "shared_parents", "get_subgraph_edges"]
 
@@ -424,13 +425,17 @@ def _run_edge_filter(
     neighbor_nodes: Set[StrNode],
     g: DiGraph,
     rev: bool,
-    filter_option,
-    filter_func: Callable[[StrNode, Set[StrNode], DiGraph, bool, object], Set[StrNode]],
+    filter_option: FilterOption,
+    filter_func: Callable[[StrNode, Set[StrNode], DiGraph, bool, ...],
+                          Set[StrNode]],
 ):
     for start_node in start_nodes:
         if not neighbor_nodes:
             return neighbor_nodes
-        neighbor_nodes = filter_func(start_node, neighbor_nodes, g, rev, filter_option)
+        if filter_option is None:
+            neighbor_nodes = filter_func(start_node, neighbor_nodes, g, rev)
+        else:
+            neighbor_nodes = filter_func(start_node, neighbor_nodes, g, rev, filter_option)
 
     return neighbor_nodes
 
