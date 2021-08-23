@@ -168,7 +168,12 @@ class ResultManager:
         ev_limit: Optional[int] = None,
     ) -> Union[StmtData, None]:
         """If statement passes filter, return StmtData model"""
-        if not self.filter_options.no_stmt_filters() and not self._pass_stmt(stmt_dict):
+        # Only check _pass_stmt if:
+        #   - filters are present or
+        #   - the hash blacklist contain values
+        if self.filter_options.no_stmt_filters() and not self._hash_blacklist:
+            pass
+        elif not self._pass_stmt(stmt_dict):
             return None
 
         try:
@@ -353,9 +358,6 @@ class UIResultManager(ResultManager):
         self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
     ) -> bool:
         raise NotImplementedError
-
-    def _hash_in_blacklist(self, stmt_hash: int) -> bool:
-        return stmt_hash in self._hash_blacklist
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -591,6 +593,9 @@ class DijkstraResultManager(PathResultManager):
         # - belief
         # - curated db
         # Order the checks by likelihood of being applied
+        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
+            return False
+
         if (
             self.filter_options.exclude_stmts
             and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
@@ -604,9 +609,6 @@ class DijkstraResultManager(PathResultManager):
             return False
 
         if self.filter_options.curated_db_only and not stmt_dict["curated"]:
-            return False
-
-        if self._hash_in_blacklist(stmt_dict["stmt_hash"]):
             return False
 
         return True
@@ -737,6 +739,9 @@ class ShortestSimplePathsResultManager(PathResultManager):
         # - hash_blacklist
         # - belief
         # - curated
+        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
+            return False
+
         if (
             self.filter_options.exclude_stmts
             and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
@@ -750,9 +755,6 @@ class ShortestSimplePathsResultManager(PathResultManager):
             return False
 
         if self.filter_options.curated_db_only and not stmt_dict["curated"]:
-            return False
-
-        if self._hash_in_blacklist(stmt_dict["stmt_hash"]):
             return False
 
         return True
