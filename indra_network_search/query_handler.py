@@ -92,7 +92,7 @@ class QueryHandler:
         """Get shared interactors and ontological query"""
         aux_queries = {
             "shared_targets": SharedTargetsQuery(self.rest_query, self._hash_bl),
-            shared_parents.__name__: OntologyQuery(self.rest_query, self._hash_bl),
+            shared_parents.__name__: OntologyQuery(self.rest_query),
         }
         if self.rest_query.shared_regulators:
             aux_queries["shared_regulators"] = SharedRegulatorsQuery(
