@@ -3,7 +3,18 @@ Pathfinding algorithms local to this repo
 """
 import logging
 from itertools import islice, product
-from typing import Generator, List, Union, Optional, Set, Iterator, Tuple, Any, Dict
+from typing import (
+    Generator,
+    List,
+    Union,
+    Optional,
+    Set,
+    Iterator,
+    Tuple,
+    Any,
+    Dict,
+    Callable,
+)
 
 from networkx import DiGraph
 
@@ -406,6 +417,22 @@ def _belief_filter(
                 filtered_neighbors.add(n)
                 break
     return filtered_neighbors
+
+
+def _run_edge_filter(
+    start_nodes: StrNodeSeq,
+    neighbor_nodes: Set[StrNode],
+    g: DiGraph,
+    rev: bool,
+    filter_option,
+    filter_func: Callable[[StrNode, Set[StrNode], DiGraph, bool, object], Set[StrNode]],
+):
+    for start_node in start_nodes:
+        if not neighbor_nodes:
+            return neighbor_nodes
+        neighbor_nodes = filter_func(start_node, neighbor_nodes, g, rev, filter_option)
+
+    return neighbor_nodes
 
 
 def get_subgraph_edges(
