@@ -323,6 +323,7 @@ def _get_edge_data(
         belief=ed["belief"],
         weight=ed["weight"],
         db_url_edge=edge_url,
+        sign=sign,
     )
     edge_data.set_source_counts()
     return edge_data
