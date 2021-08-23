@@ -541,6 +541,7 @@ def test_ssp_edge_hash_blacklist():
     expected_paths: PathResultData = PathResultData(
         source=brca1, target=brca2, paths=paths
     )
+    assert hash_bl_query.filter_curated, "filter_curated is supposed to be set to True"
     assert _check_path_queries(
         graph=unsigned_graph,
         QueryCls=ShortestSimplePathsQuery,
