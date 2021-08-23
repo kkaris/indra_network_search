@@ -88,8 +88,8 @@ def shared_parents(
 
 def shared_interactors(
     graph: DiGraph,
-    source: Union[str, Tuple[str, int]],
-    target: Union[str, Tuple[str, int]],
+    source: StrNode,
+    target: StrNode,
     allowed_ns: Optional[List[str]] = None,
     stmt_types: Optional[List[str]] = None,
     source_filter: Optional[List[str]] = None,
@@ -100,7 +100,7 @@ def shared_interactors(
     node_blacklist: Optional[List[str]] = None,
     belief_cutoff: float = 0.0,
     curated_db_only: bool = False,
-) -> Iterator[Tuple[List[str], List[str]]]:
+) -> Iterator[Tuple[List[StrNode], List[StrNode]]]:
     """Get shared regulators or targets and filter them based on sign
 
     Closely resembles get_st and get_sr from
@@ -146,7 +146,7 @@ def shared_interactors(
     Generator
     """
 
-    def _get_min_max_belief(node: Union[str, Tuple[str, int]]):
+    def _get_min_max_belief(node: StrNode):
         s_edge = (node, source) if regulators else (source, node)
         t_edge = (node, target) if regulators else (target, node)
         s_max: float = max([sd["belief"] for sd in graph.edges[s_edge]["statements"]])
@@ -154,8 +154,8 @@ def shared_interactors(
         return min(s_max, t_max)
 
     neigh = graph.pred if regulators else graph.succ
-    s_neigh: Set[Union[str, Tuple[str, int]]] = set(neigh[source])
-    t_neigh: Set[Union[str, Tuple[str, int]]] = set(neigh[target])
+    s_neigh: Set[StrNode] = set(neigh[source])
+    t_neigh: Set[StrNode] = set(neigh[target])
 
     # If signed, filter sign
     # Sign is handled different here than in the depmap explanations - if
@@ -340,12 +340,12 @@ def _namespace_filter(
 
 
 def _stmt_types_filter(
-    start_node: Union[str, Tuple[str, int]],
-    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    start_node: StrNode,
+    neighbor_nodes: Set[StrNode],
     graph: DiGraph,
     reverse: bool,
     stmt_types: List[str],
-) -> Set[Union[str, Tuple[str, int]]]:
+) -> Set[StrNode]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         node_list = sorted(neighbor_nodes, key=lambda t: t[0])
@@ -359,7 +359,7 @@ def _stmt_types_filter(
     )
 
     # Check which edges have the allowed stmt types
-    filtered_neighbors: Set[Union[str, Tuple[str, int]]] = set()
+    filtered_neighbors: Set[StrNode] = set()
     for n, edge in zip(node_list, edge_iter):
         stmt_list = graph.edges[edge]["statements"]
         if any(sd["stmt_type"].lower() in stmt_types for sd in stmt_list):
@@ -368,12 +368,12 @@ def _stmt_types_filter(
 
 
 def _source_filter(
-    start_node: Union[str, Tuple[str, int]],
-    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    start_node: StrNode,
+    neighbor_nodes: Set[StrNode],
     graph: DiGraph,
     reverse: bool,
     sources: List[str],
-) -> Set[Union[str, Tuple[str, int]]]:
+) -> Set[StrNode]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         node_list = sorted(neighbor_nodes, key=lambda t: t[0])
@@ -387,7 +387,7 @@ def _source_filter(
     )
 
     # Check which edges have the allowed stmt types
-    filtered_neighbors: Set[Union[str, Tuple[str, int]]] = set()
+    filtered_neighbors: Set[StrNode] = set()
     for n, edge in zip(node_list, edge_iter):
         for sd in graph.edges[edge]["statements"]:
             if isinstance(sd["source_counts"], dict) and any(
@@ -399,11 +399,11 @@ def _source_filter(
 
 
 def _filter_curated(
-    start_node: Union[str, Tuple[str, int]],
-    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    start_node: StrNode,
+    neighbor_nodes: Set[StrNode],
     graph: DiGraph,
     reverse: bool,
-) -> Set[Union[str, Tuple[str, int]]]:
+) -> Set[StrNode]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         # If signed, order on name, not sign
@@ -427,12 +427,12 @@ def _filter_curated(
 
 
 def _hash_filter(
-    start_node: Union[str, Tuple[str, int]],
-    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    start_node: StrNode,
+    neighbor_nodes: Set[StrNode],
     graph: DiGraph,
     reverse: bool,
     hashes: List[int],
-) -> Set[Union[str, Tuple[str, int]]]:
+) -> Set[StrNode]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         # If signed, order on name, not sign
@@ -460,12 +460,12 @@ def _hash_filter(
 
 
 def _belief_filter(
-    start_node: Union[str, Tuple[str, int]],
-    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    start_node: StrNode,
+    neighbor_nodes: Set[StrNode],
     graph: DiGraph,
     reverse: bool,
     belief_cutoff: float,
-) -> Set[Union[str, Tuple[str, int]]]:
+) -> Set[StrNode]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         # If signed, order on name, not sign
