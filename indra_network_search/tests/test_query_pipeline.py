@@ -216,11 +216,11 @@ def _check_shared_interactors(
 
     # Check if results are as expected
     assert all(
-        _edge_data_equals(d1, d1)
+        _edge_data_equals(d1, d2)
         for d1, d2 in zip(expected_res.source_data, results.source_data)
     )
     assert all(
-        _edge_data_equals(d1, d1)
+        _edge_data_equals(d1, d2)
         for d1, d2 in zip(expected_res.target_data, results.target_data)
     )
 
