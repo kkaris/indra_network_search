@@ -259,31 +259,36 @@ def direct_multi_interactors(
         neighbors = [n for n in neighbors if n not in node_blacklist]
 
     # Apply edge type filters
-    filter_args = (interactor_list, neighbors, graph, reverse,)
+    filter_args = (
+        interactor_list,
+        neighbors,
+        graph,
+        reverse,
+    )
     if stmt_types and neighbors:
-        neighbors = _run_edge_filter(*filter_args,
-                                     filter_func=_stmt_types_filter,
-                                     filter_option=stmt_types)
+        neighbors = _run_edge_filter(
+            *filter_args, filter_func=_stmt_types_filter, filter_option=stmt_types
+        )
 
     if source_filter and neighbors:
-        neighbors = _run_edge_filter(*filter_args,
-                                     filter_func=_source_filter,
-                                     filter_option=source_filter)
+        neighbors = _run_edge_filter(
+            *filter_args, filter_func=_source_filter, filter_option=source_filter
+        )
 
     if hash_blacklist and neighbors:
-        neighbors = _run_edge_filter(*filter_args,
-                                     filter_func=_hash_filter,
-                                     filter_option=hash_blacklist)
+        neighbors = _run_edge_filter(
+            *filter_args, filter_func=_hash_filter, filter_option=hash_blacklist
+        )
 
     if belief_cutoff > 0 and neighbors:
-        neighbors = _run_edge_filter(*filter_args,
-                                     filter_func=_belief_filter,
-                                     filter_option=belief_cutoff)
+        neighbors = _run_edge_filter(
+            *filter_args, filter_func=_belief_filter, filter_option=belief_cutoff
+        )
 
     if curated_db_only and neighbors:
-        neighbors = _run_edge_filter(*filter_args,
-                                     filter_func=_filter_curated,
-                                     filter_option=None)
+        neighbors = _run_edge_filter(
+            *filter_args, filter_func=_filter_curated, filter_option=None
+        )
 
     # Sort by node degree
     if neighbors:
@@ -498,8 +503,7 @@ def _run_edge_filter(
     g: DiGraph,
     rev: bool,
     filter_option: FilterOption,
-    filter_func: Callable[[StrNode, Set[StrNode], DiGraph, bool, ...],
-                          Set[StrNode]],
+    filter_func: Callable[[StrNode, Set[StrNode], DiGraph, bool, ...], Set[StrNode]],
 ):
     for start_node in start_nodes:
         if not neighbor_nodes:
@@ -507,7 +511,9 @@ def _run_edge_filter(
         if filter_option is None:
             neighbor_nodes = filter_func(start_node, neighbor_nodes, g, rev)
         else:
-            neighbor_nodes = filter_func(start_node, neighbor_nodes, g, rev, filter_option)
+            neighbor_nodes = filter_func(
+                start_node, neighbor_nodes, g, rev, filter_option
+            )
 
     return neighbor_nodes
 
