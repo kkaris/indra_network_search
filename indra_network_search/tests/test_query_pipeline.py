@@ -250,31 +250,37 @@ def _check_pipeline(
 
     # Inject hash blacklist. This is done in the QueryHandler
     if rest_query.filter_curated:
-        # BRCA1-AR, AR-CHEK1 are blacklisted
-        brca1_ar_hash = (
-            list(
-                _get_edge_data(
-                    ("BRCA1", "AR"), unsigned_graph, large=False, signed=False
-                ).statements.values()
-            )[0]
-            .statements[0]
-            .stmt_hash
+        large = len(graph.nodes) in (
+            len(expanded_unsigned_graph.nodes),
+            len(exp_signed_node_graph.nodes),
         )
-        ar_chek1_hash = (
-            list(
-                _get_edge_data(
-                    ("AR", "CHEK1"), unsigned_graph, large=False, signed=False
-                ).statements.values()
-            )[0]
-            .statements[0]
-            .stmt_hash
+        brca1_ar_hash = _get_edge_hash(
+            edge=hash_bl_edge1,
+            graph=graph,
+            large=large,
+            signed=rest_query.sign is not None,
         )
-        hash_blacklist = MockCurationCache([brca1_ar_hash, ar_chek1_hash]).get_hashes()
+        ar_chek1_hash = _get_edge_hash(
+            edge=hash_bl_edge2,
+            graph=graph,
+            large=large,
+            signed=rest_query.sign is not None,
+        )
+        hashes = list(brca1_ar_hash.union(ar_chek1_hash))
+        hash_blacklist = MockCurationCache(hashes).get_hashes()
+        assert set(hash_blacklist) == set(hashes)
     else:
         hash_blacklist = None
 
     # Create instance of Query
-    query = QueryCls(rest_query, hash_blacklist=hash_blacklist)
+    if QueryCls.alg_name in (
+        ShortestSimplePathsQuery.alg_name,
+        DijkstraQuery.alg_name,
+        BreadthFirstSearchQuery.alg_name,
+    ):
+        query = QueryCls(rest_query, hash_blacklist=hash_blacklist)
+    else:
+        query = QueryCls(rest_query)
 
     # Get run options, the query class will run some checks on its own
     options = query.run_options(graph=graph)
@@ -290,8 +296,13 @@ def _check_pipeline(
     path_gen = _get_path_gen(alg_func=alg_func, graph=graph, run_options=options)
 
     # Get the result manager
+    res_options = query.result_options()
+    if query.alg_name in (ShortestSimplePathsQuery.alg_name, DijkstraQuery.alg_name):
+        assert "hash_blacklist" in res_options
+        assert bool(res_options["hash_blacklist"]) == bool(hash_blacklist)
+
     ResMng: Type[ResultManager] = alg_manager_mapping[query.alg_name]
-    res_mngr = ResMng(path_generator=path_gen, graph=graph, **query.result_options())
+    res_mngr = ResMng(path_generator=path_gen, graph=graph, **res_options)
 
     # Get results
     results = res_mngr.get_results()
