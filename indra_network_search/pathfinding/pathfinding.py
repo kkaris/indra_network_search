@@ -12,6 +12,7 @@ from depmap_analysis.network_functions.famplex_functions import (
     get_identifiers_url,
     ns_id_to_name,
 )
+from indra_network_search.rest_util import StrNode, StrNodeSeq
 
 logger = logging.getLogger(__name__)
 
@@ -249,8 +250,8 @@ def _sign_filter(
 
 
 def _namespace_filter(
-    nodes: Set[Union[str, Tuple[str, int]]], graph: DiGraph, allowed_ns: List[str]
-) -> Set[Union[str, Tuple[str, int]]]:
+    nodes: StrNodeSeq, graph: DiGraph, allowed_ns: List[str]
+) -> Set[StrNode]:
     return {x for x in nodes if graph.nodes[x]["ns"].lower() in allowed_ns}
 
 
