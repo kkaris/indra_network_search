@@ -153,6 +153,8 @@ def _check_path_queries(
     query = QueryCls(query=rest_query, hash_blacklist=hash_blacklist)
     signed = rest_query.sign is not None
     api_res_mngr = _get_api_res(query=query, is_signed=signed, large=False)
+    if rest_query.filter_curated and api_res_mngr.alg_name != 'bfs_search':
+        assert api_res_mngr._hash_blacklist
     api_res = api_res_mngr.get_results()
     assert isinstance(api_res, PathResultData)
     assert not api_res.is_empty(), (
