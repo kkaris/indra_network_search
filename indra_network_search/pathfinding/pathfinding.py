@@ -3,24 +3,30 @@ Pathfinding algorithms local to this repo
 """
 import logging
 from itertools import islice, product
-from typing import Generator, List, Union, Optional, Set, Iterator, Tuple, \
-    Any, Dict
+from typing import Generator, List, Union, Optional, Set, Iterator, Tuple, Any, Dict
 
 from networkx import DiGraph
 
-from depmap_analysis.network_functions.famplex_functions import \
-    common_parent, get_identifiers_url, ns_id_to_name
+from depmap_analysis.network_functions.famplex_functions import (
+    common_parent,
+    get_identifiers_url,
+    ns_id_to_name,
+)
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['shared_interactors', 'shared_parents', 'get_subgraph_edges']
+__all__ = ["shared_interactors", "shared_parents", "get_subgraph_edges"]
 
 
-def shared_parents(source_ns: str, source_id: str, target_ns: str,
-                   target_id: str, immediate_only: bool = False,
-                   is_a_part_of: Optional[Set[str]] = None,
-                   max_paths: int = 50) \
-        -> Iterator[Tuple[str, Any, Any, str]]:
+def shared_parents(
+    source_ns: str,
+    source_id: str,
+    target_ns: str,
+    target_id: str,
+    immediate_only: bool = False,
+    is_a_part_of: Optional[Set[str]] = None,
+    max_paths: int = 50,
+) -> Iterator[Tuple[str, Any, Any, str]]:
     """Get shared parents of (source ns, source id) and (target ns, target id)
 
     Parameters
@@ -46,31 +52,42 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
     -------
     List[Tuple[str, str, str, str]]
     """
-    sp_set = common_parent(id1=source_id, id2=target_id, ns1=source_ns,
-                           ns2=target_ns, immediate_only=immediate_only,
-                           is_a_part_of=is_a_part_of)
-    return islice(sorted([
-        (ns_id_to_name(n, i) or '',
-         n, i, get_identifiers_url(n, i))
-        for n, i in sp_set
-        # sort on     name,  ns,  id
-    ], key=lambda t: (t[0], t[1], t[2])), max_paths)
+    sp_set = common_parent(
+        id1=source_id,
+        id2=target_id,
+        ns1=source_ns,
+        ns2=target_ns,
+        immediate_only=immediate_only,
+        is_a_part_of=is_a_part_of,
+    )
+    return islice(
+        sorted(
+            [
+                (ns_id_to_name(n, i) or "", n, i, get_identifiers_url(n, i))
+                for n, i in sp_set
+                # sort on     name,  ns,  id
+            ],
+            key=lambda t: (t[0], t[1], t[2]),
+        ),
+        max_paths,
+    )
 
 
-def shared_interactors(graph: DiGraph,
-                       source: Union[str, Tuple[str, int]],
-                       target: Union[str, Tuple[str, int]],
-                       allowed_ns: Optional[List[str]] = None,
-                       stmt_types: Optional[List[str]] = None,
-                       source_filter: Optional[List[str]] = None,
-                       max_results: int = 50,
-                       regulators: bool = False,
-                       sign: Optional[int] = None,
-                       hash_blacklist: Optional[Set[str]] = None,
-                       node_blacklist: Optional[List[str]] = None,
-                       belief_cutoff: float = 0.0,
-                       curated_db_only: bool = False) \
-        -> Iterator[Tuple[List[str], List[str]]]:
+def shared_interactors(
+    graph: DiGraph,
+    source: Union[str, Tuple[str, int]],
+    target: Union[str, Tuple[str, int]],
+    allowed_ns: Optional[List[str]] = None,
+    stmt_types: Optional[List[str]] = None,
+    source_filter: Optional[List[str]] = None,
+    max_results: int = 50,
+    regulators: bool = False,
+    sign: Optional[int] = None,
+    hash_blacklist: Optional[Set[str]] = None,
+    node_blacklist: Optional[List[str]] = None,
+    belief_cutoff: float = 0.0,
+    curated_db_only: bool = False,
+) -> Iterator[Tuple[List[str], List[str]]]:
     """Get shared regulators or targets and filter them based on sign
 
     Closely resembles get_st and get_sr from
@@ -115,13 +132,12 @@ def shared_interactors(graph: DiGraph,
     -------
     Generator
     """
+
     def _get_min_max_belief(node: Union[str, Tuple[str, int]]):
         s_edge = (node, source) if regulators else (source, node)
         t_edge = (node, target) if regulators else (target, node)
-        s_max: float = max([sd['belief'] for sd in
-                            graph.edges[s_edge]['statements']])
-        t_max: float = max([sd['belief'] for sd in
-                            graph.edges[t_edge]['statements']])
+        s_max: float = max([sd["belief"] for sd in graph.edges[s_edge]["statements"]])
+        t_max: float = max([sd["belief"] for sd in graph.edges[t_edge]["statements"]])
         return min(s_max, t_max)
 
     neigh = graph.pred if regulators else graph.succ
@@ -135,8 +151,9 @@ def shared_interactors(graph: DiGraph,
     # shared targets and upregulates source & target in the case of shared
     # regulators.
     if sign is not None:
-        s_neigh, t_neigh = _sign_filter(source, s_neigh, target, t_neigh,
-                                        sign, regulators)
+        s_neigh, t_neigh = _sign_filter(
+            source, s_neigh, target, t_neigh, sign, regulators
+        )
 
     # Filter nodes
     if node_blacklist:
@@ -180,32 +197,33 @@ def shared_interactors(graph: DiGraph,
 
     intermediates = s_neigh & t_neigh
 
-    interm_sorted = sorted(intermediates,
-                           key=_get_min_max_belief,
-                           reverse=True)
+    interm_sorted = sorted(intermediates, key=_get_min_max_belief, reverse=True)
 
     # Return generator of edge pairs sorted by lowest highest belief of
     if regulators:
-        path_gen: Generator = (([x, source], [x, target])
-                               for x in interm_sorted)
+        path_gen: Generator = (([x, source], [x, target]) for x in interm_sorted)
     else:
-        path_gen: Generator = (([source, x], [target, x])
-                               for x in interm_sorted)
+        path_gen: Generator = (([source, x], [target, x]) for x in interm_sorted)
     return islice(path_gen, max_results)
 
 
-def _sign_filter(source: Tuple[str, int], s_neigh: Set[Tuple[str, int]],
-                 target: Tuple[str, int], t_neigh: Set[Tuple[str, int]],
-                 sign: Optional[int], regulators: bool, ):
+def _sign_filter(
+    source: Tuple[str, int],
+    s_neigh: Set[Tuple[str, int]],
+    target: Tuple[str, int],
+    t_neigh: Set[Tuple[str, int]],
+    sign: Optional[int],
+    regulators: bool,
+):
     # Check that nodes are signed
     try:
         assert isinstance(source, tuple)
         assert isinstance(target, tuple)
     except AssertionError as err:
-        raise ValueError('Input nodes are not signed') from err
+        raise ValueError("Input nodes are not signed") from err
     # Check that signs are proper
     if sign not in {0, 1}:
-        raise ValueError(f'Unknown sign {sign}')
+        raise ValueError(f"Unknown sign {sign}")
 
     if regulators:
         # source and target sign match requested sign, neighbors are
@@ -214,8 +232,7 @@ def _sign_filter(source: Tuple[str, int], s_neigh: Set[Tuple[str, int]],
             assert source[1] == sign
             assert target[1] == sign
         except AssertionError as err:
-            raise ValueError('Node sign does not match requested sign') \
-                from err
+            raise ValueError("Node sign does not match requested sign") from err
 
         # Regulators can only have + sign
         # Find regulators that upregulate both source & target
@@ -231,66 +248,77 @@ def _sign_filter(source: Tuple[str, int], s_neigh: Set[Tuple[str, int]],
     return s_neigh, t_neigh
 
 
-def _namespace_filter(nodes: Set[Union[str, Tuple[str, int]]], graph: DiGraph,
-                      allowed_ns: List[str]) \
-        -> Set[Union[str, Tuple[str, int]]]:
-    return {x for x in nodes if graph.nodes[x]['ns'].lower()
-            in allowed_ns}
+def _namespace_filter(
+    nodes: Set[Union[str, Tuple[str, int]]], graph: DiGraph, allowed_ns: List[str]
+) -> Set[Union[str, Tuple[str, int]]]:
+    return {x for x in nodes if graph.nodes[x]["ns"].lower() in allowed_ns}
 
 
-def _stmt_types_filter(start_node: Union[str, Tuple[str, int]],
-                       neighbor_nodes: Set[Union[str, Tuple[str, int]]],
-                       graph: DiGraph, reverse: bool, stmt_types: List[str])\
-        -> Set[Union[str, Tuple[str, int]]]:
+def _stmt_types_filter(
+    start_node: Union[str, Tuple[str, int]],
+    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    graph: DiGraph,
+    reverse: bool,
+    stmt_types: List[str],
+) -> Set[Union[str, Tuple[str, int]]]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         node_list = sorted(neighbor_nodes, key=lambda t: t[0])
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = \
-        product(node_list, [start_node]) if reverse else \
-        product([start_node], node_list)
+    edge_iter = (
+        product(node_list, [start_node])
+        if reverse
+        else product([start_node], node_list)
+    )
 
     # Check which edges have the allowed stmt types
     filtered_neighbors: Set[Union[str, Tuple[str, int]]] = set()
     for n, edge in zip(node_list, edge_iter):
-        stmt_list = graph.edges[edge]['statements']
-        if any(sd['stmt_type'].lower() in stmt_types for sd in stmt_list):
+        stmt_list = graph.edges[edge]["statements"]
+        if any(sd["stmt_type"].lower() in stmt_types for sd in stmt_list):
             filtered_neighbors.add(n)
     return filtered_neighbors
 
 
-def _source_filter(start_node: Union[str, Tuple[str, int]],
-                   neighbor_nodes: Set[Union[str, Tuple[str, int]]],
-                   graph: DiGraph, reverse: bool, sources: List[str]) \
-        -> Set[Union[str, Tuple[str, int]]]:
+def _source_filter(
+    start_node: Union[str, Tuple[str, int]],
+    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    graph: DiGraph,
+    reverse: bool,
+    sources: List[str],
+) -> Set[Union[str, Tuple[str, int]]]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         node_list = sorted(neighbor_nodes, key=lambda t: t[0])
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = \
-        product(node_list, [start_node]) if reverse else \
-        product([start_node], node_list)
+    edge_iter = (
+        product(node_list, [start_node])
+        if reverse
+        else product([start_node], node_list)
+    )
 
     # Check which edges have the allowed stmt types
     filtered_neighbors: Set[Union[str, Tuple[str, int]]] = set()
     for n, edge in zip(node_list, edge_iter):
-        for sd in graph.edges[edge]['statements']:
-            if isinstance(sd['source_counts'], dict) \
-                    and any([s.lower() in sources for s
-                             in sd['source_counts']]):
+        for sd in graph.edges[edge]["statements"]:
+            if isinstance(sd["source_counts"], dict) and any(
+                [s.lower() in sources for s in sd["source_counts"]]
+            ):
                 filtered_neighbors.add(n)
                 break
     return filtered_neighbors
 
 
-def _filter_curated(start_node: Union[str, Tuple[str, int]],
-                    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
-                    graph: DiGraph, reverse: bool) \
-        -> Set[Union[str, Tuple[str, int]]]:
+def _filter_curated(
+    start_node: Union[str, Tuple[str, int]],
+    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    graph: DiGraph,
+    reverse: bool,
+) -> Set[Union[str, Tuple[str, int]]]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         # If signed, order on name, not sign
@@ -298,23 +326,28 @@ def _filter_curated(start_node: Union[str, Tuple[str, int]],
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = \
-        product(node_list, [start_node]) if reverse else \
-        product([start_node], node_list)
+    edge_iter = (
+        product(node_list, [start_node])
+        if reverse
+        else product([start_node], node_list)
+    )
 
     # Filter out edges without support from databases
     filtered_neighbors = set()
     for n, edge in zip(node_list, edge_iter):
-        stmt_list = graph.edges[edge]['statements']
-        if any(sd['curated'] for sd in stmt_list):
+        stmt_list = graph.edges[edge]["statements"]
+        if any(sd["curated"] for sd in stmt_list):
             filtered_neighbors.add(n)
     return filtered_neighbors
 
 
-def _hash_filter(start_node: Union[str, Tuple[str, int]],
-                 neighbor_nodes: Set[Union[str, Tuple[str, int]]],
-                 graph: DiGraph, reverse: bool, hashes: List[int]) \
-        -> Set[Union[str, Tuple[str, int]]]:
+def _hash_filter(
+    start_node: Union[str, Tuple[str, int]],
+    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    graph: DiGraph,
+    reverse: bool,
+    hashes: List[int],
+) -> Set[Union[str, Tuple[str, int]]]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         # If signed, order on name, not sign
@@ -322,27 +355,32 @@ def _hash_filter(start_node: Union[str, Tuple[str, int]],
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = \
-        product(node_list, [start_node]) if reverse else \
-        product([start_node], node_list)
+    edge_iter = (
+        product(node_list, [start_node])
+        if reverse
+        else product([start_node], node_list)
+    )
 
     # Filter out edges without support from databases
     filtered_neighbors = set()
     for n, edge in zip(node_list, edge_iter):
-        stmt_list = graph.edges[edge]['statements']
+        stmt_list = graph.edges[edge]["statements"]
 
         # Add node if *any* hash is *not* in blacklist
         for sd in stmt_list:
-            if sd['stmt_hash'] not in hashes:
+            if sd["stmt_hash"] not in hashes:
                 filtered_neighbors.add(n)
                 break
     return filtered_neighbors
 
 
-def _belief_filter(start_node: Union[str, Tuple[str, int]],
-                   neighbor_nodes: Set[Union[str, Tuple[str, int]]],
-                   graph: DiGraph, reverse: bool,
-                   belief_cutoff: float) -> Set[Union[str, Tuple[str, int]]]:
+def _belief_filter(
+    start_node: Union[str, Tuple[str, int]],
+    neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+    graph: DiGraph,
+    reverse: bool,
+    belief_cutoff: float,
+) -> Set[Union[str, Tuple[str, int]]]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         # If signed, order on name, not sign
@@ -350,26 +388,28 @@ def _belief_filter(start_node: Union[str, Tuple[str, int]],
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = \
-        product(node_list, [start_node]) if reverse else \
-        product([start_node], node_list)
+    edge_iter = (
+        product(node_list, [start_node])
+        if reverse
+        else product([start_node], node_list)
+    )
 
     # Filter out edges with belief below the cutoff
     filtered_neighbors = set()
     for n, edge in zip(node_list, edge_iter):
-        stmt_list = graph.edges[edge]['statements']
+        stmt_list = graph.edges[edge]["statements"]
 
         # Add node if *any* belief score is *above* cutoff
         for sd in stmt_list:
-            if sd['belief'] > belief_cutoff:
+            if sd["belief"] > belief_cutoff:
                 filtered_neighbors.add(n)
                 break
     return filtered_neighbors
 
 
-def get_subgraph_edges(graph: DiGraph,
-                       nodes: List[Dict[str, str]])\
-        -> Iterator[Tuple[str, str]]:
+def get_subgraph_edges(
+    graph: DiGraph, nodes: List[Dict[str, str]]
+) -> Iterator[Tuple[str, str]]:
     """Get the subgraph connecting the provided nodes
 
     Parameters
@@ -386,6 +426,6 @@ def get_subgraph_edges(graph: DiGraph,
         the graph. For each node, two lists are provided for in-edges
         and out-edges respectively
     """
-    node_names = [n['name'] for n in nodes]
+    node_names = [n["name"] for n in nodes]
     subgraph = graph.subgraph(nodes=node_names)
     return iter(subgraph.edges)
