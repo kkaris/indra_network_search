@@ -5,11 +5,13 @@ from networkx import DiGraph, MultiDiGraph
 
 from indra.assemblers.indranet.net import default_sign_dict
 from indra.explanation.model_checker.model_checker import signed_edges_to_signed_nodes
+from indra.explanation.pathfinding.util import signed_nodes_to_signed_edge
 from indra.explanation.pathfinding import (
     bfs_search,
     shortest_simple_paths,
     open_dijkstra_search,
 )
+
 from indra_network_search.data_models import (
     Node,
     EdgeData,
@@ -176,11 +178,16 @@ def _edge_data_equals(edge_model: EdgeData, other_edge_model: EdgeData) -> bool:
     assert edge_model.context_weight == other_edge_model.context_weight
     assert edge_model.weight == other_edge_model.weight
     assert all(
-        all(
-            basemodels_equal(s1, s2, False)
-            for s1, s2 in zip(other_edge_model.statements[k], st_data_lst)
+        other_edge_model.source_counts[k] == v
+        for k, v in edge_model.source_counts.items()
+    )
+    assert all(
+        basemodels_equal(
+            basemodel=st_type_sup,
+            other_basemodel=other_edge_model.statements[stmt_type],
+            any_item=False,
         )
-        for k, st_data_lst in edge_model.statements.items()
+        for stmt_type, st_type_sup in edge_model.statements.items()
     )
     return True
 
@@ -301,6 +308,14 @@ def _get_edge_data(
         obj_ns=node_edge[1].namespace,
         ev_limit=10,
     )
+
+    if signed:
+        assert isinstance(edge[0], tuple), (
+            "expected signed node when requesting signed edge data"
+        )
+        _, _, sign = signed_nodes_to_signed_edge(*edge)
+    else:
+        sign = None
 
     edge_data = EdgeData(
         edge=node_edge,
