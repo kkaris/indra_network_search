@@ -220,6 +220,78 @@ def shared_interactors(
     return islice(path_gen, max_results)
 
 
+def direct_multi_interactors(
+    graph: DiGraph,
+    interactor_list: List[StrNode],
+    downstream: bool,
+    allowed_ns: Optional[List[str]] = None,
+    stmt_types: Optional[List[str]] = None,
+    source_filter: Optional[List[str]] = None,
+    max_results: int = 50,
+    hash_blacklist: Optional[Set[str]] = None,
+    node_blacklist: Optional[List[str]] = None,
+    belief_cutoff: float = 0.0,
+    curated_db_only: bool = False,
+) -> Iterator:
+    # ToDo: how to fix checking if nodes are in graph?
+
+    reverse = not downstream
+    neigh_lookup = graph.succ if downstream else graph.pred
+    if not len(interactor_list):
+        raise ValueError("Interactor list must contain at least one node")
+
+    # Get neighbors
+    if len(interactor_list) == 1:
+        neighbors = set(neigh_lookup[interactor_list[0]])
+    else:
+        first_node = interactor_list[0]
+        neighbors = set(neigh_lookup[first_node])
+        if neighbors:
+            for neigh in interactor_list[1:]:
+                neighbors.intersection_update(set(neigh_lookup[neigh]))
+
+    # Apply node filters
+    if allowed_ns and neighbors:
+        neighbors = list(
+            _namespace_filter(graph=graph, nodes=neighbors, allowed_ns=allowed_ns)
+        )
+    if node_blacklist and neighbors:
+        neighbors = [n for n in neighbors if n not in node_blacklist]
+
+    # Apply edge type filters
+    filter_args = (interactor_list, neighbors, graph, reverse,)
+    if stmt_types and neighbors:
+        neighbors = _run_edge_filter(*filter_args,
+                                     filter_func=_stmt_types_filter,
+                                     filter_option=stmt_types)
+
+    if source_filter and neighbors:
+        neighbors = _run_edge_filter(*filter_args,
+                                     filter_func=_source_filter,
+                                     filter_option=source_filter)
+
+    if hash_blacklist and neighbors:
+        neighbors = _run_edge_filter(*filter_args,
+                                     filter_func=_hash_filter,
+                                     filter_option=hash_blacklist)
+
+    if belief_cutoff > 0 and neighbors:
+        neighbors = _run_edge_filter(*filter_args,
+                                     filter_func=_belief_filter,
+                                     filter_option=belief_cutoff)
+
+    if curated_db_only and neighbors:
+        neighbors = _run_edge_filter(*filter_args,
+                                     filter_func=_filter_curated,
+                                     filter_option=None)
+
+    # Sort by node degree
+    if neighbors:
+        neighbors = sorted(neighbors, key=lambda n: graph.degree(n))
+        return islice(neighbors, max_results)
+    return iter([])
+
+
 def _sign_filter(
     source: Tuple[str, int],
     s_neigh: Set[Tuple[str, int]],
