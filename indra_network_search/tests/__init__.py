@@ -118,14 +118,14 @@ edge_data = {
         ],
     },
     ("AR", "CHEK1"): {
-        "belief": 0.9,
-        "weight": wm(0.9),
+        "belief": 0.999999,
+        "weight": wm(0.999999),
         "statements": [
             {
                 "stmt_hash": 915990,
                 "stmt_type": "Activation",
                 "evidence_count": 1,
-                "belief": 0.9,
+                "belief": 0.999999,
                 "source_counts": {"pc": 1},
                 "residue": "T",
                 "weight": 0.23572233352106983,
@@ -136,14 +136,14 @@ edge_data = {
         ],
     },
     ("testosterone", "CHEK1"): {
-        "belief": 0.9,
-        "weight": wm(0.9),
+        "belief": 0.99999,
+        "weight": wm(0.99999),
         "statements": [
             {
                 "stmt_hash": 915991,
                 "stmt_type": "Phosphorylation",
                 "evidence_count": 1,
-                "belief": 0.9,
+                "belief": 0.99999,
                 "source_counts": {"pc": 1},
                 "residue": "T",
                 "weight": 0.23572233352106983,
@@ -154,14 +154,14 @@ edge_data = {
         ],
     },
     ("NR2C2", "CHEK1"): {
-        "belief": 0.9,
-        "weight": wm(0.9),
+        "belief": 0.9999,
+        "weight": wm(0.9999),
         "statements": [
             {
                 "stmt_hash": 915992,
                 "stmt_type": "Phosphorylation",
                 "evidence_count": 1,
-                "belief": 0.9,
+                "belief": 0.9999,
                 "source_counts": {"pc": 1},
                 "residue": "T",
                 "weight": 0.23572233352106983,
@@ -172,14 +172,14 @@ edge_data = {
         ],
     },
     ("MBD2", "CHEK1"): {
-        "belief": 0.9,
-        "weight": wm(0.9),
+        "belief": 0.999,
+        "weight": wm(0.999),
         "statements": [
             {
                 "stmt_hash": 560370,
                 "stmt_type": "Complex",
                 "evidence_count": 1,
-                "belief": 0.9,
+                "belief": 0.999,
                 "source_counts": {"sparser": 1},
                 "residue": None,
                 "weight": 2,
@@ -190,14 +190,14 @@ edge_data = {
         ],
     },
     ("PATZ1", "CHEK1"): {
-        "belief": 0.9,
-        "weight": wm(0.9),
+        "belief": 0.99,
+        "weight": wm(0.99),
         "statements": [
             {
                 "stmt_hash": 560370,
                 "stmt_type": "Complex",
                 "evidence_count": 1,
-                "belief": 0.9,
+                "belief": 0.99,
                 "source_counts": {"sparser": 1},
                 "residue": None,
                 "weight": 2,
@@ -227,7 +227,7 @@ edge_data = {
     },
     ("CHEK1", "NCOA"): {
         "belief": 0.7,
-        "weight": wm(0.6),
+        "weight": wm(0.7),
         "statements": [
             {
                 "stmt_hash": 915994,
@@ -245,7 +245,7 @@ edge_data = {
     },
     ("NCOA", "BRCA2"): {
         "belief": 0.7,
-        "weight": wm(0.6),
+        "weight": wm(0.7),
         "statements": [
             {
                 "stmt_hash": 915995,
