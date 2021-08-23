@@ -1399,6 +1399,7 @@ def test_signed_shared_regulators():
 
 
 # fixme: this is slow bc it loads the ontology
+# Load from s3://bigmech/travis/bio_ontology/{bio_ontology.version}/mock_ontology.pkl
 def test_ontology_query():
     g = DiGraph()
     n1 = "BRCA1"
