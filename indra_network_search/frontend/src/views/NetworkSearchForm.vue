@@ -87,9 +87,15 @@
               <div class="container">
                 <div class="row">
                   <div class="col">
-                    <BaseCheckboxBS
-                        v-model="filter_curated"
-                        label="Filter Curated"
+                    <BaseInputBS
+                        v-model.number="path_length"
+                        :disabled="isAnyWeighted"
+                        :max="10"
+                        :min="1"
+                        label="Path length"
+                        type="number"
+                        :errors="v$.path_length.$errors"
+                        @blur="v$.path_length.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -104,14 +110,13 @@
                 <div class="row">
                   <div class="col">
                     <BaseInputBS
-                        v-model.number="path_length"
-                        :disabled="isAnyWeighted"
-                        :max="10"
+                        v-model.number="k_shortest"
+                        :max="50"
                         :min="1"
-                        label="Path length"
+                        label="Max Paths"
                         type="number"
-                        :errors="v$.path_length.$errors"
-                        @blur="v$.path_length.$touch()"
+                        :errors="v$.k_shortest.$errors"
+                        @blur="v$.k_shortest.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -125,13 +130,13 @@
                 <div class="row">
                   <div class="col">
                     <BaseInputBS
-                        v-model.number="k_shortest"
-                        :max="50"
+                        v-model.number="cull_best_node"
                         :min="1"
-                        label="Max Paths"
+                        label="Highest Degree Node Culling Frequency"
+                        :title="cullTitle"
                         type="number"
-                        :errors="v$.k_shortest.$errors"
-                        @blur="v$.k_shortest.$touch()"
+                        :errors="v$.cull_best_node.$errors"
+                        @blur="v$.cull_best_node.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -149,17 +154,6 @@
                 </div>
                 <div class="row">
                   <div class="col">
-                    <BaseInputBS
-                        v-model.number="cull_best_node"
-                        :min="1"
-                        label="Highest Degree Node Culling Frequency"
-                        :title="cullTitle"
-                        type="number"
-                        :errors="v$.cull_best_node.$errors"
-                        @blur="v$.cull_best_node.$touch()"
-                    />
-                  </div>
-                  <div class="col">
                     <Multiselect
                         v-model="stmt_filter"
                         mode="tags"
@@ -168,7 +162,8 @@
                         :searchable="true"
                         :createTag="false"
                         :options="stmtFilterOptions"
-                    />
+                    />                  </div>
+                  <div class="col">
                     <Multiselect
                         v-model="allowed_ns"
                         mode="tags"
@@ -182,6 +177,11 @@
                 </div>
                 <div class="row">
                   <div class="col-6">
+                    <BaseCheckboxBS
+                        v-model="filter_curated"
+                        label="Filter Curated"
+                        title="Remove statements from the results that have been curated as incorrect"
+                    />
                     <BaseCheckboxBS
                         v-model="weighted"
                         label="Weighted search"
