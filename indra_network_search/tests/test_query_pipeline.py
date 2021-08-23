@@ -26,10 +26,10 @@ from indra_network_search.query import SharedTargetsQuery, Query, \
     alg_name_query_mapping
 from indra_network_search.result_handler import ResultManager, \
     alg_manager_mapping
-from .util import _match_args, _node_equals, _edge_data_equals, \
-    _get_path_gen, _get_api_res, _get_edge_data_list, _get_path_list, \
-    unsigned_graph, expanded_unsigned_graph, exp_signed_node_graph, \
-    signed_node_graph
+from indra_network_search.tests.util import _match_args, _node_equals, \
+    _edge_data_equals, _get_path_gen, _get_api_res, _get_edge_data_list, \
+    _get_path_list, unsigned_graph, expanded_unsigned_graph, \
+    exp_signed_node_graph, signed_node_graph
 
 
 def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],

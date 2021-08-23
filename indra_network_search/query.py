@@ -17,9 +17,9 @@ from indra.explanation.pathfinding import (
     EdgeFilter,
 )
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
-from .util import StrNode, StrEdge
-from .data_models import *
-from .pathfinding import *
+from indra_network_search.rest_util import StrNode, StrEdge
+from indra_network_search.data_models import *
+from indra_network_search.pathfinding import *
 
 # Constants
 INT_PLUS = 0
@@ -32,6 +32,7 @@ __all__ = [
     "SharedTargetsQuery",
     "SharedRegulatorsQuery",
     "OntologyQuery",
+    "UIQuery",
     "Query",
     "PathQuery",
     "alg_func_mapping",
@@ -123,8 +124,11 @@ class UIQuery(Query):
     def result_options(self) -> Dict:
         raise NotImplementedError
 
-    def __init__(self, query: NetworkSearchQuery):
+    def __init__(
+        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
+    ):
         super().__init__(query=query)
+        self.hash_blacklist = hash_blacklist or set()
 
     def _get_source_target(self) -> Tuple[StrNode, StrNode]:
         """Use for source-target searches"""
@@ -142,8 +146,8 @@ class UIQuery(Query):
 class PathQuery(UIQuery):
     """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
 
-    def __init__(self, query: NetworkSearchQuery):
-        super().__init__(query)
+    def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]]):
+        super().__init__(query, hash_blacklist=hash_blacklist)
 
     def _get_source_node(self) -> Tuple[Union[str, Tuple[str, int]], bool]:
         """Use for open ended path searches"""
@@ -153,7 +157,7 @@ class PathQuery(UIQuery):
             start_node, reverse = self.query.target, True
         else:
             raise InvalidParametersError(
-                f"Cannot use {self.alg_name} with both source and target " f"set."
+                f"Cannot use {self.alg_name} with both source and target set."
             )
         signed_node = get_open_signed_node(
             node=start_node, reverse=reverse, sign=self.query.get_int_sign()
@@ -189,8 +193,13 @@ class PathQuery(UIQuery):
             "target": target,
             "timeout": self.query.user_timeout,
         }
-        if not self.alg_name == shortest_simple_paths.__name__:
+        if self.alg_name != shortest_simple_paths.__name__:
             res_options["reverse"] = reverse
+        if self.alg_name != bfs_search.__name__:
+            # hash_blacklist is considered in bfs_search
+            # dijkstra & shortest_simple_paths
+            res_options["hash_blacklist"] = self.hash_blacklist
+
         return res_options
 
     # This method is specific for PathQuery classes
@@ -217,8 +226,10 @@ class ShortestSimplePathsQuery(PathQuery):
     alg_name: str = shortest_simple_paths.__name__
     options: ShortestSimplePathOptions = ShortestSimplePathOptions
 
-    def __init__(self, query: NetworkSearchQuery):
-        super().__init__(query)
+    def __init__(
+        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
+    ):
+        super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shortest_simple_paths from query"""
@@ -259,8 +270,10 @@ class BreadthFirstSearchQuery(PathQuery):
     alg_name: str = bfs_search.__name__
     options: BaseModel = BreadthFirstSearchOptions
 
-    def __init__(self, query: NetworkSearchQuery):
-        super().__init__(query)
+    def __init__(
+        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
+    ):
+        super().__init__(query, hash_blacklist=hash_blacklist)
 
     def _get_edge_filter(self) -> Optional[EdgeFilter]:
         # Get edge filter function:
@@ -271,7 +284,7 @@ class BreadthFirstSearchQuery(PathQuery):
         # - curated
         belief_cutoff = self.query.belief_cutoff
         stmt_types = self.query.stmt_filter or None
-        hash_blacklist = self.query.edge_hash_blacklist or None
+        hash_blacklist = self.hash_blacklist or None
         check_curated = self.query.curated_db_only
 
         # Simplify function if no filters are applied
@@ -359,8 +372,10 @@ class DijkstraQuery(PathQuery):
     alg_name: str = open_dijkstra_search.__name__
     options: DijkstraOptions = DijkstraOptions
 
-    def __init__(self, query: NetworkSearchQuery):
-        super().__init__(query)
+    def __init__(
+        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
+    ):
+        super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of open_dijkstra_search from query"""
@@ -403,8 +418,10 @@ class SharedInteractorsQuery(UIQuery):
     options: SharedInteractorsOptions = SharedInteractorsOptions
     reverse: bool = NotImplemented
 
-    def __init__(self, query: NetworkSearchQuery):
-        super().__init__(query)
+    def __init__(
+        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
+    ):
+        super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shared_interactors from query"""
@@ -423,7 +440,7 @@ class SharedInteractorsQuery(UIQuery):
             "max_results": self.query.k_shortest,
             "regulators": self.reverse,
             "sign": self.query.get_int_sign(),
-            "hash_blacklist": self.query.edge_hash_blacklist,
+            "hash_blacklist": self.hash_blacklist,
             "node_blacklist": self._get_node_blacklist(),
             "belief_cutoff": self.query.belief_cutoff,
             "curated_db_only": self.query.curated_db_only,
@@ -455,7 +472,9 @@ class SharedRegulatorsQuery(SharedInteractorsQuery):
     alg_name = "shared_regulators"
     reverse = True
 
-    def __init__(self, query: NetworkSearchQuery):
+    def __init__(
+        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
+    ):
         # bool(shared_regulators) == bool(reverse)
         if query.shared_regulators != self.reverse:
             # shared regulators must not be requested if
@@ -466,7 +485,7 @@ class SharedRegulatorsQuery(SharedInteractorsQuery):
                 "attribute reverse"
             )
 
-        super().__init__(query=query)
+        super().__init__(query=query, hash_blacklist=hash_blacklist)
 
 
 class SharedTargetsQuery(SharedInteractorsQuery):
@@ -483,7 +502,7 @@ class OntologyQuery(UIQuery):
     options: OntologyOptions = OntologyOptions
 
     def __init__(self, query: NetworkSearchQuery):
-        super().__init__(query)
+        super().__init__(query, hash_blacklist=None)
 
     @staticmethod
     def _get_ns_id(graph: nx.DiGraph, node_name: str) -> Tuple[str, str]:

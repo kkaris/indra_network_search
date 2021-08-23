@@ -10,163 +10,212 @@ The result manager deals with things like:
 """
 import logging
 from datetime import datetime, timedelta
-from typing import Generator, Union, List, Optional, Iterator, Iterable, \
-    Dict, Any, Set, Tuple
+from typing import (
+    Generator,
+    Union,
+    List,
+    Optional,
+    Iterator,
+    Iterable,
+    Dict,
+    Any,
+    Set,
+    Tuple,
+)
 
 from networkx import DiGraph
 
-from depmap_analysis.network_functions.famplex_functions import \
-    get_identifiers_url
-from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
-    open_dijkstra_search
+from depmap_analysis.network_functions.famplex_functions import get_identifiers_url
+from indra.explanation.pathfinding import (
+    shortest_simple_paths,
+    bfs_search,
+    open_dijkstra_search,
+)
 from pydantic import ValidationError
-from .util import StrNode
-from .pathfinding import *
-from .data_models import OntologyResults, SharedInteractorsResults, \
-    EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
-    EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT, basemodel_in_iterable,\
-    StmtTypeSupport
+from indra_network_search.rest_util import StrNode
+from indra_network_search.pathfinding import *
+from .data_models import (
+    OntologyResults,
+    SharedInteractorsResults,
+    EdgeData,
+    StmtData,
+    Node,
+    FilterOptions,
+    PathResultData,
+    Path,
+    EdgeDataByHash,
+    SubgraphResults,
+    DEFAULT_TIMEOUT,
+    basemodel_in_iterable,
+    StmtTypeSupport,
+)
 
-__all__ = ['ResultManager', 'DijkstraResultManager',
-           'ShortestSimplePathsResultManager',
-           'BreadthFirstSearchResultManager',
-           'SharedInteractorsResultManager', 'OntologyResultManager',
-           'SubgraphResultManager', 'alg_manager_mapping']
+__all__ = [
+    "ResultManager",
+    "DijkstraResultManager",
+    "ShortestSimplePathsResultManager",
+    "BreadthFirstSearchResultManager",
+    "SharedInteractorsResultManager",
+    "OntologyResultManager",
+    "SubgraphResultManager",
+    "alg_manager_mapping",
+]
 
 
 logger = logging.getLogger(__name__)
 
 
-DB_URL_HASH = 'https://db.indra.bio/statements/from_hash/' \
-              '{stmt_hash}?format=html'
-DB_URL_EDGE = 'https://db.indra.bio/statements/from_agents?subject=' \
-              '{subj_id}@{subj_ns}&object={obj_id}@' \
-              '{obj_ns}&ev_limit={ev_limit}&format=html'
+DB_URL_HASH = "https://db.indra.bio/statements/from_hash/" "{stmt_hash}?format=html"
+DB_URL_EDGE = (
+    "https://db.indra.bio/statements/from_agents?subject="
+    "{subj_id}@{subj_ns}&object={obj_id}@"
+    "{obj_ns}&ev_limit={ev_limit}&format=html"
+)
 
 
 class ResultManager:
     """Applies post-search filtering and assembles edge data for paths"""
+
     # Todo: this class is just a parent class for results, we might also
     #  need a wrapper class that manages all the results, analogous to
     #  query vs query_handler
     alg_name: str = NotImplemented
     filter_input_node: bool = NotImplemented
 
-    def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
-                 graph: DiGraph, filter_options: FilterOptions,
-                 input_nodes: List[Union[StrNode, Node]],
-                 timeout: Optional[float] = DEFAULT_TIMEOUT):
+    def __init__(
+        self,
+        path_generator: Union[Generator, Iterator, Iterable],
+        graph: DiGraph,
+        filter_options: FilterOptions,
+        input_nodes: List[Union[StrNode, Node]],
+        timeout: Optional[float] = DEFAULT_TIMEOUT,
+    ):
         self.path_gen: Union[Generator, Iterator, Iterable] = path_generator
         self.start_time: Optional[datetime] = None  # Start when looping paths
         self.timeout = timeout
         self.timed_out = False
         # Remove used filters per algorithm
-        self.filter_options: FilterOptions = \
-            self._remove_used_filters(filter_options)
+        self.filter_options: FilterOptions = self._remove_used_filters(filter_options)
         self._graph: DiGraph = graph
         self.input_nodes: List[Union[StrNode, Node]] = input_nodes
+        # Set for access in this class, only used in UIResultManager
+        self._hash_blacklist: Set[int] = set()
 
     def _pass_node(self, node: Node) -> bool:
         """Pass an individual node based on node data"""
         raise NotImplementedError
 
-    def _pass_stmt(self,
-                   stmt_dict: Dict[str, Union[str, int, float,
-                                              Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         """Pass an individual statement based statement dict content"""
         raise NotImplementedError
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        """Remove filters already applied in algorithm"""
         raise NotImplementedError
 
-    def _get_node(self, node_name: StrNode, apply_filter: bool = True) -> \
-            Optional[Node]:
+    def _get_node(
+        self, node_name: StrNode, apply_filter: bool = True
+    ) -> Optional[Node]:
         # Check if node is signed
         if isinstance(node_name, tuple):
             name, sign = node_name
-            node_info = {'name': name, 'sign': sign}
+            node_info = {"name": name, "sign": sign}
         else:
             name, sign = node_name, None
-            node_info = {'name': name}
+            node_info = {"name": name}
 
         # Check if node exists in graph
-        db_ns = self._graph.nodes.get(node_name, {}).get('ns')
-        db_id = self._graph.nodes.get(node_name, {}).get('id')
+        db_ns = self._graph.nodes.get(node_name, {}).get("ns")
+        db_id = self._graph.nodes.get(node_name, {}).get("id")
         if db_id is None or db_ns is None:
             return None
 
         # Add ns/id to data
-        node_info['namespace'] = db_ns
-        node_info['identifier'] = db_id
+        node_info["namespace"] = db_ns
+        node_info["identifier"] = db_id
 
         # Create Node
         node = Node(**node_info)
 
         # Check if we need to filter node; Skip by default if the node
         # belongs to the input nodes
-        if not apply_filter or \
-                (not self.filter_input_node and
-                 basemodel_in_iterable(basemodel=node,
-                                       iterable=self.input_nodes,
-                                       any_item=False, exclude={'lookup'})):
-            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+        if not apply_filter or (
+            not self.filter_input_node
+            and basemodel_in_iterable(
+                basemodel=node,
+                iterable=self.input_nodes,
+                any_item=False,
+                exclude={"lookup"},
+            )
+        ):
+            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ""
             node.lookup = lookup
             return node
         # Apply filters if there are any
-        elif self.filter_options.no_node_filters() or \
-                self._pass_node(node=node):
-            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+        elif self.filter_options.no_node_filters() or self._pass_node(node=node):
+            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ""
             node.lookup = lookup
             return node
 
         return None
 
-    def _get_stmt_data(self, stmt_dict: Dict[str, Union[str, int, float,
-                                                        Dict[str, int]]],
-                       ev_limit: Optional[int] = None) -> \
-            Union[StmtData, None]:
+    def _get_stmt_data(
+        self,
+        stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]],
+        ev_limit: Optional[int] = None,
+    ) -> Union[StmtData, None]:
         """If statement passes filter, return StmtData model"""
-        if not self.filter_options.no_stmt_filters() and \
-                not self._pass_stmt(stmt_dict):
+        # Only check _pass_stmt if:
+        #   - filters are present or
+        #   - the hash blacklist contain values
+        if self.filter_options.no_stmt_filters() and not self._hash_blacklist:
+            pass
+        elif not self._pass_stmt(stmt_dict):
             return None
 
         try:
-            url = DB_URL_HASH.format(stmt_hash=stmt_dict['stmt_hash'])
+            url = DB_URL_HASH.format(stmt_hash=stmt_dict["stmt_hash"])
             if ev_limit is not None:
-                url += f'&ev_limit={ev_limit}'
+                url += f"&ev_limit={ev_limit}"
             return StmtData(db_url_hash=url, **stmt_dict)
         except ValidationError as err:
             logger.warning(
-                f'Validation of statement data failed for '
+                f"Validation of statement data failed for "
                 f'"{stmt_dict.get("english", "(unknown statement)")}" with '
                 f'hash {stmt_dict.get("stmt_hash", "(unknown hash)")}:'
-                f' {str(err)}'
+                f" {str(err)}"
             )
             return None
 
-    def _get_edge_data(self, a: Union[StrNode, Node], b: Union[StrNode, Node])\
-            -> Union[EdgeData, None]:
+    def _get_edge_data(
+        self, a: Union[StrNode, Node], b: Union[StrNode, Node]
+    ) -> Union[EdgeData, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
         if a_node is None or b_node is None:
             return None
         edge = [a_node, b_node]
-        str_edge = (a_node.name, b_node.name) if a_node.sign is None else \
-            (a_node.signed_node_tuple(), b_node.signed_node_tuple())
+        str_edge = (
+            (a_node.name, b_node.name)
+            if a_node.sign is None
+            else (a_node.signed_node_tuple(), b_node.signed_node_tuple())
+        )
         ed: Dict[str, Any] = self._graph.edges[str_edge]
 
         # Create a StmtTypeSupport model
         stmt_dict: Dict[str, StmtTypeSupport] = {}
-        for sd in ed['statements']:
+        for sd in ed["statements"]:
             stmt_data = self._get_stmt_data(stmt_dict=sd)
             if stmt_data:
                 try:
                     stmt_dict[stmt_data.stmt_type].statements.append(stmt_data)
                 except KeyError:
-                    stmt_dict[stmt_data.stmt_type] = \
-                        StmtTypeSupport(stmt_type=stmt_data.stmt_type,
-                                        statements=[stmt_data])
+                    stmt_dict[stmt_data.stmt_type] = StmtTypeSupport(
+                        stmt_type=stmt_data.stmt_type, statements=[stmt_data]
+                    )
 
         # If all support was filtered out
         if not stmt_dict:
@@ -176,25 +225,32 @@ class ResultManager:
         for sts in stmt_dict.values():
             sts.set_source_counts()
 
-        edge_belief = ed['belief']
-        edge_weight = ed['weight']
+        edge_belief = ed["belief"]
+        edge_weight = ed["weight"]
 
         # Get sign and context weight if present
         extra_dict = {}
         if a_node.sign is not None and b_node.sign is not None:
             sign = 1 if a_node.sign != b_node.sign else 0
-            extra_dict['sign'] = sign
-        if ed.get('context_weight'):
-            extra_dict['context_weight'] = ed['context_weight']
+            extra_dict["sign"] = sign
+        if ed.get("context_weight"):
+            extra_dict["context_weight"] = ed["context_weight"]
 
-        url: str = DB_URL_EDGE.format(subj_id=a_node.identifier,
-                                      subj_ns=a_node.namespace,
-                                      obj_id=b_node.identifier,
-                                      obj_ns=b_node.namespace,
-                                      ev_limit=10)
-        edge_data = EdgeData(edge=edge, statements=stmt_dict,
-                             belief=edge_belief, weight=edge_weight,
-                             db_url_edge=url, **extra_dict)
+        url: str = DB_URL_EDGE.format(
+            subj_id=a_node.identifier,
+            subj_ns=a_node.namespace,
+            obj_id=b_node.identifier,
+            obj_ns=b_node.namespace,
+            ev_limit=10,
+        )
+        edge_data = EdgeData(
+            edge=edge,
+            statements=stmt_dict,
+            belief=edge_belief,
+            weight=edge_weight,
+            db_url_edge=url,
+            **extra_dict,
+        )
         edge_data.set_source_counts()
         return edge_data
 
@@ -211,39 +267,56 @@ class ResultManager:
 
 class UIResultManager(ResultManager):
     """Parent class for all results that go to the UI"""
+
     filter_input_node = NotImplemented
 
-    def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
-                 graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 timeout: Optional[float] = DEFAULT_TIMEOUT):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options,
-                         input_nodes=[],  # Set in _set_source_target
-                         timeout=timeout)
+    def __init__(
+        self,
+        path_generator: Union[Generator, Iterator, Iterable],
+        graph: DiGraph,
+        filter_options: FilterOptions,
+        source: Union[Node, StrNode],
+        target: Union[Node, StrNode],
+        timeout: Optional[float] = DEFAULT_TIMEOUT,
+        hash_blacklist: Optional[Set[int]] = None,
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            filter_options=filter_options,
+            input_nodes=[],  # Set in _set_source_target
+            timeout=timeout,
+        )
         # NOTE: input_nodes is set in _set_source_target in order to allow
         # calling _check_source_target *after* super.__init__() is called
         self._set_source_target(source=source, target=target)
         self._check_source_target()
+        self._hash_blacklist: Set[int] = hash_blacklist or set()
 
-    def _set_source_target(self, source: Union[Node, StrNode],
-                           target: Union[Node, StrNode]):
+    def _set_source_target(
+        self, source: Union[Node, StrNode], target: Union[Node, StrNode]
+    ):
         self.source = None
         self.target = None
 
         # Set source and/or target
         if not source and not target:
-            raise ValueError('Must provide at least source or target for UI '
-                             'results')
+            raise ValueError("Must provide at least source or target for UI results")
         if source:
-            sn: Node = source if isinstance(source, Node) else \
-                self._get_node(source, apply_filter=False)
+            sn: Node = (
+                source
+                if isinstance(source, Node)
+                else self._get_node(source, apply_filter=False)
+            )
             self.source = sn
             self.input_nodes.append(sn)
 
         if target:
-            tn: Node = target if isinstance(target, Node) else \
-                self._get_node(target, apply_filter=False)
+            tn: Node = (
+                target
+                if isinstance(target, Node)
+                else self._get_node(target, apply_filter=False)
+            )
             self.target = tn
             self.input_nodes.append(tn)
 
@@ -253,22 +326,26 @@ class UIResultManager(ResultManager):
             assert isinstance(self.source, Node) or self.source is None
             assert isinstance(self.target, Node) or self.target is None
         except AssertionError as err:
-            raise ValueError(f'Source and target must be None or instance of '
-                             f'Node for {self.alg_name}') from err
+            raise ValueError(
+                f"Source and target must be None or instance of "
+                f"Node for {self.alg_name}"
+            ) from err
 
         # Only one of source and target allowed
         if not (bool(self.source is not None) ^ bool(self.target is not None)):
-            raise ValueError(f'Only one of source and target allowed for '
-                             f'{self.alg_name}')
+            raise ValueError(
+                f"Only one of source and target allowed for {self.alg_name}"
+            )
 
     def _check_source_and_target(self):
         try:
             assert isinstance(self.source, Node)
             assert isinstance(self.target, Node)
         except AssertionError as err:
-            raise ValueError(f'Both source and target must be provided and be '
-                             f'instance of Node for {self.alg_name}') \
-                from err
+            raise ValueError(
+                f"Both source and target must be provided and be "
+                f"instance of Node for {self.alg_name}"
+            ) from err
 
     def _check_source_target(self):
         """Check that source and target are set properly, i.e. not missing"""
@@ -277,8 +354,9 @@ class UIResultManager(ResultManager):
     def _pass_node(self, node: Node) -> bool:
         raise NotImplementedError
 
-    def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
-                                                    Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         raise NotImplementedError
 
     @staticmethod
@@ -295,16 +373,30 @@ class PathResultManager(UIResultManager):
     The only thing needed in the children is defining _pass_node,
     _pass_stmt, alg_name, _remove_used_filters and _check_source_target
     """
+
     alg_name = NotImplemented
     filter_input_node = False
 
-    def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
-                 graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, source=source,
-                         target=target, timeout=timeout)
+    def __init__(
+        self,
+        path_generator: Union[Generator, Iterable, Iterator],
+        graph: DiGraph,
+        filter_options: FilterOptions,
+        source: Union[Node, StrNode],
+        target: Union[Node, StrNode],
+        reverse: bool,
+        timeout: float = DEFAULT_TIMEOUT,
+        hash_blacklist: Optional[Set[int]] = None,
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            filter_options=filter_options,
+            source=source,
+            target=target,
+            timeout=timeout,
+            hash_blacklist=hash_blacklist,
+        )
 
         self.paths: Dict[int, List[Path]] = {}
         self.reverse: bool = reverse
@@ -319,9 +411,9 @@ class PathResultManager(UIResultManager):
     def _pass_node(self, node: Node) -> bool:
         raise NotImplementedError
 
-    def _pass_stmt(self,
-                   stmt_dict: Dict[str, Union[str, int, float,
-                                              Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         raise NotImplementedError
 
     def _build_paths(self):
@@ -329,34 +421,38 @@ class PathResultManager(UIResultManager):
         prev_path: Optional[List[str]] = None
         culled_nodes: Set[str] = set()
         if self.filter_options.context_weighted:
-            weight = 'context_weight'
+            weight = "context_weight"
         elif self.filter_options.weighted:
-            weight = 'weight'
+            weight = "weight"
         else:
             weight = None
 
         while True:
-            if self.timeout and datetime.utcnow() - self.start_time > \
-                    timedelta(seconds=self.timeout):
-                logger.info(f'Timeout reached ({self.timeout} seconds), '
-                            f'breaking results loop')
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
+                seconds=self.timeout
+            ):
+                logger.info(
+                    f"Timeout reached ({self.timeout} seconds), "
+                    f"breaking results loop"
+                )
                 self.timed_out = True
                 break
             if paths_built >= self.filter_options.max_paths:
-                logger.info(f'Found all {self.filter_options.max_paths} '
-                            f'shortest paths')
+                logger.info(f"Found all {self.filter_options.max_paths} shortest paths")
                 break
 
             try:
-                if self.filter_options.cull_best_node is not None and \
-                        prev_path is not None:
+                if (
+                    self.filter_options.cull_best_node is not None
+                    and prev_path is not None
+                ):
                     send_values = _get_cull_values(
                         culled_nodes=culled_nodes,
                         cull_best_node=self.filter_options.cull_best_node,
                         prev_path=prev_path,
                         added_paths=paths_built,
                         graph=self._graph,
-                        weight=weight
+                        weight=weight,
                     )
                     # Send value affects current yield value, not next one:
                     # See https://stackoverflow.com/a/12638313/10478812
@@ -369,17 +465,20 @@ class PathResultManager(UIResultManager):
                     path = path[::-1]
 
             except StopIteration:
-                logger.info('Reached StopIteration in PathResultsManager, '
-                            'breaking.')
+                logger.info("Reached StopIteration in PathResultsManager, breaking.")
                 break
 
-            if self.filter_options.path_length and \
-                    not self.filter_options.overall_weighted:
+            if (
+                self.filter_options.path_length
+                and not self.filter_options.overall_weighted
+            ):
                 if len(path) < self.filter_options.path_length:
                     continue
                 elif len(path) > self.filter_options.path_length:
-                    logger.info(f'Found all paths of length '
-                                f'{self.filter_options.path_length}')
+                    logger.info(
+                        f"Found all paths of length "
+                        f"{self.filter_options.path_length}"
+                    )
                     break
                 else:
                     pass
@@ -425,21 +524,35 @@ class PathResultManager(UIResultManager):
         """Returns the result for the associated algorithm"""
         if len(self.paths) == 0:
             self._build_paths()
-        return PathResultData(source=self.source, target=self.target,
-                              paths=self.paths)
+        return PathResultData(source=self.source, target=self.target, paths=self.paths)
 
 
 class DijkstraResultManager(PathResultManager):
     """Handles results from open_dijkstra_search"""
+
     alg_name = open_dijkstra_search.__name__
 
-    def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
-                 graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, source=source,
-                         target=target, reverse=reverse, timeout=timeout)
+    def __init__(
+        self,
+        path_generator: Union[Generator, Iterable, Iterator],
+        graph: DiGraph,
+        filter_options: FilterOptions,
+        source: Union[Node, StrNode],
+        target: Union[Node, StrNode],
+        reverse: bool,
+        timeout: float = DEFAULT_TIMEOUT,
+        hash_blacklist: Optional[Set[int]] = None,
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            filter_options=filter_options,
+            source=source,
+            target=target,
+            reverse=reverse,
+            timeout=timeout,
+            hash_blacklist=hash_blacklist,
+        )
 
     def _check_source_target(self):
         self._check_source_or_target()
@@ -450,10 +563,11 @@ class DijkstraResultManager(PathResultManager):
         # node_blacklist
         # terminal_ns <- Not part of FilterOptions currently
         # cull best nodes <- Not applicable
-        return FilterOptions(**filter_options.dict(
-            exclude={'node_blacklist', 'cull_best_node'},
-            exclude_defaults=True
-        ))
+        return FilterOptions(
+            **filter_options.dict(
+                exclude={"node_blacklist", "cull_best_node"}, exclude_defaults=True
+            )
+        )
 
     def _pass_node(self, node: Node) -> bool:
         # open_dijkstra_search already checks:
@@ -468,29 +582,31 @@ class DijkstraResultManager(PathResultManager):
 
         return True
 
-    def _pass_stmt(self,
-                   stmt_dict: Dict[str, Union[str, int, float,
-                                              Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         # Check:
         # - stmt_type
         # - hash_blacklist
         # - belief
         # - curated db
         # Order the checks by likelihood of being applied
-        if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'].lower() in \
-                self.filter_options.exclude_stmts:
+        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
             return False
 
-        if self.filter_options.belief_cutoff > 0.0 and \
-                self.filter_options.belief_cutoff > stmt_dict['belief']:
+        if (
+            self.filter_options.exclude_stmts
+            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
+        ):
             return False
 
-        if self.filter_options.curated_db_only and not stmt_dict['curated']:
+        if (
+            self.filter_options.belief_cutoff > 0.0
+            and self.filter_options.belief_cutoff > stmt_dict["belief"]
+        ):
             return False
 
-        if self.filter_options.hash_blacklist and \
-                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
+        if self.filter_options.curated_db_only and not stmt_dict["curated"]:
             return False
 
         return True
@@ -498,15 +614,29 @@ class DijkstraResultManager(PathResultManager):
 
 class BreadthFirstSearchResultManager(PathResultManager):
     """Handles results from bfs_search"""
+
     alg_name = bfs_search.__name__
 
-    def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
-                 graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool, timeout: float = DEFAULT_TIMEOUT):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, source=source,
-                         target=target, reverse=reverse, timeout=timeout)
+    def __init__(
+        self,
+        path_generator: Union[Generator, Iterable, Iterator],
+        graph: DiGraph,
+        filter_options: FilterOptions,
+        source: Union[Node, StrNode],
+        target: Union[Node, StrNode],
+        reverse: bool,
+        timeout: float = DEFAULT_TIMEOUT,
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            filter_options=filter_options,
+            source=source,
+            target=target,
+            reverse=reverse,
+            timeout=timeout,
+            hash_blacklist=None,
+        )
 
     def _check_source_target(self):
         self._check_source_or_target()
@@ -527,20 +657,27 @@ class BreadthFirstSearchResultManager(PathResultManager):
         # hash_blacklist ('edge_hash_blacklist'  NetworkSearchQuery)
         # belief_cutoff
         # curated_db_only
-        return FilterOptions(**filter_options.dict(
-            exclude={'allowed_ns', 'node_blacklist', 'exclude_stmts',
-                     'hash_blacklist', 'belief_cutoff', 'curated_db_only'},
-            exclude_defaults=True
-        ))
+        return FilterOptions(
+            **filter_options.dict(
+                exclude={
+                    "allowed_ns",
+                    "node_blacklist",
+                    "exclude_stmts",
+                    "belief_cutoff",
+                    "curated_db_only",
+                },
+                exclude_defaults=True,
+            )
+        )
 
     def _pass_node(self, node: Node) -> bool:
         # allowed_ns, node_blacklist and terminal_ns are all checked in
         # bfs_search
         return True
 
-    def _pass_stmt(self,
-                   stmt_dict: Dict[str, Union[str, int, float,
-                                              Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         # stmt_type, hash_blacklist, belief, curated already applied in
         # bfs_search
         return True
@@ -548,15 +685,29 @@ class BreadthFirstSearchResultManager(PathResultManager):
 
 class ShortestSimplePathsResultManager(PathResultManager):
     """Handles results from shortest_simple_paths"""
+
     alg_name = shortest_simple_paths.__name__
 
-    def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
-                 graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 timeout: float = DEFAULT_TIMEOUT):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, source=source,
-                         target=target, reverse=False, timeout=timeout)
+    def __init__(
+        self,
+        path_generator: Union[Generator, Iterable, Iterator],
+        graph: DiGraph,
+        filter_options: FilterOptions,
+        source: Union[Node, StrNode],
+        target: Union[Node, StrNode],
+        timeout: float = DEFAULT_TIMEOUT,
+        hash_blacklist: Optional[Set[int]] = None,
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            filter_options=filter_options,
+            source=source,
+            target=target,
+            reverse=False,
+            timeout=timeout,
+            hash_blacklist=hash_blacklist,
+        )
 
     def _check_source_target(self):
         self._check_source_and_target()
@@ -566,9 +717,9 @@ class ShortestSimplePathsResultManager(PathResultManager):
         # Filters already done in algorithm
         #
         #
-        return FilterOptions(**filter_options.dict(
-            exclude={'node_blacklist'}, exclude_defaults=True
-        ))
+        return FilterOptions(
+            **filter_options.dict(exclude={"node_blacklist"}, exclude_defaults=True)
+        )
 
     def _pass_node(self, node: Node) -> bool:
         # Check:
@@ -578,28 +729,30 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
         return True
 
-    def _pass_stmt(self,
-                   stmt_dict: Dict[str, Union[str, int, float,
-                                              Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         # Check:
         # - stmt_type
         # - hash_blacklist
         # - belief
         # - curated
-        if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'].lower() in \
-                self.filter_options.exclude_stmts:
+        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
             return False
 
-        if self.filter_options.belief_cutoff > 0.0 and \
-                self.filter_options.belief_cutoff > stmt_dict['belief']:
+        if (
+            self.filter_options.exclude_stmts
+            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
+        ):
             return False
 
-        if self.filter_options.curated_db_only and not stmt_dict['curated']:
+        if (
+            self.filter_options.belief_cutoff > 0.0
+            and self.filter_options.belief_cutoff > stmt_dict["belief"]
+        ):
             return False
 
-        if self.filter_options.hash_blacklist and \
-                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
+        if self.filter_options.curated_db_only and not stmt_dict["curated"]:
             return False
 
         return True
@@ -610,16 +763,27 @@ class SharedInteractorsResultManager(UIResultManager):
 
     downstream is True for shared targets and False for shared regulators
     """
+
     alg_name: str = shared_interactors.__name__
     filter_input_node = False
 
-    def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
-                 filter_options: FilterOptions, graph: DiGraph,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 is_targets_query: bool):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, source=source,
-                         target=target)
+    def __init__(
+        self,
+        path_generator: Union[Iterable, Iterator, Generator],
+        filter_options: FilterOptions,
+        graph: DiGraph,
+        source: Union[Node, StrNode],
+        target: Union[Node, StrNode],
+        is_targets_query: bool,
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            filter_options=filter_options,
+            source=source,
+            target=target,
+            hash_blacklist=None,
+        )
         self._downstream: bool = is_targets_query
 
     def _check_source_target(self):
@@ -634,9 +798,9 @@ class SharedInteractorsResultManager(UIResultManager):
         # allowed_ns, node_blacklist are both check in algorithm
         return True
 
-    def _pass_stmt(self,
-                   stmt_dict: Dict[str, Union[str, int, float,
-                                              Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         # stmt_type, hash_blacklist, belief, curated are all checked in
         # algorithm
         return True
@@ -646,10 +810,13 @@ class SharedInteractorsResultManager(UIResultManager):
         source_edges: List[EdgeData] = []
         target_edges: List[EdgeData] = []
         for (s1, s2), (t1, t2) in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > \
-                    timedelta(seconds=self.timeout):
-                logger.info(f'Timeout reached ({self.timeout} seconds), '
-                            f'breaking results loop')
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
+                seconds=self.timeout
+            ):
+                logger.info(
+                    f"Timeout reached ({self.timeout} seconds), "
+                    f"breaking results loop"
+                )
                 self.timed_out = True
                 break
             source_edge = self._get_edge_data(a=s1, b=s2)
@@ -658,22 +825,35 @@ class SharedInteractorsResultManager(UIResultManager):
                 source_edges.append(source_edge)
                 target_edges.append(target_edge)
 
-        return SharedInteractorsResults(source_data=source_edges,
-                                        target_data=target_edges,
-                                        downstream=self._downstream)
+        return SharedInteractorsResults(
+            source_data=source_edges,
+            target_data=target_edges,
+            downstream=self._downstream,
+        )
 
 
 class OntologyResultManager(UIResultManager):
     """Handles results from shared_parents"""
+
     alg_name: str = shared_parents.__name__
     filter_input_node = False
 
-    def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
-                 graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode]):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, source=source,
-                         target=target)
+    def __init__(
+        self,
+        path_generator: Union[Iterable, Iterator, Generator],
+        graph: DiGraph,
+        filter_options: FilterOptions,
+        source: Union[Node, StrNode],
+        target: Union[Node, StrNode],
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            filter_options=filter_options,
+            source=source,
+            target=target,
+            hash_blacklist=None,
+        )
         self._parents: List[Node] = []
 
     def _check_source_target(self):
@@ -688,18 +868,21 @@ class OntologyResultManager(UIResultManager):
         # No filters are applied
         return True
 
-    def _pass_stmt(self,
-                   stmt_dict: Dict[str, Union[str, int, float,
-                                              Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         # No filters are applied
         return True
 
     def _get_parents(self):
         for name, ns, _id, id_url in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > \
-                    timedelta(seconds=self.timeout):
-                logger.info(f'Timeout reached ({self.timeout} seconds), '
-                            f'breaking results loop')
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
+                seconds=self.timeout
+            ):
+                logger.info(
+                    f"Timeout reached ({self.timeout} seconds), "
+                    f"breaking results loop"
+                )
                 self.timed_out = True
                 break
             node = Node(name=name, namespace=ns, identifier=_id, lookup=id_url)
@@ -708,20 +891,25 @@ class OntologyResultManager(UIResultManager):
     def _get_results(self) -> OntologyResults:
         """Get results for shared_parents"""
         self._get_parents()
-        return OntologyResults(source=self.source, target=self.target,
-                               parents=self._parents)
+        return OntologyResults(
+            source=self.source, target=self.target, parents=self._parents
+        )
 
 
-def _get_cull_values(culled_nodes: Set[str],
-                     cull_best_node: int,
-                     prev_path: List[str],
-                     added_paths: int,
-                     graph: DiGraph,
-                     weight: Optional[str] = None) \
-        -> Tuple[Set[str], Set[str]]:
-    if added_paths >= cull_best_node and \
-            added_paths % cull_best_node == 0 and \
-            prev_path is not None and len(prev_path) >= 3:
+def _get_cull_values(
+    culled_nodes: Set[str],
+    cull_best_node: int,
+    prev_path: List[str],
+    added_paths: int,
+    graph: DiGraph,
+    weight: Optional[str] = None,
+) -> Tuple[Set[str], Set[str]]:
+    if (
+        added_paths >= cull_best_node
+        and added_paths % cull_best_node == 0
+        and prev_path is not None
+        and len(prev_path) >= 3
+    ):
         degrees = graph.degree(prev_path[1:-1], weight)
         highest_degree_node = max(degrees, key=lambda x: x[1])[0]
         culled_nodes.add(highest_degree_node)
@@ -731,20 +919,28 @@ def _get_cull_values(culled_nodes: Set[str],
 
 class SubgraphResultManager(ResultManager):
     """Handles results from get_subgraph_edges"""
+
     alg_name = get_subgraph_edges.__name__
     filter_input_node = False
 
-    def __init__(self, path_generator: Iterator[Tuple[str, str]],
-                 graph: DiGraph,
-                 filter_options: FilterOptions, original_nodes: List[Node],
-                 nodes_in_graph: List[Node], not_in_graph: List[Node],
-                 ev_limit: int = 10):
-        super().__init__(path_generator=path_generator,
-                         graph=graph, filter_options=filter_options,
-                         input_nodes=original_nodes)
+    def __init__(
+        self,
+        path_generator: Iterator[Tuple[str, str]],
+        graph: DiGraph,
+        filter_options: FilterOptions,
+        original_nodes: List[Node],
+        nodes_in_graph: List[Node],
+        not_in_graph: List[Node],
+        ev_limit: int = 10,
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            filter_options=filter_options,
+            input_nodes=original_nodes,
+        )
         self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
-        self._available_nodes: Dict[str, Node] = {n.name: n for n
-                                                  in nodes_in_graph}
+        self._available_nodes: Dict[str, Node] = {n.name: n for n in nodes_in_graph}
         self._not_in_graph: List[Node] = not_in_graph
         self._ev_limit = ev_limit
 
@@ -752,13 +948,15 @@ class SubgraphResultManager(ResultManager):
         # No filters implemented yet
         return True
 
-    def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
-                                                    Dict[str, int]]]) -> bool:
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
         # Check:
         # - stmt_type
-        if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'].lower() in \
-                self.filter_options.exclude_stmts:
+        if (
+            self.filter_options.exclude_stmts
+            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
+        ):
             return False
 
         return True
@@ -766,10 +964,11 @@ class SubgraphResultManager(ResultManager):
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         # Hard code removal of stmt type 'fplx'
-        return FilterOptions(exclude_stmts=['fplx'])
+        return FilterOptions(exclude_stmts=["fplx"])
 
-    def _get_edge_data_by_hash(self, a: Union[str, Node], b: Union[str, Node])\
-            -> Union[EdgeDataByHash, None]:
+    def _get_edge_data_by_hash(
+        self, a: Union[str, Node], b: Union[str, Node]
+    ) -> Union[EdgeDataByHash, None]:
         # Get node, return if unidentifiable
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
@@ -778,19 +977,16 @@ class SubgraphResultManager(ResultManager):
 
         # Add lookup if not present
         if not a_node.lookup:
-            a_node.lookup = get_identifiers_url(a_node.namespace,
-                                                a_node.identifier)
+            a_node.lookup = get_identifiers_url(a_node.namespace, a_node.identifier)
         if not b_node.lookup:
-            b_node.lookup = get_identifiers_url(b_node.namespace,
-                                                b_node.identifier)
+            b_node.lookup = get_identifiers_url(b_node.namespace, b_node.identifier)
 
         # Get stmt data for edge
         edge = [a_node, b_node]
         ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
         stmt_dict: Dict[int, StmtData] = {}  # Collect stmt_data by hash
-        for sd in ed['statements']:
-            stmt_data = self._get_stmt_data(stmt_dict=sd,
-                                            ev_limit=self._ev_limit)
+        for sd in ed["statements"]:
+            stmt_data = self._get_stmt_data(stmt_dict=sd, ev_limit=self._ev_limit)
             if stmt_data and stmt_data.stmt_hash not in stmt_dict:
                 stmt_dict[stmt_data.stmt_hash] = stmt_data
 
@@ -799,50 +995,63 @@ class SubgraphResultManager(ResultManager):
             return None
 
         # Get edge aggregated belief, weight
-        edge_belief = ed['belief']
-        edge_weight = ed['weight']
+        edge_belief = ed["belief"]
+        edge_weight = ed["weight"]
 
-        edge_url = DB_URL_EDGE.format(subj_id=a_node.identifier,
-                                      subj_ns=a_node.namespace,
-                                      obj_id=b_node.identifier,
-                                      obj_ns=b_node.namespace,
-                                      ev_limit=self._ev_limit)
+        edge_url = DB_URL_EDGE.format(
+            subj_id=a_node.identifier,
+            subj_ns=a_node.namespace,
+            obj_id=b_node.identifier,
+            obj_ns=b_node.namespace,
+            ev_limit=self._ev_limit,
+        )
         edge_url_types = {}
         for st in stmt_dict.values():
             if st.stmt_type not in edge_url_types:
-                edge_url_types[st.stmt_type] = \
-                    edge_url + f'&type={st.stmt_type}'
+                edge_url_types[st.stmt_type] = edge_url + f"&type={st.stmt_type}"
 
-        return EdgeDataByHash(edge=edge, stmts=stmt_dict, belief=edge_belief,
-                              weight=edge_weight, db_url_edge=edge_url,
-                              url_by_type=edge_url_types)
+        return EdgeDataByHash(
+            edge=edge,
+            stmts=stmt_dict,
+            belief=edge_belief,
+            weight=edge_weight,
+            db_url_edge=edge_url,
+            url_by_type=edge_url_types,
+        )
 
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
-        logger.info(f'Generating output data for subgraph with '
-                    f'{len(self._available_nodes)} eligible nodes')
+        logger.info(
+            f"Generating output data for subgraph with "
+            f"{len(self._available_nodes)} eligible nodes"
+        )
         # Loop edges
         for a, b in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > \
-                    timedelta(seconds=self.timeout):
-                logger.info(f'Timeout reached ({self.timeout} seconds), '
-                            f'breaking results loop')
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
+                seconds=self.timeout
+            ):
+                logger.info(
+                    f"Timeout reached ({self.timeout} seconds), "
+                    f"breaking results loop"
+                )
                 self.timed_out = True
                 break
-            if self.timeout and datetime.utcnow() - self.start_time > \
-                    timedelta(seconds=self.timeout):
-                logger.info(f'Timeout reached ({self.timeout} seconds), '
-                            f'breaking results loop')
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
+                seconds=self.timeout
+            ):
+                logger.info(
+                    f"Timeout reached ({self.timeout} seconds), "
+                    f"breaking results loop"
+                )
                 self.timed_out = True
                 break
             edge: Tuple[str, str] = (a, b)
             if edge not in self.edge_dict:
-                half_edge = (self._available_nodes[a]
-                             if a in self._available_nodes else a,
-                             self._available_nodes[b]
-                             if b in self._available_nodes else b)
-                edge_data: EdgeDataByHash = \
-                    self._get_edge_data_by_hash(*half_edge)
+                half_edge = (
+                    self._available_nodes[a] if a in self._available_nodes else a,
+                    self._available_nodes[b] if b in self._available_nodes else b,
+                )
+                edge_data: EdgeDataByHash = self._get_edge_data_by_hash(*half_edge)
                 if edge_data:
                     self.edge_dict[edge] = edge_data
 
@@ -854,8 +1063,9 @@ class SubgraphResultManager(ResultManager):
 
         return SubgraphResults(
             available_nodes=list(self._available_nodes.values()),
-            edges=edges, input_nodes=self.input_nodes,
-            not_in_graph=self._not_in_graph
+            edges=edges,
+            input_nodes=self.input_nodes,
+            not_in_graph=self._not_in_graph,
         )
 
 
@@ -864,8 +1074,8 @@ alg_manager_mapping = {
     shortest_simple_paths.__name__: ShortestSimplePathsResultManager,
     open_dijkstra_search.__name__: DijkstraResultManager,
     bfs_search.__name__: BreadthFirstSearchResultManager,
-    'shared_targets': SharedInteractorsResultManager,
-    'shared_regulators': SharedInteractorsResultManager,
+    "shared_targets": SharedInteractorsResultManager,
+    "shared_regulators": SharedInteractorsResultManager,
     shared_parents.__name__: OntologyResultManager,
-    get_subgraph_edges.__name__: SubgraphResultManager
+    get_subgraph_edges.__name__: SubgraphResultManager,
 }

@@ -6,11 +6,10 @@ from os import environ
 from typing import List, Optional
 
 from fastapi import FastAPI, Query as RestQuery
-from fastapi.responses import RedirectResponse
 
 from indra.databases import get_identifiers_url
 from .data_models.rest_models import Health
-from .util import load_indra_graph
+from .rest_util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults, Node
 from .autocomplete import NodesTrie, Prefixes
@@ -210,7 +209,8 @@ def sub_graph(search_query: SubgraphRestQuery):
 
 
 if DEBUG:
-    from .tests.util import _setup_graph, _setup_signed_node_graph
+    from indra_network_search.tests.util import _setup_graph, \
+        _setup_signed_node_graph
     dir_graph = _setup_graph()
     sign_node_graph = _setup_signed_node_graph(False)
 else:

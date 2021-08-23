@@ -31,7 +31,7 @@ from pydantic import BaseModel, validator, Extra, constr, conint
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 
-from indra_network_search.util import (
+from indra_network_search.rest_util import (
     get_query_hash,
     is_weighted,
     is_context_weighted,
@@ -89,7 +89,6 @@ class FilterOptions(BaseModel):
     """Options for filtering out nodes or edges"""
 
     exclude_stmts: List[constr(to_lower=True)] = []
-    hash_blacklist: List[int] = []
     allowed_ns: List[constr(to_lower=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
@@ -105,7 +104,6 @@ class FilterOptions(BaseModel):
         """Return True if all filter options are set to defaults"""
         return (
             len(self.exclude_stmts) == 0
-            and len(self.hash_blacklist) == 0
             and len(self.allowed_ns) == 0
             and len(self.node_blacklist) == 0
             and self.path_length is None
@@ -118,7 +116,6 @@ class FilterOptions(BaseModel):
         return (
             self.belief_cutoff == 0.0
             and len(self.exclude_stmts) == 0
-            and len(self.hash_blacklist) == 0
             and self.curated_db_only is False
         )
 
@@ -132,7 +129,7 @@ class NetworkSearchQuery(BaseModel):
     source: constr(strip_whitespace=True) = ""
     target: constr(strip_whitespace=True) = ""
     stmt_filter: List[constr(to_lower=True, strip_whitespace=True)] = []
-    edge_hash_blacklist: List[int] = []
+    filter_curated: bool = True
     allowed_ns: List[constr(to_lower=True, strip_whitespace=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
@@ -223,7 +220,6 @@ class NetworkSearchQuery(BaseModel):
         """Returns the filter options"""
         return FilterOptions(
             exclude_stmts=self.stmt_filter,
-            hash_blacklist=self.edge_hash_blacklist,
             allowed_ns=self.allowed_ns,
             node_blacklist=self.node_blacklist,
             path_length=self.path_length,
