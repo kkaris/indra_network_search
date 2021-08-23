@@ -193,10 +193,11 @@ class PathQuery(UIQuery):
             "target": target,
             "timeout": self.query.user_timeout,
         }
-        if not self.alg_name == shortest_simple_paths.__name__:
+        if self.alg_name != shortest_simple_paths.__name__:
             res_options["reverse"] = reverse
         if self.alg_name != bfs_search.__name__:
             # hash_blacklist is considered in bfs_search
+            # dijkstra & shortest_simple_paths
             res_options["hash_blacklist"] = self.hash_blacklist
 
         return res_options
