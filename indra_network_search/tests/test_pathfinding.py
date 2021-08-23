@@ -9,6 +9,7 @@ from indra_network_search.pathfinding import *
 from indra_network_search.query import SubgraphQuery
 from indra_network_search.result_handler import SubgraphResultManager, \
     DB_URL_EDGE, DB_URL_HASH
+from indra_network_search.tests import edge_data
 from indra_network_search.tests.util import expanded_unsigned_graph
 
 
@@ -45,6 +46,27 @@ def test_shared_targets_w_big_graph():
     ]
     edges = shared_interactors(graph=expanded_unsigned_graph,
                                source="BRCA1", target="HDAC3", regulators=False)
+    edges_list = list(edges)
+    for ix, (se, te) in enumerate(edges_list):
+        assert tuple(se) == source_edges[ix]
+        assert tuple(te) == target_edges[ix]
+
+
+def test_shared_regulators_w_big_graph():
+    source_edges = [
+        (n, 'CHEK1') for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    target_edges = [
+        (n, 'H2AZ1') for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    assert edge_data[("AR", "CHEK1")]['belief'] == 0.999999
+    assert edge_data[("testosterone", "CHEK1")]['belief'] == 0.99999
+    assert edge_data[("NR2C2", "CHEK1")]['belief'] == 0.9999
+    assert edge_data[("MBD2", "CHEK1")]['belief'] == 0.999
+    assert edge_data[("PATZ1", "CHEK1")]['belief'] == 0.99
+    edges = shared_interactors(graph=expanded_unsigned_graph,
+                               source="CHEK1", target="H2AZ1",
+                               regulators=True)
     edges_list = list(edges)
     for ix, (se, te) in enumerate(edges_list):
         assert tuple(se) == source_edges[ix]
