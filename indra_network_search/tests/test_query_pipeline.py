@@ -1190,18 +1190,11 @@ def test_bfs_curated():
 # cull_best_node  <-- previously untested
 
 
-def test_shared_interactors():
+def test_shared_targets():
     brca1 = Node(
         name="BRCA1",
         namespace="HGNC",
         identifier="1100",
-        lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
-    )
-    brca1_up = Node(
-        name="BRCA1",
-        namespace="HGNC",
-        identifier="1100",
-        sign=0,
         lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
     )
 
@@ -1212,53 +1205,16 @@ def test_shared_interactors():
         identifier="4854",
         lookup=get_identifiers_url(db_name="HGNC", db_id="4854"),
     )
-    hdac3_up = Node(
-        name="HDAC3",
-        namespace="HGNC",
-        identifier="4854",
-        sign=0,
-        lookup=get_identifiers_url(db_name="HGNC", db_id="4854"),
-    )
-
-    # 'CHEK1': {'ns': 'HGNC', 'id': '1925'}
-    chek1 = Node(
-        name="CHEK1",
-        namespace="HGNC",
-        identifier="1925",
-        lookup=get_identifiers_url(db_name="HGNC", db_id="1925"),
-    )
-    chek1_up = Node(
-        name="CHEK1",
-        namespace="HGNC",
-        identifier="1925",
-        sign=0,
-        lookup=get_identifiers_url(db_name="HGNC", db_id="1925"),
-    )
-
-    # 'H2AZ1': {'ns': 'HGNC', 'id': '4741'}
-    h2az1 = Node(
-        name="H2AZ1",
-        namespace="HGNC",
-        identifier="4741",
-        lookup=get_identifiers_url(db_name="HGNC", db_id="4741"),
-    )
-    h2az1_up = Node(
-        name="H2AZ1",
-        namespace="HGNC",
-        identifier="4741",
-        sign=0,
-        lookup=get_identifiers_url(db_name="HGNC", db_id="4741"),
-    )
 
     # Check shared targets
     rest_query = NetworkSearchQuery(
         filter_curated=False, source=brca1.name, target=hdac3.name
     )
     source_edges = [
-        ("BRCA1", n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+        (brca1.name, n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
     ]
     target_edges = [
-        ("HDAC3", n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+        (hdac3.name, n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
     ]
     stq = SharedTargetsQuery(query=rest_query)
     expected_results = SharedInteractorsResults(
@@ -1283,7 +1239,22 @@ def test_shared_interactors():
         expected_res=expected_results,
     )
 
-    # Check shared regulators
+
+def test_shared_regulators():
+    # 'CHEK1': {'ns': 'HGNC', 'id': '1925'}
+    chek1 = Node(
+        name="CHEK1",
+        namespace="HGNC",
+        identifier="1925",
+        lookup=get_identifiers_url(db_name="HGNC", db_id="1925"),
+    )
+    # 'H2AZ1': {'ns': 'HGNC', 'id': '4741'}
+    h2az1 = Node(
+        name="H2AZ1",
+        namespace="HGNC",
+        identifier="4741",
+        lookup=get_identifiers_url(db_name="HGNC", db_id="4741"),
+    )
     rest_query = NetworkSearchQuery(
         filter_curated=False,
         source=chek1.name,
@@ -1319,10 +1290,25 @@ def test_shared_interactors():
         expected_res=expected_results,
     )
 
-    # Sign: +
-    # Check shared targets
+
+def test_signed_shared_targets():
+    brca1_up = Node(
+        name="BRCA1",
+        namespace="HGNC",
+        identifier="1100",
+        sign=0,
+        lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
+    )
+    hdac3_up = Node(
+        name="HDAC3",
+        namespace="HGNC",
+        identifier="4854",
+        sign=0,
+        lookup=get_identifiers_url(db_name="HGNC", db_id="4854"),
+    )
+
     rest_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1.name, target=hdac3.name, sign="+"
+        filter_curated=False, source=brca1_up.name, target=hdac3_up.name, sign="+"
     )
     source_edges = [(brca1_up.signed_node_tuple(), ("AR", 0))]
     target_edges = [(hdac3_up.signed_node_tuple(), ("AR", 0))]
@@ -1343,12 +1329,29 @@ def test_shared_interactors():
         expected_res=expected_results,
     )
 
-    # Sign: +
+
+def test_signed_shared_regulators():
+    chek1_up = Node(
+        name="CHEK1",
+        namespace="HGNC",
+        identifier="1925",
+        sign=0,
+        lookup=get_identifiers_url(db_name="HGNC", db_id="1925"),
+    )
+
+    h2az1_up = Node(
+        name="H2AZ1",
+        namespace="HGNC",
+        identifier="4741",
+        sign=0,
+        lookup=get_identifiers_url(db_name="HGNC", db_id="4741"),
+    )
+
     # Check shared regulators, what upregulates both CHEK1 and H2AZ1
     rest_query = NetworkSearchQuery(
         filter_curated=False,
-        source=chek1.name,
-        target=h2az1.name,
+        source=chek1_up.name,
+        target=h2az1_up.name,
         shared_regulators=True,
         sign="+",
     )
