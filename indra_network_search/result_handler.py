@@ -98,6 +98,8 @@ class ResultManager:
         self.filter_options: FilterOptions = self._remove_used_filters(filter_options)
         self._graph: DiGraph = graph
         self.input_nodes: List[Union[StrNode, Node]] = input_nodes
+        # Set for access in this class, only used in UIResultManager
+        self._hash_blacklist: Set[int] = set()
 
     def _pass_node(self, node: Node) -> bool:
         """Pass an individual node based on node data"""
