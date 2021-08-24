@@ -162,7 +162,8 @@
                         :searchable="true"
                         :createTag="false"
                         :options="stmtFilterOptions"
-                    />                  </div>
+                    />
+                  </div>
                   <div class="col">
                     <Multiselect
                         v-model="allowed_ns"
@@ -177,11 +178,6 @@
                 </div>
                 <div class="row">
                   <div class="col-6">
-                    <BaseCheckboxBS
-                        v-model="filter_curated"
-                        label="Filter Curated"
-                        title="Remove statements from the results that have been curated as incorrect"
-                    />
                     <BaseCheckboxBS
                         v-model="weighted"
                         label="Weighted search"
