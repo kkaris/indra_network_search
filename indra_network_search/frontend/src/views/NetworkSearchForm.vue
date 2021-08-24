@@ -162,7 +162,8 @@
                         :searchable="true"
                         :createTag="false"
                         :options="stmtFilterOptions"
-                    />                  </div>
+                    />
+                  </div>
                   <div class="col">
                     <Multiselect
                         v-model="allowed_ns"
