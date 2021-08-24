@@ -28,7 +28,12 @@ from indra_network_search.rest_util import StrNode, StrNodeSeq
 logger = logging.getLogger(__name__)
 FilterOption = Union[List[str], List[int], float, None]
 
-__all__ = ["shared_interactors", "shared_parents", "get_subgraph_edges"]
+__all__ = [
+    "shared_interactors",
+    "shared_parents",
+    "get_subgraph_edges",
+    "direct_multi_interactors",
+]
 
 
 def shared_parents(
