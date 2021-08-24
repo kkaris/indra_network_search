@@ -239,6 +239,18 @@ def direct_multi_interactors(
     curated_db_only: bool = False,
 ) -> Iterator:
     # ToDo: how to fix checking if nodes are in graph?
+    def _get_min_max_belief(neigh_node: StrNode, input_nodes: StrNodeSeq, rev: bool):
+        # Collect the max belief of the edge statements for each edge,
+        # then pick the lowest of the beliefs in that list, i.e. the node
+        # with the best "worst" performance gets ranked highest
+        edges = [
+            (neigh_node, inp_n) if rev else (inp_n, neigh_node) for inp_n in input_nodes
+        ]
+        max_beliefs = [
+            max(sd["belief"] for sd in graph.edges[e]["statements"])
+            for e in edges
+        ]
+        return min(max_beliefs)
 
     reverse = not downstream
     neigh_lookup = graph.succ if downstream else graph.pred
@@ -295,9 +307,16 @@ def direct_multi_interactors(
             *filter_args, filter_func=_filter_curated, filter_option=None
         )
 
-    # Sort by node degree
+    # Sort by min of the max of the edge beliefs, then by node degree
     if neighbors:
-        neighbors = sorted(neighbors, key=lambda n: graph.degree(n))
+        neighbors = sorted(
+            neighbors,
+            reverse=True,
+            key=lambda n: (
+                _get_min_max_belief(n, input_nodes=interactor_list, rev=reverse),
+                n,
+            ),
+        )
         return islice(neighbors, max_results)
     return iter([])
 
