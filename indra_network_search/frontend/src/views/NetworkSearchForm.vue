@@ -178,11 +178,6 @@
                 <div class="row">
                   <div class="col-6">
                     <BaseCheckboxBS
-                        v-model="filter_curated"
-                        label="Filter Curated"
-                        title="Remove statements from the results that have been curated as incorrect"
-                    />
-                    <BaseCheckboxBS
                         v-model="weighted"
                         label="Weighted search"
                     />
