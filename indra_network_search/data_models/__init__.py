@@ -511,16 +511,21 @@ class MultiInteractorsRestQuery(BaseModel):
     """Multi interactors rest query"""
     start_nodes: List[constr(strip_whitespace=True)]
     downstream: bool
-    allowed_ns: Optional[List[constr(strip_whitespace=True, to_lower=True,
-                                     min_length=1
-                                     )]] = None,
-    # assumed to be lowercase
-    stmt_types: Optional[List[constr(strip_whitespace=True, to_lower=True,
-                                     min_length=1
-                                     )]] = None,  # assumed to be lowercase
-    source_filter: Optional[List[constr(strip_whitespace=True, to_lower=True,
-                                     min_length=1
-                                     )]] = None,  # assumed to be lowercase
+    allowed_ns: Optional[
+        List[
+            constr(strip_whitespace=True, to_lower=True, min_length=1)
+        ]
+    ] = None,
+    stmt_types: Optional[
+        List[
+            constr(strip_whitespace=True, to_lower=True, min_length=1)
+        ]
+    ] = None,
+    source_filter: Optional[
+        List[
+            constr(strip_whitespace=True, to_lower=True, min_length=1)
+        ]
+    ] = None,
     max_results: int = 50,
     hash_blacklist: Optional[Set[int]] = None,
     node_blacklist: Optional[List[str]] = None,
