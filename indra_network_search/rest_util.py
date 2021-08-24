@@ -52,6 +52,7 @@ INDRA_PBSEG_CACHE = path.join(CACHE, INDRA_PBSEG)
 # Derived type hints
 StrNode = Union[str, Tuple[str, int]]
 StrEdge = Tuple[StrNode, StrNode]
+StrNodeSeq = Union[List[StrNode], Set[StrEdge]]
 
 
 def get_query_resp_fstr(query_hash):

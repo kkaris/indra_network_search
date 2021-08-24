@@ -180,11 +180,12 @@ def test_subgraph():
     assert results.edges[0].weight == mock_edge_dict['weight']
     assert results.edges[0].belief == mock_edge_dict['belief']
     assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
-        subj_id='1100', subj_ns='HGNC', obj_id='1101', obj_ns='HGNC'
+        subj_id='1100', subj_ns='HGNC', obj_id='1101', obj_ns='HGNC',
+        ev_limit=10
     ), results.edges[0].db_url_edge
     assert list(results.edges[0].stmts.values())[0].db_url_hash == \
            DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
-               'stmt_hash']), \
+               'stmt_hash']) + "&ev_limit=10", \
            list(results.edges[0].stmts.values())[0].db_url_hash
     assert set(
         list(results.edges[0].stmts.values())[0].dict().keys()
@@ -234,7 +235,7 @@ def test_subgraph():
     assert results.edges[0].belief == mock_edge_dict['belief']
     assert list(results.edges[0].stmts.values())[0].db_url_hash == \
            DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
-               'stmt_hash']), \
+               'stmt_hash']) + "&ev_limit=10", \
            list(results.edges[0].stmts.values())[0].db_url_hash
     assert set(
         list(results.edges[0].stmts.values())[0].dict().keys()
@@ -275,3 +276,125 @@ def test_subgraph():
     assert results.not_in_graph[0].name == input_node.name
     assert results.not_in_graph[0].namespace == input_node.namespace
     assert results.not_in_graph[0].identifier == input_node.identifier
+
+
+def test_multi_interactors():
+    # BRCA1 and HDAC3 should have AR, testosterone, NR2C2, MBD2, PATZ1 in
+    # common
+
+    # Test downstream from BRCA1, HDAC3
+    input_nodes = ['BRCA1', 'HDAC3']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=True
+    )
+    res_set = set(res_iter)
+    assert res_set == {'AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1'}
+
+    # Test upstream from CHEK1, H2AZ1
+    input_nodes = ['CHEK1', 'H2AZ1']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=False
+    )
+    res_set = set(res_iter)
+    assert res_set == {'AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1'}
+
+
+def test_multi_interactors_allowed_ns():
+    input_nodes = ['BRCA1', 'HDAC3']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=True,
+        allowed_ns=['chebi']
+    )
+    res_set = set(res_iter)
+    assert res_set == {'testosterone'}
+
+
+def test_multi_interactors_stmt_types():
+    input_nodes = ['BRCA1', 'HDAC3']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=True,
+        stmt_types=['activation']
+    )
+    res_set = set(res_iter)
+    assert res_set == {'AR'}
+
+
+def test_multi_interactors_source_filter():
+    #   - source filter
+    input_nodes = ['CHEK1', 'H2AZ1']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=False,
+        source_filter=['pc']
+    )
+    res_set = set(res_iter)
+    assert res_set == {'AR', 'testosterone', 'NR2C2'}
+
+
+def test_multi_interactors_max_results():
+    input_nodes = ['BRCA1', 'HDAC3']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=True,
+        max_results=3
+    )
+    res_set = list(res_iter)
+    assert res_set == ['AR', 'testosterone', 'NR2C2']
+
+
+def test_multi_interactors_hash_blacklist():
+    input_nodes = ['BRCA1', 'HDAC3']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=True,
+        hash_blacklist={5603789525715921, }  # blacklist BRCA1->AR
+    )
+    res_set = set(res_iter)
+    assert res_set == {'testosterone', 'NR2C2', 'MBD2', 'PATZ1'}
+
+
+def test_multi_interactors_node_blacklist():
+    input_nodes = ['BRCA1', 'HDAC3']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=True,
+        node_blacklist=['AR']
+    )
+    res_set = set(res_iter)
+    assert res_set == {'testosterone', 'NR2C2', 'MBD2', 'PATZ1'}
+
+
+def test_multi_interactors_belief_cutoff():
+    input_nodes = ['BRCA1', 'HDAC3']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=True,
+        belief_cutoff=0.9995
+    )
+    res_set = set(res_iter)
+    assert res_set == {'AR', 'testosterone', 'NR2C2'}
+
+
+def test_multi_interactors_():
+    input_nodes = ['BRCA1', 'HDAC3']
+    res_iter = direct_multi_interactors(
+        graph=expanded_unsigned_graph,
+        interactor_list=input_nodes,
+        downstream=True,
+        curated_db_only=True
+    )
+    res_set = set(res_iter)
+    assert res_set == {'AR', 'testosterone', 'NR2C2'}
