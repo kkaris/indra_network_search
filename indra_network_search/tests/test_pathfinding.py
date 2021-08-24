@@ -180,11 +180,12 @@ def test_subgraph():
     assert results.edges[0].weight == mock_edge_dict['weight']
     assert results.edges[0].belief == mock_edge_dict['belief']
     assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
-        subj_id='1100', subj_ns='HGNC', obj_id='1101', obj_ns='HGNC'
+        subj_id='1100', subj_ns='HGNC', obj_id='1101', obj_ns='HGNC',
+        ev_limit=10
     ), results.edges[0].db_url_edge
     assert list(results.edges[0].stmts.values())[0].db_url_hash == \
            DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
-               'stmt_hash']), \
+               'stmt_hash']) + "&ev_limit=10", \
            list(results.edges[0].stmts.values())[0].db_url_hash
     assert set(
         list(results.edges[0].stmts.values())[0].dict().keys()
@@ -234,7 +235,7 @@ def test_subgraph():
     assert results.edges[0].belief == mock_edge_dict['belief']
     assert list(results.edges[0].stmts.values())[0].db_url_hash == \
            DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
-               'stmt_hash']), \
+               'stmt_hash']) + "&ev_limit=10", \
            list(results.edges[0].stmts.values())[0].db_url_hash
     assert set(
         list(results.edges[0].stmts.values())[0].dict().keys()
