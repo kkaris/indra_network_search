@@ -229,11 +229,11 @@ def direct_multi_interactors(
     graph: DiGraph,
     interactor_list: List[StrNode],
     downstream: bool,
-    allowed_ns: Optional[List[str]] = None,
-    stmt_types: Optional[List[str]] = None,
-    source_filter: Optional[List[str]] = None,
+    allowed_ns: Optional[List[str]] = None,  # assumed to be lowercase
+    stmt_types: Optional[List[str]] = None,  # assumed to be lowercase
+    source_filter: Optional[List[str]] = None,  # assumed to be lowercase
     max_results: int = 50,
-    hash_blacklist: Optional[Set[str]] = None,
+    hash_blacklist: Optional[Set[int]] = None,
     node_blacklist: Optional[List[str]] = None,
     belief_cutoff: float = 0.0,
     curated_db_only: bool = False,
@@ -247,8 +247,7 @@ def direct_multi_interactors(
             (neigh_node, inp_n) if rev else (inp_n, neigh_node) for inp_n in input_nodes
         ]
         max_beliefs = [
-            max(sd["belief"] for sd in graph.edges[e]["statements"])
-            for e in edges
+            max(sd["belief"] for sd in graph.edges[e]["statements"]) for e in edges
         ]
         return min(max_beliefs)
 
@@ -415,7 +414,7 @@ def _source_filter(
         else product([start_node], node_list)
     )
 
-    # Check which edges have the allowed stmt types
+    # Check which edges have the allowed sources
     filtered_neighbors: Set[StrNode] = set()
     for n, edge in zip(node_list, edge_iter):
         for sd in graph.edges[edge]["statements"]:
