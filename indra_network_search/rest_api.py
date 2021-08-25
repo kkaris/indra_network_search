@@ -11,7 +11,7 @@ from indra.databases import get_identifiers_url
 from .data_models.rest_models import Health
 from .rest_util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
-    SubgraphResults, Node
+    SubgraphResults, Node, MultiInteractorsRestQuery, MultiInteractorsResults
 from .autocomplete import NodesTrie, Prefixes
 from .search_api import IndraNetworkSearchAPI
 from depmap_analysis.network_functions.net_functions import bio_ontology
@@ -185,6 +185,16 @@ def query(search_query: NetworkSearchQuery):
     """
     logger.info(f'Got NetworkSearchQuery: {search_query.dict()}')
     results = network_search_api.handle_query(rest_query=search_query)
+    return results
+
+
+@app.post('/multi_interactors', response_model=MultiInteractorsResults)
+def multi_interactors(search_query: MultiInteractorsRestQuery):
+    logger.info(f'Got multi interactors query with {len(search_query.nodes)} nodes')
+    results = network_search_api.handle_multi_interactors_query(
+        multi_interactors_rest_query=search_query
+    )
+    logger.info('Multi interactors query resolved')
     return results
 
 
