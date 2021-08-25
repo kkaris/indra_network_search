@@ -381,3 +381,47 @@ class IndraNetworkSearchAPI:
                                        **query.run_options(graph=graph))
         return SubgraphResultManager(path_generator=edge_iter, graph=graph,
                                      **query.result_options())
+
+    def handle_multi_interactors_query(
+            self,
+            multi_interactors_rest_query: MultiInteractorsRestQuery
+    ) -> MultiInteractorsResults:
+        """Interface with pathfinding.direct_multi_interactors
+
+        Parameters
+        ----------
+        multi_interactors_rest_query :
+            The input query holding options for direct multi interactors
+
+        Returns
+        -------
+        :
+            Results holding node and edge data
+        """
+        mi_query = MultiInteractorsQuery(multi_interactors_rest_query)
+        res_mngr = self.multi_interactors_query(query=mi_query)
+        return res_mngr.get_results()
+
+    def multi_interactors_query(
+            self,
+            query: MultiInteractorsQuery
+    ) -> MultiInteractorsResultManager:
+        """
+
+        Parameters
+        ----------
+        query :
+            An instance of MultiInteractorsQuery, that interfaces with the
+            algorithm and the result manager
+
+        Returns
+        -------
+        :
+            A MultiInteractorsResultManager holding the path generator
+        """
+        graph = self.get_graph(signed=False)
+        run_options = query.run_options()
+        res_gen = direct_multi_interactors(graph=graph, **run_options)
+        res_options = query.result_options()
+        return MultiInteractorsResultManager(path_generator=res_gen,
+                                             graph=graph, **res_options)
