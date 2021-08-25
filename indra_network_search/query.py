@@ -632,8 +632,7 @@ class SubgraphQuery:
 
 class MultiInteractorsQuery:
     alg_name: str = direct_multi_interactors.__name__
-    # query to Rest API is the same as to option to the algorithm
-    options: Type[MultiInteractorsRestQuery] = MultiInteractorsRestQuery
+    options: Type[MultiInteractorsOptions] = MultiInteractorsOptions
 
     def __init__(self, rest_query: MultiInteractorsRestQuery):
         self.query = rest_query
@@ -641,7 +640,7 @@ class MultiInteractorsQuery:
     def _alg_options(self) -> Dict[str, Any]:
         # Add blacklisted hashes to the query
         cc = CurationCache()
-        hash_blacklist = cc.get_all_hashes()
+        hash_blacklist: Set[int] = cc.get_all_hashes()
         query_dict = self.query.dict()
         query_dict['hash_blacklist'] = hash_blacklist
         return query_dict

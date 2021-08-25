@@ -48,6 +48,7 @@ __all__ = [
     "DijkstraOptions",
     "SharedInteractorsOptions",
     "OntologyOptions",
+    "MultiInteractorsOptions",
     "Node",
     "StmtData",
     "EdgeData",
@@ -330,6 +331,20 @@ class OntologyOptions(BaseModel):
     is_a_part_of: Optional[Set[str]] = None
 
 
+class MultiInteractorsOptions(BaseModel):
+    """Multi interactors rest query"""
+    nodes: List[str]
+    downstream: bool
+    allowed_ns: Optional[List[str]] = None,
+    stmt_types: Optional[List[str]] = None,
+    source_filter: Optional[List[str]] = None,
+    max_results: int = 50,
+    hash_blacklist: Optional[Set[int]] = None,
+    node_blacklist: Optional[List[str]] = None,
+    belief_cutoff: float = 0.0,
+    curated_db_only: bool = False,
+
+
 # Models and sub-models for the Results
 class Node(BaseModel):
     """Data for a node"""
@@ -528,7 +543,6 @@ class MultiInteractorsRestQuery(BaseModel):
         ]
     ] = None,
     max_results: int = 50,
-    hash_blacklist: Optional[Set[int]] = None,
     node_blacklist: Optional[List[str]] = None,
     belief_cutoff: float = 0.0,
     curated_db_only: bool = False,
