@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class CurationCache:
-    _correct_set = {"correct", "hypothesis", "act_vs_amt"}
+    _correct_set = {'correct', 'hypothesis', 'activity_amount'}
 
     def __init__(self):
         self._curation_cache: Dict[int, datetime] = {}
