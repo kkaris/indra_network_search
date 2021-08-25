@@ -20,6 +20,7 @@ from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from indra_network_search.rest_util import StrNode, StrEdge
 from indra_network_search.data_models import *
 from indra_network_search.pathfinding import *
+from indra_network_search.util.curation_cache import CurationCache
 
 # Constants
 INT_PLUS = 0
@@ -637,9 +638,17 @@ class MultiInteractorsQuery:
     def __init__(self, rest_query: MultiInteractorsRestQuery):
         self.query = rest_query
 
+    def _alg_options(self) -> Dict[str, Any]:
+        # Add blacklisted hashes to the query
+        cc = CurationCache()
+        hash_blacklist = cc.get_all_hashes()
+        query_dict = self.query.dict()
+        query_dict['hash_blacklist'] = hash_blacklist
+        return query_dict
+
     def run_options(self) -> Dict[str, Any]:
         """Return options needed for pathfinding.direct_multi_interactors"""
-        return self.options(**self.query.dict()).dict()
+        return self.options(**self._alg_options()).dict()
 
     def result_options(self) -> Dict[str, Any]:
         pass
