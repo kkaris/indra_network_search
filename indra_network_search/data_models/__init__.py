@@ -526,7 +526,7 @@ class Results(BaseModel):
 
 class MultiInteractorsRestQuery(BaseModel):
     """Multi interactors rest query"""
-    nodes: List[Node]
+    nodes: List[str]
     downstream: bool
     allowed_ns: Optional[
         List[
