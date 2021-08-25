@@ -388,7 +388,7 @@ def test_multi_interactors_belief_cutoff():
     assert res_set == {'AR', 'testosterone', 'NR2C2'}
 
 
-def test_multi_interactors_():
+def test_multi_interactors_curated_db_only():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
