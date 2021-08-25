@@ -10,6 +10,7 @@ The result manager deals with things like:
 """
 import logging
 from datetime import datetime, timedelta
+from itertools import product
 from typing import (
     Generator,
     Union,
@@ -58,6 +59,7 @@ __all__ = [
     "SharedInteractorsResultManager",
     "OntologyResultManager",
     "SubgraphResultManager",
+    "MultiInteractorsResultManager",
     "alg_manager_mapping",
 ]
 
@@ -1067,6 +1069,70 @@ class SubgraphResultManager(ResultManager):
             input_nodes=self.input_nodes,
             not_in_graph=self._not_in_graph,
         )
+
+
+class MultiInteractorsResultManager(ResultManager):
+    alg_name: str = direct_multi_interactors.__name__
+    filter_input_node: bool = False
+
+    def __init__(self, path_generator: Iterator, graph: DiGraph,
+                 input_nodes: List[StrNode], filter_options: FilterOptions,
+                 rest_query: MultiInteractorsRestQuery,
+                 timeout: Optional[float] = DEFAULT_TIMEOUT):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         input_nodes=input_nodes,
+                         filter_options=filter_options, timeout=timeout)
+        self.downstream = rest_query.downstream
+        self.edge_data: Optional[List[EdgeData]] = None
+        if self.downstream:
+            self.regulators: List[Node] = [self._get_node(
+                node_name=name, apply_filter=False) for name in input_nodes]
+            self.targets: List[Node] = []
+        else:
+            self.regulators: List[Node] = []
+            self.targets: List[Node] = [
+                self._get_node(
+                    node_name=name, apply_filter=False
+                ) for name in input_nodes
+            ]
+
+    def _pass_node(self, node: Node) -> bool:
+        # Node blacklist and allowed ns are checked in direct_multi_interactors
+        return True
+
+    def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]) -> bool:
+        # belief, stmt type, curated db, source filter, hash blacklist are
+        # checked in direct_multi_interactors
+        return True
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        # No filters applied
+        return FilterOptions()
+
+    def _get_edge_iter(self) -> Iterable[Tuple[Node, Node]]:
+        """Return all edges as (StrNode, StrNode)"""
+        # If downstream, regulators == input nodes
+        input_nodes = self.regulators if self.downstream else self.targets
+        neighbors = [self._get_node(node_name=name, apply_filter=False) for
+                     name in self.path_gen]
+        prod_args = (input_nodes, neighbors) if self.downstream else \
+            (neighbors, input_nodes)
+        return ((s, o) for s, o in product(*prod_args))
+
+    def _loop_edges(self):
+        for s, t in self._get_edge_iter():
+            edge_data = self._get_edge_data(a=s, b=t)
+            if edge_data:
+                self.edge_data.append(edge_data)
+        logger.info(f'Added data for {len(self.edge_data)} edges')
+
+    def _get_results(self) -> MultiInteractorsResults:
+        if not self.edge_data:
+            self._loop_edges()
+        return MultiInteractorsResults(targets=self.targets,
+                                       regulators=self.regulators,
+                                       edge_data=self.edge_data)
 
 
 # Map algorithm names to result classes
