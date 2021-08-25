@@ -41,6 +41,8 @@ from indra_network_search.rest_util import (
 __all__ = [
     "NetworkSearchQuery",
     "SubgraphRestQuery",
+    "MultiInteractorsRestQuery",
+    "MultiInteractorsOptions",
     "ApiOptions",
     "ShortestSimplePathOptions",
     "BreadthFirstSearchOptions",
