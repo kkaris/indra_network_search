@@ -3,7 +3,7 @@ This file contains the Query classes that maps to different algorithms used
 in the search api.
 """
 import logging
-from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List
+from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List, Type
 
 import networkx as nx
 from pydantic import BaseModel
@@ -38,6 +38,7 @@ __all__ = [
     "alg_func_mapping",
     "alg_name_query_mapping",
     "SubgraphQuery",
+    "MultiInteractorsQuery",
 ]
 
 
@@ -626,6 +627,22 @@ class SubgraphQuery:
             "nodes_in_graph": self._nodes_in_graph,
             "not_in_graph": self._not_in_graph,
         }
+
+
+class MultiInteractorsQuery:
+    alg_name: str = direct_multi_interactors.__name__
+    # query to Rest API is the same as to option to the algorithm
+    options: Type[MultiInteractorsRestQuery] = MultiInteractorsRestQuery
+
+    def __init__(self, rest_query: MultiInteractorsRestQuery):
+        self.query = rest_query
+
+    def run_options(self) -> Dict[str, Any]:
+        """Return options needed for pathfinding.direct_multi_interactors"""
+        return self.options(**self.query.dict()).dict()
+
+    def result_options(self) -> Dict[str, Any]:
+        pass
 
 
 def get_open_signed_node(
