@@ -61,6 +61,7 @@ __all__ = [
     "FilterOptions",
     "SubgraphOptions",
     "SubgraphResults",
+    "MultiInteractorsResults",
     "DEFAULT_TIMEOUT",
     "basemodels_equal",
     "basemodel_in_iterable",
@@ -507,6 +508,14 @@ class SubgraphResults(BaseModel):
     not_in_graph: List[Node]
     available_nodes: List[Node]
     edges: List[EdgeDataByHash]
+
+
+class MultiInteractorsResults(BaseModel):
+    """Results post direct_multi_interactors"""
+
+    targets: List[Node]
+    regulators: List[Node]
+    edge_data: List[EdgeData]
 
 
 class Results(BaseModel):
