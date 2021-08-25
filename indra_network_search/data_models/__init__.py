@@ -42,7 +42,6 @@ __all__ = [
     "NetworkSearchQuery",
     "SubgraphRestQuery",
     "MultiInteractorsRestQuery",
-    "MultiInteractorsOptions",
     "ApiOptions",
     "ShortestSimplePathOptions",
     "BreadthFirstSearchOptions",
@@ -329,21 +328,6 @@ class OntologyOptions(BaseModel):
     max_paths: int = 50
     immediate_only: Optional[bool] = False
     is_a_part_of: Optional[Set[str]] = None
-
-
-class MultiInteractorsOptions(BaseModel):
-    """Arguments for indra_network_search.pathfinding.direct_multi_interactors"""
-
-    interactor_list: List[StrNode]
-    downstream: bool
-    allowed_ns: Optional[List[str]] = None
-    stmt_types: Optional[List[str]] = None
-    source_filter: Optional[List[str]] = None
-    max_results: int = 50
-    hash_blacklist: Optional[Set[int]] = None
-    node_blacklist: Optional[List[str]] = None
-    belief_cutoff: float = 0.0
-    curated_db_only: bool = False
 
 
 # Models and sub-models for the Results
