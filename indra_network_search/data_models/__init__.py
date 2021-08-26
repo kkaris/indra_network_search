@@ -515,7 +515,7 @@ class MultiInteractorsResults(BaseModel):
 
     targets: List[Node]
     regulators: List[Node]
-    edge_data: List[EdgeData]
+    edge_data: List[EdgeData] = []
 
 
 class Results(BaseModel):
