@@ -1078,7 +1078,7 @@ class MultiInteractorsResultManager(ResultManager):
             timeout=timeout,
         )
         self.downstream = downstream
-        self.edge_data: Optional[List[EdgeData]] = []
+        self.edge_data_list: Optional[List[EdgeData]] = []
         if self.downstream:
             self.regulators: List[Node] = [
                 self._get_node(node_name=name, apply_filter=False)
@@ -1124,17 +1124,19 @@ class MultiInteractorsResultManager(ResultManager):
         for s, t in self._get_edge_iter():
             edge_data = self._get_edge_data(a=s, b=t)
             if edge_data:
-                self.edge_data.append(edge_data)
-        if self.edge_data:
-            logger.info(f"Added data for {len(self.edge_data)} edges")
+                self.edge_data_list.append(edge_data)
+        if self.edge_data_list:
+            logger.info(f"Added data for {len(self.edge_data_list)} edges")
         else:
             logger.info("No data was found for multi interactors")
 
     def _get_results(self) -> MultiInteractorsResults:
-        if not self.edge_data:
+        if not self.edge_data_list:
             self._loop_edges()
         return MultiInteractorsResults(
-            targets=self.targets, regulators=self.regulators, edge_data=self.edge_data
+            targets=self.targets,
+            regulators=self.regulators,
+            edge_data=self.edge_data_list,
         )
 
 
