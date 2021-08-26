@@ -152,7 +152,7 @@ def _check_path_queries(
             signed=rest_query.sign is not None,
         )
         hashes = list(brca1_ar_hash.union(ar_chek1_hash))
-        hash_blacklist = MockCurationCache(hashes).get_hashes()
+        hash_blacklist = MockCurationCache(hashes).get_all_hashes()
         assert set(hash_blacklist) == set(hashes)
     else:
         hash_blacklist = None
