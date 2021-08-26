@@ -19,6 +19,7 @@ Note: Some of the tests here currently rely on being able to call indra_db
 (via PathQuery._get_mesh_options in indra_network_search.query), which is
 blocked from non-hms and non-AWS IP addresses, unless explicitly added.
 """
+from itertools import product
 from typing import Type, Union
 from networkx import DiGraph
 from pydantic import BaseModel
@@ -56,7 +57,7 @@ from indra_network_search.tests.util import (
     signed_node_graph,
     _get_edge_hash,
 )
-from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2
+from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2, _get_node
 
 
 def _check_path_queries(
@@ -1430,6 +1431,29 @@ def test_signed_shared_regulators():
     # - node blacklist
     # - belief cutoff
     # - curated db only
+
+
+def test_multi_interactors():
+    brca1 = _get_node('BRCA1')
+    hdac3 = _get_node('HDAC3')
+    reg_names = ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']
+    regulators = [_get_node(n) for n in reg_names]
+    input_nodes = [brca1.name, hdac3.name]
+    edges = list(map(tuple, product(input_nodes, reg_names)))
+    rest_query = MultiInteractorsRestQuery(
+        nodes=input_nodes,
+        downstream=True,
+    )
+    graph = expanded_unsigned_graph
+
+    expected_res = MultiInteractorsResults(
+        regulators=[brca1, hdac3],
+        targets=regulators,
+        edge_data=_get_edge_data_list(
+            edge_list=edges, graph=graph, large=True, signed=False
+        ),
+    )
+    _check_multi_interactors(rest_query=rest_query, expected_res=expected_res)
 
 
 # fixme: this is slow bc it loads the ontology
