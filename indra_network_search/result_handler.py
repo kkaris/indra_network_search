@@ -1122,6 +1122,16 @@ class MultiInteractorsResultManager(ResultManager):
 
     def _loop_edges(self):
         for s, t in self._get_edge_iter():
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
+                seconds=self.timeout
+            ):
+                logger.info(
+                    f"Timeout reached ({self.timeout} seconds), "
+                    f"breaking results loop"
+                )
+                self.timed_out = True
+                break
+
             edge_data = self._get_edge_data(a=s, b=t)
             if edge_data:
                 self.edge_data_list.append(edge_data)
