@@ -24,6 +24,7 @@ from indra_network_search.pathfinding import (
     shared_parents,
     shared_interactors,
     get_subgraph_edges,
+    direct_multi_interactors,
 )
 from indra_network_search.query import (
     MissingParametersError,
@@ -36,6 +37,7 @@ from indra_network_search.query import (
     SharedTargetsQuery,
     SharedRegulatorsQuery,
     SubgraphQuery,
+    MultiInteractorsQuery,
 )
 from indra_network_search.result_handler import ResultManager, DB_URL_HASH, DB_URL_EDGE
 from indra_network_search.search_api import IndraNetworkSearchAPI
@@ -265,6 +267,9 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
     elif query.alg_name == get_subgraph_edges.__name__:
         assert isinstance(query, SubgraphQuery)
         return api.subgraph_query(query)
+    elif query.alg_name == direct_multi_interactors.__name__:
+        assert isinstance(query, MultiInteractorsQuery)
+        return api.multi_interactors_query(query)
     else:
         raise ValueError(f"Unrecognized Query class {type(query)}")
 
@@ -310,9 +315,9 @@ def _get_edge_data(
     )
 
     if signed:
-        assert isinstance(edge[0], tuple), (
-            "expected signed node when requesting signed edge data"
-        )
+        assert isinstance(
+            edge[0], tuple
+        ), "expected signed node when requesting signed edge data"
         _, _, sign = signed_nodes_to_signed_edge(*edge)
     else:
         sign = None
