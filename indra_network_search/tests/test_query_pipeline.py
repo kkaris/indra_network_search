@@ -35,10 +35,11 @@ from indra_network_search.query import (
     alg_name_query_mapping,
     DijkstraQuery,
     OntologyQuery,
+    MultiInteractorsQuery,
 )
 from indra_network_search.result_handler import (
     ResultManager,
-    alg_manager_mapping,
+    alg_manager_mapping, MultiInteractorsResultManager,
 )
 from indra_network_search.tests.test_curation_cache import MockCurationCache
 from indra_network_search.tests.util import (
@@ -242,6 +243,39 @@ def _check_shared_interactors(
     assert all(
         _edge_data_equals(d1, d1)
         for d1, d2 in zip(expected_res.target_data, api_res.target_data)
+    )
+
+    return True
+
+
+def _check_multi_interactors(
+        rest_query: MultiInteractorsRestQuery,
+        expected_res: MultiInteractorsResults
+):
+    # Get the Query model
+    query = MultiInteractorsQuery(rest_query)
+
+    # Get results from search_api
+    res_mngr = _get_api_res(query=query, is_signed=False, large=True)
+    assert isinstance(res_mngr, MultiInteractorsResultManager)
+    multi_res = res_mngr.get_results()
+    assert isinstance(multi_res, MultiInteractorsResults)
+
+    # Check results
+    assert all(
+        _node_equals(ne, nr) for ne, nr in zip(
+            expected_res.targets, multi_res.targets
+        )
+    )
+    assert all(
+        _node_equals(ne, nr) for ne, nr in zip(
+            expected_res.regulators, multi_res.regulators
+        )
+    )
+    assert all(
+        _edge_data_equals(ee, er) for ee, er in zip(
+            expected_res.edge_data, multi_res.edge_data
+        )
     )
 
     return True
