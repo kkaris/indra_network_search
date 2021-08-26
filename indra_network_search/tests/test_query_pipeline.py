@@ -19,6 +19,7 @@ Note: Some of the tests here currently rely on being able to call indra_db
 (via PathQuery._get_mesh_options in indra_network_search.query), which is
 blocked from non-hms and non-AWS IP addresses, unless explicitly added.
 """
+from itertools import product
 from typing import Type, Union
 from networkx import DiGraph
 from pydantic import BaseModel
@@ -35,10 +36,11 @@ from indra_network_search.query import (
     alg_name_query_mapping,
     DijkstraQuery,
     OntologyQuery,
+    MultiInteractorsQuery,
 )
 from indra_network_search.result_handler import (
     ResultManager,
-    alg_manager_mapping,
+    alg_manager_mapping, MultiInteractorsResultManager,
 )
 from indra_network_search.tests.test_curation_cache import MockCurationCache
 from indra_network_search.tests.util import (
@@ -55,7 +57,7 @@ from indra_network_search.tests.util import (
     signed_node_graph,
     _get_edge_hash,
 )
-from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2
+from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2, _get_node
 
 
 def _check_path_queries(
@@ -151,7 +153,7 @@ def _check_path_queries(
             signed=rest_query.sign is not None,
         )
         hashes = list(brca1_ar_hash.union(ar_chek1_hash))
-        hash_blacklist = MockCurationCache(hashes).get_hashes()
+        hash_blacklist = MockCurationCache(hashes).get_all_hashes()
         assert set(hash_blacklist) == set(hashes)
     else:
         hash_blacklist = None
@@ -242,6 +244,39 @@ def _check_shared_interactors(
     assert all(
         _edge_data_equals(d1, d1)
         for d1, d2 in zip(expected_res.target_data, api_res.target_data)
+    )
+
+    return True
+
+
+def _check_multi_interactors(
+        rest_query: MultiInteractorsRestQuery,
+        expected_res: MultiInteractorsResults
+):
+    # Get the Query model
+    query = MultiInteractorsQuery(rest_query)
+
+    # Get results from search_api
+    res_mngr = _get_api_res(query=query, is_signed=False, large=True)
+    assert isinstance(res_mngr, MultiInteractorsResultManager)
+    multi_res = res_mngr.get_results()
+    assert isinstance(multi_res, MultiInteractorsResults)
+
+    # Check results
+    assert all(
+        _node_equals(ne, nr) for ne, nr in zip(
+            expected_res.targets, multi_res.targets
+        )
+    )
+    assert all(
+        _node_equals(ne, nr) for ne, nr in zip(
+            expected_res.regulators, multi_res.regulators
+        )
+    )
+    assert all(
+        _edge_data_equals(ee, er) for ee, er in zip(
+            expected_res.edge_data, multi_res.edge_data
+        )
     )
 
     return True
@@ -1396,6 +1431,29 @@ def test_signed_shared_regulators():
     # - node blacklist
     # - belief cutoff
     # - curated db only
+
+
+def test_multi_interactors():
+    brca1 = _get_node('BRCA1')
+    hdac3 = _get_node('HDAC3')
+    reg_names = ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']
+    regulators = [_get_node(n) for n in reg_names]
+    input_nodes = [brca1.name, hdac3.name]
+    edges = list(map(tuple, product(input_nodes, reg_names)))
+    rest_query = MultiInteractorsRestQuery(
+        nodes=input_nodes,
+        downstream=True,
+    )
+    graph = expanded_unsigned_graph
+
+    expected_res = MultiInteractorsResults(
+        regulators=[brca1, hdac3],
+        targets=regulators,
+        edge_data=_get_edge_data_list(
+            edge_list=edges, graph=graph, large=True, signed=False
+        ),
+    )
+    _check_multi_interactors(rest_query=rest_query, expected_res=expected_res)
 
 
 # fixme: this is slow bc it loads the ontology

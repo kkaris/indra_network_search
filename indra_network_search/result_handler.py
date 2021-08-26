@@ -10,6 +10,7 @@ The result manager deals with things like:
 """
 import logging
 from datetime import datetime, timedelta
+from itertools import product
 from typing import (
     Generator,
     Union,
@@ -34,21 +35,7 @@ from indra.explanation.pathfinding import (
 from pydantic import ValidationError
 from indra_network_search.rest_util import StrNode
 from indra_network_search.pathfinding import *
-from .data_models import (
-    OntologyResults,
-    SharedInteractorsResults,
-    EdgeData,
-    StmtData,
-    Node,
-    FilterOptions,
-    PathResultData,
-    Path,
-    EdgeDataByHash,
-    SubgraphResults,
-    DEFAULT_TIMEOUT,
-    basemodel_in_iterable,
-    StmtTypeSupport,
-)
+from indra_network_search.data_models import *
 
 __all__ = [
     "ResultManager",
@@ -58,6 +45,7 @@ __all__ = [
     "SharedInteractorsResultManager",
     "OntologyResultManager",
     "SubgraphResultManager",
+    "MultiInteractorsResultManager",
     "alg_manager_mapping",
 ]
 
@@ -1066,6 +1054,101 @@ class SubgraphResultManager(ResultManager):
             edges=edges,
             input_nodes=self.input_nodes,
             not_in_graph=self._not_in_graph,
+        )
+
+
+class MultiInteractorsResultManager(ResultManager):
+    alg_name: str = direct_multi_interactors.__name__
+    filter_input_node: bool = False
+
+    def __init__(
+        self,
+        path_generator: Iterator,
+        graph: DiGraph,
+        input_nodes: List[StrNode],
+        filter_options: FilterOptions,
+        downstream: bool,
+        timeout: Optional[float] = DEFAULT_TIMEOUT,
+    ):
+        super().__init__(
+            path_generator=path_generator,
+            graph=graph,
+            input_nodes=input_nodes,
+            filter_options=filter_options,
+            timeout=timeout,
+        )
+        self.downstream = downstream
+        self.edge_data_list: Optional[List[EdgeData]] = []
+        if self.downstream:
+            self.regulators: List[Node] = [
+                self._get_node(node_name=name, apply_filter=False)
+                for name in input_nodes
+            ]
+            self.targets: List[Node] = []
+        else:
+            self.regulators: List[Node] = []
+            self.targets: List[Node] = [
+                self._get_node(node_name=name, apply_filter=False)
+                for name in input_nodes
+            ]
+
+    def _pass_node(self, node: Node) -> bool:
+        # Node blacklist and allowed ns are checked in direct_multi_interactors
+        return True
+
+    def _pass_stmt(
+        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
+    ) -> bool:
+        # belief, stmt type, curated db, source filter, hash blacklist are
+        # checked in direct_multi_interactors
+        return True
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        # No filters applied
+        return FilterOptions()
+
+    def _get_edge_iter(self) -> Iterable[Tuple[Node, Node]]:
+        """Return all edges as (StrNode, StrNode)"""
+        # If downstream, regulators == input nodes
+        input_nodes = self.regulators if self.downstream else self.targets
+        neighbors = [
+            self._get_node(node_name=name, apply_filter=False) for name in self.path_gen
+        ]
+        prod_args = (
+            (input_nodes, neighbors) if self.downstream else (neighbors, input_nodes)
+        )
+        return ((s, o) for s, o in product(*prod_args))
+
+    def _loop_edges(self):
+        for s, t in self._get_edge_iter():
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
+                seconds=self.timeout
+            ):
+                logger.info(
+                    f"Timeout reached ({self.timeout} seconds), "
+                    f"breaking results loop"
+                )
+                self.timed_out = True
+                break
+
+            edge_data = self._get_edge_data(a=s, b=t)
+            if edge_data:
+                self.edge_data_list.append(edge_data)
+        if self.edge_data_list:
+            logger.info(f"Added data for {len(self.edge_data_list)} edges")
+        else:
+            logger.info(
+                f"No common {'targets' if self.downstream else 'regulators'} was found for multi interactors"
+            )
+
+    def _get_results(self) -> MultiInteractorsResults:
+        if not self.edge_data_list:
+            self._loop_edges()
+        return MultiInteractorsResults(
+            targets=self.targets,
+            regulators=self.regulators,
+            edge_data=self.edge_data_list,
         )
 
 

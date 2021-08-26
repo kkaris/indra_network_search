@@ -227,7 +227,7 @@ def shared_interactors(
 
 def direct_multi_interactors(
     graph: DiGraph,
-    interactor_list: List[StrNode],
+    nodes: List[StrNode],
     downstream: bool,
     allowed_ns: Optional[List[str]] = None,  # assumed to be lowercase
     stmt_types: Optional[List[str]] = None,  # assumed to be lowercase
@@ -253,17 +253,17 @@ def direct_multi_interactors(
 
     reverse = not downstream
     neigh_lookup = graph.succ if downstream else graph.pred
-    if not len(interactor_list):
+    if not len(nodes):
         raise ValueError("Interactor list must contain at least one node")
 
     # Get neighbors
-    if len(interactor_list) == 1:
-        neighbors = set(neigh_lookup[interactor_list[0]])
+    if len(nodes) == 1:
+        neighbors = set(neigh_lookup[nodes[0]])
     else:
-        first_node = interactor_list[0]
+        first_node = nodes[0]
         neighbors = set(neigh_lookup[first_node])
         if neighbors:
-            for neigh in interactor_list[1:]:
+            for neigh in nodes[1:]:
                 neighbors.intersection_update(set(neigh_lookup[neigh]))
 
     # Apply node filters
@@ -276,7 +276,7 @@ def direct_multi_interactors(
 
     # Apply edge type filters
     filter_args = (
-        interactor_list,
+        nodes,
         neighbors,
         graph,
         reverse,
@@ -312,7 +312,7 @@ def direct_multi_interactors(
             neighbors,
             reverse=True,
             key=lambda n: (
-                _get_min_max_belief(n, input_nodes=interactor_list, rev=reverse),
+                _get_min_max_belief(n, input_nodes=nodes, rev=reverse),
                 n,
             ),
         )

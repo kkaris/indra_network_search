@@ -26,7 +26,7 @@ from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
-from pydantic import BaseModel, validator, Extra, constr, conint
+from pydantic import BaseModel, validator, Extra, constr, conint, confloat
 
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
@@ -41,12 +41,14 @@ from indra_network_search.rest_util import (
 __all__ = [
     "NetworkSearchQuery",
     "SubgraphRestQuery",
+    "MultiInteractorsRestQuery",
     "ApiOptions",
     "ShortestSimplePathOptions",
     "BreadthFirstSearchOptions",
     "DijkstraOptions",
     "SharedInteractorsOptions",
     "OntologyOptions",
+    "MultiInteractorsOptions",
     "Node",
     "StmtData",
     "EdgeData",
@@ -59,6 +61,7 @@ __all__ = [
     "FilterOptions",
     "SubgraphOptions",
     "SubgraphResults",
+    "MultiInteractorsResults",
     "DEFAULT_TIMEOUT",
     "basemodels_equal",
     "basemodel_in_iterable",
@@ -329,6 +332,20 @@ class OntologyOptions(BaseModel):
     is_a_part_of: Optional[Set[str]] = None
 
 
+class MultiInteractorsOptions(BaseModel):
+    """Multi interactors options"""
+    nodes: List[str]
+    downstream: bool
+    allowed_ns: Optional[List[str]] = None
+    stmt_types: Optional[List[str]] = None
+    source_filter: Optional[List[str]] = None
+    max_results: int = 50
+    hash_blacklist: Optional[Set[int]] = None
+    node_blacklist: Optional[List[str]] = None
+    belief_cutoff: float = 0.0
+    curated_db_only: bool = False
+
+
 # Models and sub-models for the Results
 class Node(BaseModel):
     """Data for a node"""
@@ -493,6 +510,14 @@ class SubgraphResults(BaseModel):
     edges: List[EdgeDataByHash]
 
 
+class MultiInteractorsResults(BaseModel):
+    """Results post direct_multi_interactors"""
+
+    targets: List[Node]
+    regulators: List[Node]
+    edge_data: List[EdgeData] = []
+
+
 class Results(BaseModel):
     """The model wrapping all results from the NetworkSearchQuery"""
 
@@ -505,6 +530,32 @@ class Results(BaseModel):
     ontology_results: Optional[OntologyResults] = None
     shared_target_results: Optional[SharedInteractorsResults] = None
     shared_regulators_results: Optional[SharedInteractorsResults] = None
+
+
+class MultiInteractorsRestQuery(BaseModel):
+    """Multi interactors rest query"""
+    nodes: List[str]
+    downstream: bool
+    allowed_ns: Optional[
+        List[
+            constr(strip_whitespace=True, to_lower=True, min_length=1)
+        ]
+    ] = None
+    stmt_types: Optional[
+        List[
+            constr(strip_whitespace=True, to_lower=True, min_length=1)
+        ]
+    ] = None
+    source_filter: Optional[
+        List[
+            constr(strip_whitespace=True, to_lower=True, min_length=1)
+        ]
+    ] = None
+    max_results: int = 50
+    node_blacklist: Optional[List[str]] = None
+    belief_cutoff: float = 0.0
+    curated_db_only: bool = False
+    timeout: confloat(ge=5.0, le=120.0) = DEFAULT_TIMEOUT
 
 
 class SubgraphRestQuery(BaseModel):

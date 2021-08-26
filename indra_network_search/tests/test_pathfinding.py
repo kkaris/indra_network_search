@@ -286,7 +286,7 @@ def test_multi_interactors():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=True
     )
     res_set = set(res_iter)
@@ -296,7 +296,7 @@ def test_multi_interactors():
     input_nodes = ['CHEK1', 'H2AZ1']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=False
     )
     res_set = set(res_iter)
@@ -307,7 +307,7 @@ def test_multi_interactors_allowed_ns():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=True,
         allowed_ns=['chebi']
     )
@@ -319,7 +319,7 @@ def test_multi_interactors_stmt_types():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=True,
         stmt_types=['activation']
     )
@@ -332,7 +332,7 @@ def test_multi_interactors_source_filter():
     input_nodes = ['CHEK1', 'H2AZ1']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=False,
         source_filter=['pc']
     )
@@ -344,7 +344,7 @@ def test_multi_interactors_max_results():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=True,
         max_results=3
     )
@@ -356,7 +356,7 @@ def test_multi_interactors_hash_blacklist():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=True,
         hash_blacklist={5603789525715921, }  # blacklist BRCA1->AR
     )
@@ -368,7 +368,7 @@ def test_multi_interactors_node_blacklist():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=True,
         node_blacklist=['AR']
     )
@@ -380,7 +380,7 @@ def test_multi_interactors_belief_cutoff():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=True,
         belief_cutoff=0.9995
     )
@@ -388,11 +388,11 @@ def test_multi_interactors_belief_cutoff():
     assert res_set == {'AR', 'testosterone', 'NR2C2'}
 
 
-def test_multi_interactors_():
+def test_multi_interactors_curated_db_only():
     input_nodes = ['BRCA1', 'HDAC3']
     res_iter = direct_multi_interactors(
         graph=expanded_unsigned_graph,
-        interactor_list=input_nodes,
+        nodes=input_nodes,
         downstream=True,
         curated_db_only=True
     )

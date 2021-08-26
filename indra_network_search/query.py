@@ -3,7 +3,7 @@ This file contains the Query classes that maps to different algorithms used
 in the search api.
 """
 import logging
-from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List
+from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List, Type
 
 import networkx as nx
 from pydantic import BaseModel
@@ -20,6 +20,7 @@ from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from indra_network_search.rest_util import StrNode, StrEdge
 from indra_network_search.data_models import *
 from indra_network_search.pathfinding import *
+from indra_network_search.util.curation_cache import CurationCache
 
 # Constants
 INT_PLUS = 0
@@ -38,6 +39,7 @@ __all__ = [
     "alg_func_mapping",
     "alg_name_query_mapping",
     "SubgraphQuery",
+    "MultiInteractorsQuery",
 ]
 
 
@@ -625,6 +627,34 @@ class SubgraphQuery:
             "original_nodes": self.query.nodes,
             "nodes_in_graph": self._nodes_in_graph,
             "not_in_graph": self._not_in_graph,
+        }
+
+
+class MultiInteractorsQuery:
+    alg_name: str = direct_multi_interactors.__name__
+    options: Type[MultiInteractorsOptions] = MultiInteractorsOptions
+
+    def __init__(self, rest_query: MultiInteractorsRestQuery):
+        self.query = rest_query
+
+    def _alg_options(self) -> Dict[str, Any]:
+        # Add blacklisted hashes to the query
+        cc = CurationCache()
+        hash_blacklist: Set[int] = cc.get_all_hashes()
+        query_dict = self.query.dict(exclude_defaults=True, exclude_unset=True)
+        query_dict["hash_blacklist"] = hash_blacklist
+        return query_dict
+
+    def run_options(self) -> Dict[str, Any]:
+        """Return options needed for pathfinding.direct_multi_interactors"""
+        return self.options(**self._alg_options()).dict()
+
+    def result_options(self) -> Dict[str, Any]:
+        return {
+            "input_nodes": self.query.nodes,
+            "filter_options": FilterOptions(),  # All filters are in results
+            "downstream": self.query.downstream,
+            "timeout": self.query.timeout,
         }
 
 
