@@ -1067,7 +1067,7 @@ class MultiInteractorsResultManager(ResultManager):
         graph: DiGraph,
         input_nodes: List[StrNode],
         filter_options: FilterOptions,
-        rest_query: MultiInteractorsRestQuery,
+        downstream: bool,
         timeout: Optional[float] = DEFAULT_TIMEOUT,
     ):
         super().__init__(
@@ -1077,7 +1077,7 @@ class MultiInteractorsResultManager(ResultManager):
             filter_options=filter_options,
             timeout=timeout,
         )
-        self.downstream = rest_query.downstream
+        self.downstream = downstream
         self.edge_data: Optional[List[EdgeData]] = None
         if self.downstream:
             self.regulators: List[Node] = [
