@@ -1125,7 +1125,10 @@ class MultiInteractorsResultManager(ResultManager):
             edge_data = self._get_edge_data(a=s, b=t)
             if edge_data:
                 self.edge_data.append(edge_data)
-        logger.info(f"Added data for {len(self.edge_data)} edges")
+        if self.edge_data:
+            logger.info(f"Added data for {len(self.edge_data)} edges")
+        else:
+            logger.info("No data was found for multi interactors")
 
     def _get_results(self) -> MultiInteractorsResults:
         if not self.edge_data:
