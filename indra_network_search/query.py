@@ -650,7 +650,12 @@ class MultiInteractorsQuery:
         return self.options(**self._alg_options()).dict()
 
     def result_options(self) -> Dict[str, Any]:
-        pass
+        return {
+            "input_nodes": self.query.nodes,
+            "filter_options": FilterOptions(),  # All filters are in results
+            "downstream": self.query.downstream,
+            "timeout": self.query.timeout,
+        }
 
 
 def get_open_signed_node(
