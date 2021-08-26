@@ -26,7 +26,7 @@ from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
-from pydantic import BaseModel, validator, Extra, constr, conint
+from pydantic import BaseModel, validator, Extra, constr, conint, confloat
 
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
@@ -555,6 +555,7 @@ class MultiInteractorsRestQuery(BaseModel):
     node_blacklist: Optional[List[str]] = None
     belief_cutoff: float = 0.0
     curated_db_only: bool = False
+    timeout: confloat(ge=5.0, le=120.0) = DEFAULT_TIMEOUT
 
 
 class SubgraphRestQuery(BaseModel):
