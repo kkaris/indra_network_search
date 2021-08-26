@@ -5,9 +5,18 @@ Todo:
 """
 from copy import deepcopy
 from depmap_analysis.network_functions.net_functions import _weight_from_belief
+from indra.databases import get_identifiers_url
+from indra_network_search.data_models import Node
 
 
-__all__ = ["nodes", "edge_data", "more_edge_data"]
+__all__ = [
+    "nodes",
+    "edge_data",
+    "more_edge_data",
+    "hash_bl_edge1",
+    "hash_bl_edge2",
+    "_get_node",
+]
 
 wm = _weight_from_belief
 
@@ -25,6 +34,20 @@ nodes = {
     "H2AZ1": {"ns": "HGNC", "id": "4741"},  # G (unused in edges)
     "NCOA": {"ns": "FPLX", "id": "NCOA"},
 }  # H
+
+
+def _get_node(name: str) -> Node:
+    try:
+        nd = nodes[name]
+        return Node(
+            name=name,
+            namespace=nd["ns"],
+            identifier=nd["id"],
+            lookup=get_identifiers_url(db_name=nd["ns"], db_id=nd["id"]),
+        )
+    except KeyError as err:
+        raise KeyError(f"No such node: {name}") from err
+
 
 edge_data = {
     ("BRCA1", "AR"): {
@@ -300,5 +323,5 @@ for edge, v in edge_data.items():
             "CHEK1", "H2AZ1"
         )
         more_edge_data[parallel_edge] = v
-hash_bl_edge1 = ('BRCA1', 'AR')
-hash_bl_edge2 = ('AR', 'CHEK1')
+hash_bl_edge1 = ("BRCA1", "AR")
+hash_bl_edge2 = ("AR", "CHEK1")
