@@ -1138,7 +1138,9 @@ class MultiInteractorsResultManager(ResultManager):
         if self.edge_data_list:
             logger.info(f"Added data for {len(self.edge_data_list)} edges")
         else:
-            logger.info("No data was found for multi interactors")
+            logger.info(
+                f"No common {'targets' if self.downstream else 'regulators'} was found for multi interactors"
+            )
 
     def _get_results(self) -> MultiInteractorsResults:
         if not self.edge_data_list:
