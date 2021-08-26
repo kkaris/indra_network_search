@@ -333,7 +333,7 @@ class OntologyOptions(BaseModel):
 
 
 class MultiInteractorsOptions(BaseModel):
-    """Multi interactors rest query"""
+    """Multi interactors options"""
     nodes: List[str]
     downstream: bool
     allowed_ns: Optional[List[str]] = None,
