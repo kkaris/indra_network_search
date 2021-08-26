@@ -641,8 +641,8 @@ class MultiInteractorsQuery:
         # Add blacklisted hashes to the query
         cc = CurationCache()
         hash_blacklist: Set[int] = cc.get_all_hashes()
-        query_dict = self.query.dict()
-        query_dict['hash_blacklist'] = hash_blacklist
+        query_dict = self.query.dict(exclude_defaults=True, exclude_unset=True)
+        query_dict["hash_blacklist"] = hash_blacklist
         return query_dict
 
     def run_options(self) -> Dict[str, Any]:
