@@ -1078,7 +1078,7 @@ class MultiInteractorsResultManager(ResultManager):
             timeout=timeout,
         )
         self.downstream = downstream
-        self.edge_data: Optional[List[EdgeData]] = None
+        self.edge_data: Optional[List[EdgeData]] = []
         if self.downstream:
             self.regulators: List[Node] = [
                 self._get_node(node_name=name, apply_filter=False)
