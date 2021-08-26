@@ -336,14 +336,14 @@ class MultiInteractorsOptions(BaseModel):
     """Multi interactors options"""
     nodes: List[str]
     downstream: bool
-    allowed_ns: Optional[List[str]] = None,
-    stmt_types: Optional[List[str]] = None,
-    source_filter: Optional[List[str]] = None,
-    max_results: int = 50,
-    hash_blacklist: Optional[Set[int]] = None,
-    node_blacklist: Optional[List[str]] = None,
-    belief_cutoff: float = 0.0,
-    curated_db_only: bool = False,
+    allowed_ns: Optional[List[str]] = None
+    stmt_types: Optional[List[str]] = None
+    source_filter: Optional[List[str]] = None
+    max_results: int = 50
+    hash_blacklist: Optional[Set[int]] = None
+    node_blacklist: Optional[List[str]] = None
+    belief_cutoff: float = 0.0
+    curated_db_only: bool = False
 
 
 # Models and sub-models for the Results
@@ -540,21 +540,21 @@ class MultiInteractorsRestQuery(BaseModel):
         List[
             constr(strip_whitespace=True, to_lower=True, min_length=1)
         ]
-    ] = None,
+    ] = None
     stmt_types: Optional[
         List[
             constr(strip_whitespace=True, to_lower=True, min_length=1)
         ]
-    ] = None,
+    ] = None
     source_filter: Optional[
         List[
             constr(strip_whitespace=True, to_lower=True, min_length=1)
         ]
-    ] = None,
-    max_results: int = 50,
-    node_blacklist: Optional[List[str]] = None,
-    belief_cutoff: float = 0.0,
-    curated_db_only: bool = False,
+    ] = None
+    max_results: int = 50
+    node_blacklist: Optional[List[str]] = None
+    belief_cutoff: float = 0.0
+    curated_db_only: bool = False
 
 
 class SubgraphRestQuery(BaseModel):
