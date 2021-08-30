@@ -220,7 +220,7 @@
                 aria-expanded="false"
                 :aria-controls="accordionIDObj.accordionBody2ID"
             >
-              <strong>Context Search Options</strong>
+              <strong>Weighted Search Options</strong>
               <template v-if="contextErrors">|
                 <span style="color: #A00000">
                   {{ contextErrors }} error{{ contextErrors > 1 ? 's' : '' }}
