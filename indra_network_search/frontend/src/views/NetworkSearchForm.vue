@@ -178,10 +178,6 @@
                 <div class="row">
                   <div class="col-6">
                     <BaseCheckboxBS
-                        v-model="weighted"
-                        label="Weighted search"
-                    />
-                    <BaseCheckboxBS
                         v-model="curated_db_only"
                         label="Only Database Supported Sources"
                     />
@@ -220,7 +216,7 @@
                 aria-expanded="false"
                 :aria-controls="accordionIDObj.accordionBody2ID"
             >
-              <strong>Weighted Search Options</strong>
+              <strong>Context and Weighted Search Options</strong>
               <template v-if="contextErrors">|
                 <span style="color: #A00000">
                   {{ contextErrors }} error{{ contextErrors > 1 ? 's' : '' }}
@@ -237,9 +233,16 @@
             <div class="accordion-body">
               <div class="row">
                 <div class="col">
+                  <BaseSelectBS
+                        v-model="weighted"
+                        :options="weightOptions"
+                        label="Weighted Search"
+                  />
+                </div>
+                <div class="col">
                   <BaseInputBS
                       v-model="mesh_ids_text"
-                      :disabled="weighted"
+                      :disabled="weighted !== 'context'"
                       label="Mesh IDs (comma separated)"
                       type="text"
                       :allowWhitespace="false"
@@ -248,7 +251,7 @@
                 <div class="col">
                   <BaseInputBS
                       v-model.number="const_c"
-                      :disabled="weighted || strict_mesh_id_filtering"
+                      :disabled="weighted !== 'context' || strict_mesh_id_filtering"
                       :max="100"
                       :min="1"
                       label="Constant C"
@@ -262,14 +265,14 @@
                 <div class="col">
                   <BaseCheckboxBS
                       v-model="strict_mesh_id_filtering"
-                      :disabled="weighted"
+                      :disabled="weighted !== 'context'"
                       label="Strict Mesh ID filtering"
                   />
                 </div>
                 <div class="col">
                   <BaseInputBS
                       v-model.number="const_tk"
-                      :disabled="weighted || strict_mesh_id_filtering"
+                      :disabled="weighted !== 'context' || strict_mesh_id_filtering"
                       :max="100"
                       :min="1"
                       label="Constant Tk"
@@ -435,7 +438,7 @@ export default {
       path_length: null,
       depth_limit: 2,
       sign: null,
-      weighted: false,
+      weighted: null,
       belief_cutoff: 0.0,
       curated_db_only: false,
       fplx_expand: false,
@@ -460,6 +463,12 @@ export default {
         { label: "+", value: 0 },
         { label: "-", value: 1 },
         { label: "No sign", value: null }
+      ],
+      weightOptions: [
+        { label: "Belief weighted", value: "belief" },
+        { label: "DepMap z-score weighted", value: "z_score" },
+        { label: "Mesh Context", value: "context" },
+        { label: "Unweighted", value: null }
       ],
       stmtFilterOptions: [
         // Idea:Load options from an endpoint that returns all options,
