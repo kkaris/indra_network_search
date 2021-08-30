@@ -202,7 +202,7 @@
             </div>
           </div>
         </div>
-        <!-- Accordion 2: Context Search Options -->
+        <!-- Accordion 2: Weighted and Context Search Options -->
         <div class="accordion-item">
           <h3
               class="accordion-header"
@@ -232,14 +232,14 @@
           >
             <div class="accordion-body">
               <div class="row">
-                <div class="col">
+                <div class="col-4">
                   <BaseSelectBS
                         v-model="weighted"
                         :options="weightOptions"
                         label="Weighted Search"
                   />
                 </div>
-                <div class="col">
+                <div class="col-4">
                   <BaseInputBS
                       v-model="mesh_ids_text"
                       :disabled="weighted !== 'context'"
@@ -248,7 +248,7 @@
                       :allowWhitespace="false"
                   />
                 </div>
-                <div class="col">
+                <div class="col-4">
                   <BaseInputBS
                       v-model.number="const_c"
                       :disabled="weighted !== 'context' || strict_mesh_id_filtering"
@@ -261,15 +261,16 @@
                   />
                 </div>
               </div>
-              <div class="row">
-                <div class="col">
+              <div class="row justify-content-end">
+                <div class="col-4">
                   <BaseCheckboxBS
                       v-model="strict_mesh_id_filtering"
                       :disabled="weighted !== 'context'"
                       label="Strict Mesh ID filtering"
+                      title="Check to do an unweighted search that is restricted to the edges associated with the given mesh-ids"
                   />
                 </div>
-                <div class="col">
+                <div class="col-4">
                   <BaseInputBS
                       v-model.number="const_tk"
                       :disabled="weighted !== 'context' || strict_mesh_id_filtering"
