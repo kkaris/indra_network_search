@@ -68,7 +68,7 @@
                 aria-expanded="false"
                 :aria-controls="accordionIDObj.accordionBody1ID"
             >
-              <strong>General Filter Options</strong>
+              <strong>General Options</strong>
               <template v-if="generalErrors">|
                 <span style="color: #A00000">
                   {{ generalErrors }} error{{ generalErrors > 1 ? 's' : '' }}
