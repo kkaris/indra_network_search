@@ -38,6 +38,13 @@ from indra_network_search.rest_util import (
     StrNode,
 )
 
+try:
+    # Py 3.8+
+    from typing import Literal
+except ImportError:
+    # Py 3.7-
+    from typing_extensions import Literal
+
 __all__ = [
     "NetworkSearchQuery",
     "SubgraphRestQuery",
@@ -129,6 +136,7 @@ class FilterOptions(BaseModel):
 
 class NetworkSearchQuery(BaseModel):
     """The query model for network searches"""
+
     source: constr(strip_whitespace=True) = ""
     target: constr(strip_whitespace=True) = ""
     stmt_filter: List[constr(to_lower=True, strip_whitespace=True)] = []
@@ -138,7 +146,9 @@ class NetworkSearchQuery(BaseModel):
     path_length: Optional[int] = None
     depth_limit: int = 2
     sign: Optional[str] = None
-    weighted: bool = False
+    weighted: Optional[
+        Literal["belief_wighted", "context_weighted", "z_score_weighted"]
+    ] = None
     belief_cutoff: Union[float, bool] = 0.0
     curated_db_only: bool = False
     fplx_expand: bool = False
