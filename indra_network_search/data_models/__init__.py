@@ -217,15 +217,17 @@ class NetworkSearchQuery(BaseModel):
 
     def get_int_sign(self) -> Optional[int]:
         """Return the integer representation of the sign"""
-        if self.sign is None or self.sign == '':
+        if self.sign is None or self.sign == "":
             return None
         try:
             sign = int(self.sign)
             assert sign in (0, 1)
         except Exception as exc:
-            logger.info(f'Could not convert {self.sign} of type '
-                        f'{type(self.sign)} to int ({str(exc)}), trying '
-                        f'SIGNS mapping')
+            logger.info(
+                f"Could not convert {self.sign} of type "
+                f"{type(self.sign)} to int ({str(exc)}), trying "
+                f"SIGNS mapping"
+            )
             sign = SIGNS_TO_INT_SIGN.get(self.sign)
         return sign
 
@@ -344,6 +346,7 @@ class OntologyOptions(BaseModel):
 
 class MultiInteractorsOptions(BaseModel):
     """Multi interactors options"""
+
     nodes: List[str]
     downstream: bool
     allowed_ns: Optional[List[str]] = None
@@ -544,22 +547,17 @@ class Results(BaseModel):
 
 class MultiInteractorsRestQuery(BaseModel):
     """Multi interactors rest query"""
+
     nodes: List[str]
     downstream: bool
     allowed_ns: Optional[
-        List[
-            constr(strip_whitespace=True, to_lower=True, min_length=1)
-        ]
+        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
     ] = None
     stmt_types: Optional[
-        List[
-            constr(strip_whitespace=True, to_lower=True, min_length=1)
-        ]
+        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
     ] = None
     source_filter: Optional[
-        List[
-            constr(strip_whitespace=True, to_lower=True, min_length=1)
-        ]
+        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
     ] = None
     max_results: int = 50
     node_blacklist: Optional[List[str]] = None
