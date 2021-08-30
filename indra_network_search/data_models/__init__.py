@@ -145,7 +145,7 @@ class NetworkSearchQuery(BaseModel):
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
     depth_limit: int = 2
-    sign: Optional[str] = None
+    sign: Optional[conint(ge=0, le=1)] = None
     weighted: Optional[Literal["belief", "context", "z_score"]] = None
     belief_cutoff: Union[float, bool] = 0.0
     curated_db_only: bool = False
