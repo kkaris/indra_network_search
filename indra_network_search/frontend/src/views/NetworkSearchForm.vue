@@ -17,7 +17,6 @@
       <div class="text-center container">
         <b class="text-muted">Currently unavailable on dev endpoint:</b>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item text-muted">Multi-interactors endpoint</li>
           <li class="list-group-item text-muted">Rank by depmap correlations</li>
         </ul>
       </div>
