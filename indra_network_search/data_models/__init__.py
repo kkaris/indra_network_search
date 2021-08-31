@@ -38,6 +38,13 @@ from indra_network_search.rest_util import (
     StrNode,
 )
 
+try:
+    # Py 3.8+
+    from typing import Literal
+except ImportError:
+    # Py 3.7-
+    from typing_extensions import Literal
+
 __all__ = [
     "NetworkSearchQuery",
     "SubgraphRestQuery",
@@ -129,6 +136,7 @@ class FilterOptions(BaseModel):
 
 class NetworkSearchQuery(BaseModel):
     """The query model for network searches"""
+
     source: constr(strip_whitespace=True) = ""
     target: constr(strip_whitespace=True) = ""
     stmt_filter: List[constr(to_lower=True, strip_whitespace=True)] = []
@@ -137,8 +145,8 @@ class NetworkSearchQuery(BaseModel):
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
     depth_limit: int = 2
-    sign: Optional[str] = None
-    weighted: bool = False
+    sign: Optional[conint(ge=0, le=1)] = None
+    weighted: Optional[Literal["belief", "context", "z_score"]] = None
     belief_cutoff: Union[float, bool] = 0.0
     curated_db_only: bool = False
     fplx_expand: bool = False
@@ -207,15 +215,17 @@ class NetworkSearchQuery(BaseModel):
 
     def get_int_sign(self) -> Optional[int]:
         """Return the integer representation of the sign"""
-        if self.sign is None or self.sign == '':
+        if self.sign is None or self.sign == "":
             return None
         try:
             sign = int(self.sign)
             assert sign in (0, 1)
         except Exception as exc:
-            logger.info(f'Could not convert {self.sign} of type '
-                        f'{type(self.sign)} to int ({str(exc)}), trying '
-                        f'SIGNS mapping')
+            logger.info(
+                f"Could not convert {self.sign} of type "
+                f"{type(self.sign)} to int ({str(exc)}), trying "
+                f"SIGNS mapping"
+            )
             sign = SIGNS_TO_INT_SIGN.get(self.sign)
         return sign
 
@@ -334,6 +344,7 @@ class OntologyOptions(BaseModel):
 
 class MultiInteractorsOptions(BaseModel):
     """Multi interactors options"""
+
     nodes: List[str]
     downstream: bool
     allowed_ns: Optional[List[str]] = None
@@ -534,22 +545,17 @@ class Results(BaseModel):
 
 class MultiInteractorsRestQuery(BaseModel):
     """Multi interactors rest query"""
+
     nodes: List[str]
     downstream: bool
     allowed_ns: Optional[
-        List[
-            constr(strip_whitespace=True, to_lower=True, min_length=1)
-        ]
+        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
     ] = None
     stmt_types: Optional[
-        List[
-            constr(strip_whitespace=True, to_lower=True, min_length=1)
-        ]
+        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
     ] = None
     source_filter: Optional[
-        List[
-            constr(strip_whitespace=True, to_lower=True, min_length=1)
-        ]
+        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
     ] = None
     max_results: int = 50
     node_blacklist: Optional[List[str]] = None

@@ -1,5 +1,7 @@
 <template>
-  <div class="form-check">
+  <div class="form-check"
+       :class="[verticalAlignment.length ? verticalAlignment : '', horizontalAlignment.length ? horizontalAlignment : '']"
+  >
     <input
         class="form-check-input"
         type="checkbox"
@@ -42,6 +44,14 @@ export default {
       default: () => {
         return []
       }
+    },
+    verticalAlignment: {
+      type: String,
+      default: ''
+    },
+    horizontalAlignment: {
+      type: String,
+      default: ''
     }
   },
   setup() {

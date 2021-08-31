@@ -17,7 +17,6 @@
       <div class="text-center container">
         <b class="text-muted">Currently unavailable on dev endpoint:</b>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item text-muted">Multi-interactors endpoint</li>
           <li class="list-group-item text-muted">Rank by depmap correlations</li>
         </ul>
       </div>
@@ -69,7 +68,7 @@
                 aria-expanded="false"
                 :aria-controls="accordionIDObj.accordionBody1ID"
             >
-              <strong>General Filter Options</strong>
+              <strong>General Options</strong>
               <template v-if="generalErrors">|
                 <span style="color: #A00000">
                   {{ generalErrors }} error{{ generalErrors > 1 ? 's' : '' }}
@@ -179,10 +178,6 @@
                 <div class="row">
                   <div class="col-6">
                     <BaseCheckboxBS
-                        v-model="weighted"
-                        label="Weighted search"
-                    />
-                    <BaseCheckboxBS
                         v-model="curated_db_only"
                         label="Only Database Supported Sources"
                     />
@@ -207,7 +202,7 @@
             </div>
           </div>
         </div>
-        <!-- Accordion 2: Context Search Options -->
+        <!-- Accordion 2: Weighted and Context Search Options -->
         <div class="accordion-item">
           <h3
               class="accordion-header"
@@ -221,7 +216,7 @@
                 aria-expanded="false"
                 :aria-controls="accordionIDObj.accordionBody2ID"
             >
-              <strong>Context Search Options</strong>
+              <strong>Context and Weighted Search Options</strong>
               <template v-if="contextErrors">|
                 <span style="color: #A00000">
                   {{ contextErrors }} error{{ contextErrors > 1 ? 's' : '' }}
@@ -237,19 +232,26 @@
           >
             <div class="accordion-body">
               <div class="row">
-                <div class="col">
+                <div class="col-4">
+                  <BaseSelectBS
+                        v-model="weighted"
+                        :options="weightOptions"
+                        label="Weighted Search"
+                  />
+                </div>
+                <div class="col-4">
                   <BaseInputBS
                       v-model="mesh_ids_text"
-                      :disabled="weighted"
+                      :disabled="weighted !== 'context'"
                       label="Mesh IDs (comma separated)"
                       type="text"
                       :allowWhitespace="false"
                   />
                 </div>
-                <div class="col">
+                <div class="col-4">
                   <BaseInputBS
                       v-model.number="const_c"
-                      :disabled="weighted || strict_mesh_id_filtering"
+                      :disabled="weighted !== 'context' || strict_mesh_id_filtering"
                       :max="100"
                       :min="1"
                       label="Constant C"
@@ -259,18 +261,19 @@
                   />
                 </div>
               </div>
-              <div class="row">
-                <div class="col">
+              <div class="row justify-content-end">
+                <div class="col-4">
                   <BaseCheckboxBS
                       v-model="strict_mesh_id_filtering"
-                      :disabled="weighted"
-                      label="Strict Mesh ID filtering"
+                      :disabled="weighted !== 'context'"
+                      label="Strict Mesh ID filtering without weights"
+                      title="Do an unweighted search that is restricted to the edges associated with the given mesh-ids"
                   />
                 </div>
-                <div class="col">
+                <div class="col-4">
                   <BaseInputBS
                       v-model.number="const_tk"
-                      :disabled="weighted || strict_mesh_id_filtering"
+                      :disabled="weighted !== 'context' || strict_mesh_id_filtering"
                       :max="100"
                       :min="1"
                       label="Constant Tk"
@@ -436,7 +439,7 @@ export default {
       path_length: null,
       depth_limit: 2,
       sign: null,
-      weighted: false,
+      weighted: null,
       belief_cutoff: 0.0,
       curated_db_only: false,
       fplx_expand: false,
@@ -461,6 +464,12 @@ export default {
         { label: "+", value: 0 },
         { label: "-", value: 1 },
         { label: "No sign", value: null }
+      ],
+      weightOptions: [
+        { label: "Belief weighted", value: "belief" },
+        { label: "DepMap z-score weighted", value: "z_score" },
+        { label: "Mesh Context", value: "context" },
+        { label: "Unweighted", value: null }
       ],
       stmtFilterOptions: [
         // Idea:Load options from an endpoint that returns all options,
@@ -588,7 +597,7 @@ export default {
       return this.isContextSearch && !this.strict_mesh_id_filtering;
     },
     isAnyWeighted() {
-      return this.isContextWeighted || this.weighted;
+      return this.isContextWeighted || ['belief', 'z_score'].includes(this.weighted);
     },
     emptyResult() {
       const noPaths = sharedHelpers.isEmptyObject(this.results.path_results);
