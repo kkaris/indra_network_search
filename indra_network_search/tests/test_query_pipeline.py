@@ -463,7 +463,7 @@ def test_ssp_belief_weighted():
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     belief_weighted_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1.name, target=brca2.name, weighted=True
+        filter_curated=False, source=brca1.name, target=brca2.name, weighted="belief"
     )
     str_paths = [
         ("BRCA1", n, "CHEK1", "BRCA2")
