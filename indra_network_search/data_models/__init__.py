@@ -189,7 +189,11 @@ class NetworkSearchQuery(BaseModel):
         extra = Extra.forbid  # Error if non-specified attributes are given
 
     def is_overall_weighted(self) -> bool:
-        """Return True if this query is weighted"""
+        """Return True if this query is weighted
+
+        This method is used to determine if a weighted search needs to be
+        done with shortest_simple_paths or open_dijkstra_search
+        """
         return is_weighted(
             weighted=self.weighted in ('belief', 'z_score'),
             mesh_ids=self.mesh_ids,
