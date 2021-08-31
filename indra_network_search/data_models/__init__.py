@@ -106,7 +106,7 @@ class FilterOptions(BaseModel):
     curated_db_only: bool = False
     max_paths: int = 50
     cull_best_node: Optional[int] = None
-    weighted: bool = False
+    weighted: Optional[Literal["belief", "context", "z_score"]] = None
     context_weighted: bool = False
     overall_weighted: bool = False
 
@@ -191,7 +191,7 @@ class NetworkSearchQuery(BaseModel):
     def is_overall_weighted(self) -> bool:
         """Return True if this query is weighted"""
         return is_weighted(
-            weighted=self.weighted,
+            weighted=self.weighted in ('belief', 'z_score'),
             mesh_ids=self.mesh_ids,
             strict_mesh_filtering=self.strict_mesh_id_filtering,
         )
@@ -240,11 +240,7 @@ class NetworkSearchQuery(BaseModel):
             curated_db_only=self.curated_db_only,
             max_paths=self.k_shortest,
             cull_best_node=self.cull_best_node,
-            overall_weighted=is_weighted(
-                weighted=self.weighted,
-                mesh_ids=self.mesh_ids,
-                strict_mesh_filtering=self.strict_mesh_id_filtering,
-            ),
+            overall_weighted=self.is_overall_weighted(),
             weighted=self.weighted,
             context_weighted=is_context_weighted(
                 mesh_id_list=self.mesh_ids,
