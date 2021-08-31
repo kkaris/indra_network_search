@@ -40,7 +40,8 @@ from indra_network_search.query import (
 )
 from indra_network_search.result_handler import (
     ResultManager,
-    alg_manager_mapping, MultiInteractorsResultManager,
+    alg_manager_mapping,
+    MultiInteractorsResultManager,
 )
 from indra_network_search.tests.test_curation_cache import MockCurationCache
 from indra_network_search.tests.util import (
@@ -250,8 +251,7 @@ def _check_shared_interactors(
 
 
 def _check_multi_interactors(
-        rest_query: MultiInteractorsRestQuery,
-        expected_res: MultiInteractorsResults
+    rest_query: MultiInteractorsRestQuery, expected_res: MultiInteractorsResults
 ):
     # Get the Query model
     query = MultiInteractorsQuery(rest_query)
@@ -264,19 +264,15 @@ def _check_multi_interactors(
 
     # Check results
     assert all(
-        _node_equals(ne, nr) for ne, nr in zip(
-            expected_res.targets, multi_res.targets
-        )
+        _node_equals(ne, nr) for ne, nr in zip(expected_res.targets, multi_res.targets)
     )
     assert all(
-        _node_equals(ne, nr) for ne, nr in zip(
-            expected_res.regulators, multi_res.regulators
-        )
+        _node_equals(ne, nr)
+        for ne, nr in zip(expected_res.regulators, multi_res.regulators)
     )
     assert all(
-        _edge_data_equals(ee, er) for ee, er in zip(
-            expected_res.edge_data, multi_res.edge_data
-        )
+        _edge_data_equals(ee, er)
+        for ee, er in zip(expected_res.edge_data, multi_res.edge_data)
     )
 
     return True
@@ -1434,9 +1430,9 @@ def test_signed_shared_regulators():
 
 
 def test_multi_interactors():
-    brca1 = _get_node('BRCA1')
-    hdac3 = _get_node('HDAC3')
-    reg_names = ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']
+    brca1 = _get_node("BRCA1")
+    hdac3 = _get_node("HDAC3")
+    reg_names = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
     regulators = [_get_node(n) for n in reg_names]
     input_nodes = [brca1.name, hdac3.name]
     edges = list(map(tuple, product(input_nodes, reg_names)))
