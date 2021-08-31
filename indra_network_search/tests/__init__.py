@@ -4,7 +4,8 @@ Todo:
     - Create standalone test files for subgraph queries
 """
 from copy import deepcopy
-from depmap_analysis.network_functions.net_functions import _weight_from_belief
+from depmap_analysis.network_functions.net_functions import \
+    _weight_from_belief, z_sc_weight
 from indra.databases import get_identifiers_url
 from indra_network_search.data_models import Node
 
@@ -22,8 +23,7 @@ wm = _weight_from_belief
 self_corr = 11.71018407323314
 
 
-def _zw(z_sc: float) -> float:
-    return self_corr - abs(z_sc)
+_zw = z_sc_weight
 
 
 nodes = {
