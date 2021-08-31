@@ -266,8 +266,8 @@
                   <BaseCheckboxBS
                       v-model="strict_mesh_id_filtering"
                       :disabled="weighted !== 'context'"
-                      label="Strict Mesh ID filtering"
-                      title="Check to do an unweighted search that is restricted to the edges associated with the given mesh-ids"
+                      label="Strict Mesh ID filtering without weights"
+                      title="Do an unweighted search that is restricted to the edges associated with the given mesh-ids"
                   />
                 </div>
                 <div class="col-4">
