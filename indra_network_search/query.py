@@ -148,6 +148,13 @@ class UIQuery(Query):
 class PathQuery(UIQuery):
     """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
 
+    # Map name for mapping to edge attribute key
+    _weight_map = {
+        "belief": "weight",
+        "context": "context_weight",
+        "z_score": "corr_weight",
+    }
+
     def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]]):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
