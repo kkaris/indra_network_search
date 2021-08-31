@@ -847,7 +847,7 @@ def test_ssp_cull_best_node():
 # todo: add timeout test
 
 
-def test_dijkstra():
+def test_dijkstra_belief():
     # Test weighted searches with all applicable options
     # Test signed weighted searches
 
