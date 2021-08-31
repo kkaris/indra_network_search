@@ -824,7 +824,7 @@ def test_dijkstra():
     # Test belief weight
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     rest_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1.name, weighted=True
+        filter_curated=False, source=brca1.name, weighted="belief"
     )
     interm = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
 
