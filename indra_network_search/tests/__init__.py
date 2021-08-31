@@ -59,7 +59,7 @@ edge_data = {
         "belief": 0.999999,
         "weight": wm(0.999999),
         "z_score": self_corr - 1,
-        "corr_weigh": _zw(self_corr - 1),
+        "corr_weight": _zw(self_corr - 1),
         "statements": [
             {
                 "stmt_hash": 5603789525715921,
@@ -79,7 +79,7 @@ edge_data = {
         "belief": 0.99999,
         "weight": wm(0.99999),
         "z_score": self_corr - 2,
-        "corr_weigh": _zw(self_corr - 2),
+        "corr_weight": _zw(self_corr - 2),
         "statements": [
             {
                 "stmt_hash": 5603789525715922,
@@ -99,7 +99,7 @@ edge_data = {
         "belief": 0.9999,
         "weight": wm(0.9999),
         "z_score": self_corr - 3,
-        "corr_weigh": _zw(self_corr - 3),
+        "corr_weight": _zw(self_corr - 3),
         "statements": [
             {
                 "stmt_hash": 5603789525715923,
@@ -119,7 +119,7 @@ edge_data = {
         "belief": 0.999,
         "weight": wm(0.999),
         "z_score": self_corr - 4,
-        "corr_weigh": _zw(self_corr - 4),
+        "corr_weight": _zw(self_corr - 4),
         "statements": [
             {
                 "stmt_hash": 5603789525715924,
@@ -139,7 +139,7 @@ edge_data = {
         "belief": 0.99,
         "weight": wm(0.99),
         "z_score": self_corr - 5,
-        "corr_weigh": _zw(self_corr - 5),
+        "corr_weight": _zw(self_corr - 5),
         "statements": [
             {
                 "stmt_hash": 5603789525715925,
@@ -159,7 +159,7 @@ edge_data = {
         "belief": 0.999999,
         "weight": wm(0.999999),
         "z_score": self_corr - 1,
-        "corr_weigh": _zw(self_corr - 1),
+        "corr_weight": _zw(self_corr - 1),
         "statements": [
             {
                 "stmt_hash": 915990,
@@ -179,7 +179,7 @@ edge_data = {
         "belief": 0.99999,
         "weight": wm(0.99999),
         "z_score": self_corr - 2,
-        "corr_weigh": _zw(self_corr - 2),
+        "corr_weight": _zw(self_corr - 2),
         "statements": [
             {
                 "stmt_hash": 915991,
@@ -199,7 +199,7 @@ edge_data = {
         "belief": 0.9999,
         "weight": wm(0.9999),
         "z_score": self_corr - 3,
-        "corr_weigh": _zw(self_corr - 3),
+        "corr_weight": _zw(self_corr - 3),
         "statements": [
             {
                 "stmt_hash": 915992,
@@ -219,7 +219,7 @@ edge_data = {
         "belief": 0.999,
         "weight": wm(0.999),
         "z_score": self_corr - 4,
-        "corr_weigh": _zw(self_corr - 4),
+        "corr_weight": _zw(self_corr - 4),
         "statements": [
             {
                 "stmt_hash": 560370,
@@ -239,7 +239,7 @@ edge_data = {
         "belief": 0.99,
         "weight": wm(0.99),
         "z_score": self_corr - 5,
-        "corr_weigh": _zw(self_corr - 5),
+        "corr_weight": _zw(self_corr - 5),
         "statements": [
             {
                 "stmt_hash": 560370,
@@ -259,7 +259,7 @@ edge_data = {
         "belief": 0.98,
         "weight": 4.1e-05,
         "z_score": self_corr - 6,
-        "corr_weigh": _zw(self_corr - 6),
+        "corr_weight": _zw(self_corr - 6),
         "statements": [
             {
                 "stmt_hash": 915993,
@@ -279,7 +279,7 @@ edge_data = {
         "belief": 0.7,
         "weight": wm(0.7),
         "z_score": self_corr - 7,
-        "corr_weigh": _zw(self_corr - 7),
+        "corr_weight": _zw(self_corr - 7),
         "statements": [
             {
                 "stmt_hash": 915994,
@@ -299,7 +299,7 @@ edge_data = {
         "belief": 0.7,
         "weight": wm(0.7),
         "z_score": self_corr - 7,
-        "corr_weigh": _zw(self_corr - 7),
+        "corr_weight": _zw(self_corr - 7),
         "statements": [
             {
                 "stmt_hash": 915995,
@@ -319,7 +319,7 @@ edge_data = {
         "belief": 0.98,
         "weight": 4.1e-05,
         "z_score": self_corr - 6,
-        "corr_weigh": _zw(self_corr - 6),
+        "corr_weight": _zw(self_corr - 6),
         "statements": [
             {
                 "stmt_hash": -976543,
