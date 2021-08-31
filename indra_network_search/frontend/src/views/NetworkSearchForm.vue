@@ -597,7 +597,7 @@ export default {
       return this.isContextSearch && !this.strict_mesh_id_filtering;
     },
     isAnyWeighted() {
-      return this.isContextWeighted || this.weighted;
+      return this.isContextWeighted || ['belief', 'z_score'].includes(this.weighted);
     },
     emptyResult() {
       const noPaths = sharedHelpers.isEmptyObject(this.results.path_results);
