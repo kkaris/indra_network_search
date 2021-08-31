@@ -560,7 +560,7 @@ export default {
         node_blacklist: this.splitTrim(this.node_blacklist_text),
         path_length: this.path_length,
         depth_limit: this.depth_limit,
-        sign: this.sign,
+        sign: this.sign === "" ? null : this.sign,
         weighted: this.weighted,
         belief_cutoff: this.belief_cutoff,
         curated_db_only: this.curated_db_only,
