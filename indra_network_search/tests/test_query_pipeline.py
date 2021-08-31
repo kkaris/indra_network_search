@@ -412,7 +412,7 @@ def test_ssp_signed_query1():
     brca2_up = Node(name="BRCA2", namespace="HGNC", identifier="1101", sign=0)
     brca1_up = Node(name="BRCA1", namespace="HGNC", identifier="1100", sign=0)
     signed_rest_query = NetworkSearchQuery(
-        filter_curated=False, source="BRCA1", target="BRCA2", sign="+"
+        filter_curated=False, source="BRCA1", target="BRCA2", sign=0
     )
     sign_str_paths = [(("BRCA1", 0), ("AR", 0), ("CHEK1", 0), ("BRCA2", 0))]
     sign_paths = {
@@ -435,7 +435,7 @@ def test_ssp_signed_query2():
     brca2_up = Node(name="BRCA2", namespace="HGNC", identifier="1101", sign=0)
     brca1_down = Node(name="BRCA1", namespace="HGNC", identifier="1100", sign=1)
     signed_rest_query2 = NetworkSearchQuery(
-        filter_curated=False, source="BRCA2", target="BRCA1", sign="-"
+        filter_curated=False, source="BRCA2", target="BRCA1", sign=1
     )
     sign_str_paths2 = [(("BRCA2", 0), ("BRCA1", 1))]
     sign_paths2 = {
@@ -1413,7 +1413,8 @@ def test_signed_shared_targets():
     )
 
     rest_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1_up.name, target=hdac3_up.name, sign="+"
+        filter_curated=False, source=brca1_up.name, target=hdac3_up.name,
+        sign=0
     )
     source_edges = [(brca1_up.signed_node_tuple(), ("AR", 0))]
     target_edges = [(hdac3_up.signed_node_tuple(), ("AR", 0))]
@@ -1458,7 +1459,7 @@ def test_signed_shared_regulators():
         source=chek1_up.name,
         target=h2az1_up.name,
         shared_regulators=True,
-        sign="+",
+        sign=0,
     )
     source_edges = [(("AR", 0), chek1_up.signed_node_tuple())]
     target_edges = [(("AR", 0), h2az1_up.signed_node_tuple())]
