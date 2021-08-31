@@ -488,6 +488,40 @@ def test_ssp_belief_weighted():
     )
 
 
+def test_ssp_z_score_weighted():
+    # Create rest query - belief weighted
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
+    belief_weighted_query = NetworkSearchQuery(
+        filter_curated=False, source=brca1.name, target=brca2.name, weighted="z_score"
+    )
+    str_paths = [
+        ("BRCA1", n, "CHEK1", "BRCA2")
+        for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    str_paths5 = [
+        ("BRCA1", n, "CHEK1", "NCOA", "BRCA2")
+        for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    paths = {
+        4: _get_path_list(
+            str_paths=str_paths, graph=unsigned_graph, large=False, signed=False
+        ),
+        5: _get_path_list(
+            str_paths=str_paths5, graph=unsigned_graph, large=False, signed=False
+        ),
+    }
+    expected_paths: PathResultData = PathResultData(
+        source=brca1, target=brca2, paths=paths
+    )
+    assert _check_path_queries(
+        graph=unsigned_graph,
+        QueryCls=ShortestSimplePathsQuery,
+        rest_query=belief_weighted_query,
+        expected_res=expected_paths,
+    )
+
+
 def test_ssp_reverse():
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
