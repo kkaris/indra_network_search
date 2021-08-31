@@ -875,6 +875,33 @@ def test_dijkstra():
         expected_res=pr,
     )
 
+
+def test_dijkstra_z_score():
+    # Test z-score weight
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    rest_query = NetworkSearchQuery(
+        filter_curated=False, source=brca1.name, weighted="z_score"
+    )
+    interm = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+
+    str_paths2 = [("BRCA1", n) for n in interm]
+    str_paths3 = [("BRCA1", "AR", "CHEK1")]
+    str_paths4 = [("BRCA1", "AR", "CHEK1", "BRCA2"), ("BRCA1", "AR", "CHEK1", "NCOA")]
+    kwargs = dict(graph=unsigned_graph, large=False, signed=False)
+    paths = {
+        2: _get_path_list(str_paths2, **kwargs),
+        3: _get_path_list(str_paths3, **kwargs),
+        4: _get_path_list(str_paths4, **kwargs),
+    }
+    pr = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(
+        graph=unsigned_graph,
+        QueryCls=DijkstraQuery,
+        rest_query=rest_query,
+        expected_res=pr,
+    )
+
+
     # Test context weight
     # rest_query = NetworkSearchQuery(filter_curated=False, source='A', mesh_ids=['D000544'],
     #                            strict_mesh_id_filtering=False)
