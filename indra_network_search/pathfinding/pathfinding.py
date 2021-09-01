@@ -526,7 +526,9 @@ def _run_edge_filter(
     g: DiGraph,
     rev: bool,
     filter_option: FilterOption,
-    filter_func: Callable[[StrNode, Set[StrNode], DiGraph, bool, ...], Set[StrNode]],
+    filter_func: Callable[
+        [StrNode, Set[StrNode], DiGraph, bool, Optional[FilterOption]], Set[StrNode]
+    ],
 ):
     for start_node in start_nodes:
         if not neighbor_nodes:
