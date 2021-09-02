@@ -199,7 +199,10 @@ class NetworkSearchQuery(BaseModel):
         """Return True if this query is weighted
 
         This method is used to determine if a weighted search needs to be
-        done with shortest_simple_paths or open_dijkstra_search
+        done using either of shortest_simple_paths and open_dijkstra_search.
+
+        The exception to self.weighted not being None but still be
+        unweighted is strict mesh id search.
         """
         return is_weighted(
             weighted=self.weighted in ('belief', 'z_score'),
