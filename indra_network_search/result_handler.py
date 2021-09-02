@@ -215,6 +215,8 @@ class ResultManager:
 
         edge_belief = ed["belief"]
         edge_weight = ed["weight"]
+        edge_z_sc = ed["z_score"]
+        edge_corr_weight = ed["corr_weight"]
 
         # Get sign and context weight if present
         extra_dict = {}
@@ -236,6 +238,8 @@ class ResultManager:
             statements=stmt_dict,
             belief=edge_belief,
             weight=edge_weight,
+            z_score=edge_z_sc,
+            corr_weight=edge_corr_weight,
             db_url_edge=url,
             **extra_dict,
         )
