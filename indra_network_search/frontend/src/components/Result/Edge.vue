@@ -81,13 +81,34 @@ export default {
       type: Number,
       required: true
     },
-    sign: {
-      type: Number,
-      default: null
-    },
     context_weight: {
       type: [Number, String],
       default: 'N/A'
+    },
+    z_score: {
+      type: Number,
+      default: null
+    },
+    corr_weight: {
+      type: Number,
+      default: null,
+      validator: corr => {
+        if (corr !== null) {
+          // Assert gt 0
+          return corr > 0
+        }
+        return true
+      }
+    },
+    sign: {
+      type: Number,
+      default: null,
+      validator: s => {
+        if (s !== null) {
+          return s === 0 || s === 1
+        }
+        return true
+      }
     },
     db_url_edge: {
       type: String,
