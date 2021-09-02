@@ -70,6 +70,7 @@ __all__ = [
     "SubgraphResults",
     "MultiInteractorsResults",
     "DEFAULT_TIMEOUT",
+    "WEIGHT_NAME_MAPPING",
     "basemodels_equal",
     "basemodel_in_iterable",
     "StmtTypeSupport",
@@ -81,6 +82,11 @@ logger = logging.getLogger(__name__)
 
 # Set defaults
 DEFAULT_TIMEOUT = 30
+WEIGHT_NAME_MAPPING = {
+    "belief": "weight",
+    "context": "context_weight",
+    "z_score": "corr_weight",
+}
 
 
 # Models for API options and filtering options
@@ -106,7 +112,8 @@ class FilterOptions(BaseModel):
     curated_db_only: bool = False
     max_paths: int = 50
     cull_best_node: Optional[int] = None
-    weighted: bool = False
+    weighted: Optional[Literal["weight", "context_weight", "corr_weight"]] = \
+        None
     context_weighted: bool = False
     overall_weighted: bool = False
 
@@ -189,9 +196,16 @@ class NetworkSearchQuery(BaseModel):
         extra = Extra.forbid  # Error if non-specified attributes are given
 
     def is_overall_weighted(self) -> bool:
-        """Return True if this query is weighted"""
+        """Return True if this query is weighted
+
+        This method is used to determine if a weighted search needs to be
+        done using either of shortest_simple_paths and open_dijkstra_search.
+
+        The exception to self.weighted not being None but still be
+        unweighted is strict mesh id search.
+        """
         return is_weighted(
-            weighted=self.weighted,
+            weighted=self.weighted in ('belief', 'z_score'),
             mesh_ids=self.mesh_ids,
             strict_mesh_filtering=self.strict_mesh_id_filtering,
         )
@@ -240,12 +254,8 @@ class NetworkSearchQuery(BaseModel):
             curated_db_only=self.curated_db_only,
             max_paths=self.k_shortest,
             cull_best_node=self.cull_best_node,
-            overall_weighted=is_weighted(
-                weighted=self.weighted,
-                mesh_ids=self.mesh_ids,
-                strict_mesh_filtering=self.strict_mesh_id_filtering,
-            ),
-            weighted=self.weighted,
+            overall_weighted=self.is_overall_weighted(),
+            weighted=WEIGHT_NAME_MAPPING.get(self.weighted),
             context_weighted=is_context_weighted(
                 mesh_id_list=self.mesh_ids,
                 strict_filtering=self.strict_mesh_id_filtering,
@@ -427,10 +437,12 @@ class EdgeData(BaseModel):
 
     edge: List[Node]  # Edge supported by statements
     statements: Dict[str, StmtTypeSupport]  # key by stmt_type
-    belief: float  # Aggregated belief
-    weight: float  # Weight corresponding to aggregated weight
-    sign: Optional[int]  # Used for signed paths
-    context_weight: Union[str, float] = "N/A"  # Set for context
+    belief: confloat(ge=0, le=1)  # Aggregated belief
+    weight: confloat(ge=0)  # Weight corresponding to aggregated belief weight
+    context_weight: Union[str, float, Literal["N/A"]] = "N/A"  # Set for context
+    z_score: Optional[float] = None  # z-score
+    corr_weight: Optional[confloat(ge=0.0)] = None  # Weight from z-score
+    sign: Optional[conint(ge=0, le=1)]  # Used for signed paths
     db_url_edge: str  # Linkout to subj-obj level
     source_counts: Dict[str, int] = {}
 

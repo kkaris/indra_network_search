@@ -215,6 +215,8 @@ class ResultManager:
 
         edge_belief = ed["belief"]
         edge_weight = ed["weight"]
+        edge_z_sc = ed["z_score"]
+        edge_corr_weight = ed["corr_weight"]
 
         # Get sign and context weight if present
         extra_dict = {}
@@ -236,6 +238,8 @@ class ResultManager:
             statements=stmt_dict,
             belief=edge_belief,
             weight=edge_weight,
+            z_score=edge_z_sc,
+            corr_weight=edge_corr_weight,
             db_url_edge=url,
             **extra_dict,
         )
@@ -408,20 +412,21 @@ class PathResultManager(UIResultManager):
         paths_built = 0
         prev_path: Optional[List[str]] = None
         culled_nodes: Set[str] = set()
+        # Only set "context_weight" if non-strict context search is made
         if self.filter_options.context_weighted:
-            weight = "context_weight"
-        elif self.filter_options.weighted:
-            weight = "weight"
+            assert self.filter_options.weighted == "context_weight"
+            weight = self.filter_options.weighted
+        # Since context weight is handled above, simply set other weight
+        # options according to filer_options.weighted
         else:
-            weight = None
+            weight = self.filter_options.weighted
 
         while True:
             if self.timeout and datetime.utcnow() - self.start_time > timedelta(
                 seconds=self.timeout
             ):
                 logger.info(
-                    f"Timeout reached ({self.timeout} seconds), "
-                    f"breaking results loop"
+                    f"Timeout reached ({self.timeout} seconds), breaking results loop"
                 )
                 self.timed_out = True
                 break
@@ -985,6 +990,7 @@ class SubgraphResultManager(ResultManager):
         # Get edge aggregated belief, weight
         edge_belief = ed["belief"]
         edge_weight = ed["weight"]
+        # FixMe: expose z-score and corr_weight here?
 
         edge_url = DB_URL_EDGE.format(
             subj_id=a_node.identifier,

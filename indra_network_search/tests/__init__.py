@@ -4,7 +4,8 @@ Todo:
     - Create standalone test files for subgraph queries
 """
 from copy import deepcopy
-from depmap_analysis.network_functions.net_functions import _weight_from_belief
+from depmap_analysis.network_functions.net_functions import \
+    _weight_from_belief, z_sc_weight
 from indra.databases import get_identifiers_url
 from indra_network_search.data_models import Node
 
@@ -19,6 +20,10 @@ __all__ = [
 ]
 
 wm = _weight_from_belief
+self_corr = 11.71018407323314
+
+
+_zw = z_sc_weight
 
 
 nodes = {
@@ -53,6 +58,8 @@ edge_data = {
     ("BRCA1", "AR"): {
         "belief": 0.999999,
         "weight": wm(0.999999),
+        "z_score": self_corr - 1,
+        "corr_weight": _zw(self_corr - 1, self_corr),
         "statements": [
             {
                 "stmt_hash": 5603789525715921,
@@ -71,6 +78,8 @@ edge_data = {
     ("BRCA1", "testosterone"): {
         "belief": 0.99999,
         "weight": wm(0.99999),
+        "z_score": self_corr - 2,
+        "corr_weight": _zw(self_corr - 2, self_corr),
         "statements": [
             {
                 "stmt_hash": 5603789525715922,
@@ -89,6 +98,8 @@ edge_data = {
     ("BRCA1", "NR2C2"): {
         "belief": 0.9999,
         "weight": wm(0.9999),
+        "z_score": self_corr - 3,
+        "corr_weight": _zw(self_corr - 3, self_corr),
         "statements": [
             {
                 "stmt_hash": 5603789525715923,
@@ -107,6 +118,8 @@ edge_data = {
     ("BRCA1", "MBD2"): {
         "belief": 0.999,
         "weight": wm(0.999),
+        "z_score": self_corr - 4,
+        "corr_weight": _zw(self_corr - 4, self_corr),
         "statements": [
             {
                 "stmt_hash": 5603789525715924,
@@ -125,6 +138,8 @@ edge_data = {
     ("BRCA1", "PATZ1"): {
         "belief": 0.99,
         "weight": wm(0.99),
+        "z_score": self_corr - 5,
+        "corr_weight": _zw(self_corr - 5, self_corr),
         "statements": [
             {
                 "stmt_hash": 5603789525715925,
@@ -143,6 +158,8 @@ edge_data = {
     ("AR", "CHEK1"): {
         "belief": 0.999999,
         "weight": wm(0.999999),
+        "z_score": self_corr - 1,
+        "corr_weight": _zw(self_corr - 1, self_corr),
         "statements": [
             {
                 "stmt_hash": 915990,
@@ -161,6 +178,8 @@ edge_data = {
     ("testosterone", "CHEK1"): {
         "belief": 0.99999,
         "weight": wm(0.99999),
+        "z_score": self_corr - 2,
+        "corr_weight": _zw(self_corr - 2, self_corr),
         "statements": [
             {
                 "stmt_hash": 915991,
@@ -179,6 +198,8 @@ edge_data = {
     ("NR2C2", "CHEK1"): {
         "belief": 0.9999,
         "weight": wm(0.9999),
+        "z_score": self_corr - 3,
+        "corr_weight": _zw(self_corr - 3, self_corr),
         "statements": [
             {
                 "stmt_hash": 915992,
@@ -197,6 +218,8 @@ edge_data = {
     ("MBD2", "CHEK1"): {
         "belief": 0.999,
         "weight": wm(0.999),
+        "z_score": self_corr - 4,
+        "corr_weight": _zw(self_corr - 4, self_corr),
         "statements": [
             {
                 "stmt_hash": 560370,
@@ -215,6 +238,8 @@ edge_data = {
     ("PATZ1", "CHEK1"): {
         "belief": 0.99,
         "weight": wm(0.99),
+        "z_score": self_corr - 5,
+        "corr_weight": _zw(self_corr - 5, self_corr),
         "statements": [
             {
                 "stmt_hash": 560370,
@@ -233,6 +258,8 @@ edge_data = {
     ("CHEK1", "BRCA2"): {
         "belief": 0.98,
         "weight": 4.1e-05,
+        "z_score": self_corr - 6,
+        "corr_weight": _zw(self_corr - 6, self_corr),
         "statements": [
             {
                 "stmt_hash": 915993,
@@ -251,6 +278,8 @@ edge_data = {
     ("CHEK1", "NCOA"): {
         "belief": 0.7,
         "weight": wm(0.7),
+        "z_score": self_corr - 7,
+        "corr_weight": _zw(self_corr - 7, self_corr),
         "statements": [
             {
                 "stmt_hash": 915994,
@@ -269,6 +298,8 @@ edge_data = {
     ("NCOA", "BRCA2"): {
         "belief": 0.7,
         "weight": wm(0.7),
+        "z_score": self_corr - 7,
+        "corr_weight": _zw(self_corr - 7, self_corr),
         "statements": [
             {
                 "stmt_hash": 915995,
@@ -287,6 +318,8 @@ edge_data = {
     ("BRCA2", "BRCA1"): {
         "belief": 0.98,
         "weight": 4.1e-05,
+        "z_score": self_corr - 6,
+        "corr_weight": _zw(self_corr - 6, self_corr),
         "statements": [
             {
                 "stmt_hash": -976543,

@@ -17,6 +17,7 @@ from indra_network_search.query import (
 from indra_network_search.data_models import NetworkSearchQuery
 from indra_network_search.pathfinding import shared_parents
 from indra_network_search.util.curation_cache import CurationCache
+from indra_network_search.rest_util import is_weighted
 
 __all__ = ["QueryHandler"]
 
@@ -38,8 +39,8 @@ class QueryHandler:
         self.rest_query_hash: int = rest_query.get_hash()
         self.signed: bool = SIGN_TO_STANDARD.get(rest_query.sign) in ("+", "-")
         self.open: bool = bool(rest_query.source) ^ bool(rest_query.target)
-        self.weighted: bool = bool(rest_query.weighted)
-        self.mesh: bool = bool(rest_query.mesh_ids)
+        self.weighted: bool = rest_query.is_overall_weighted()
+        self.mesh: List[str] = rest_query.mesh_ids
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
         self._query_dict: Dict[str, UIQuery] = {}
         cc = curation_cache
@@ -62,10 +63,10 @@ class QueryHandler:
                 )
         # If open: check if weighted options
         else:
-            if _is_weighted(
-                weight=self.weighted,
+            if is_weighted(
+                weighted=self.weighted,
                 mesh_ids=self.mesh,
-                strict_mesh_id_filtering=self.strict_mesh,
+                strict_mesh_filtering=self.strict_mesh,
             ):
                 query_dict["path_query"] = DijkstraQuery(
                     self.rest_query, hash_blacklist=self._hash_bl
@@ -111,21 +112,3 @@ class QueryHandler:
         if not self._query_dict:
             self._query_dict = self._get_queries()
         return self._query_dict
-
-
-def _is_context_weighted(mesh_id_list: bool, strict_filtering: bool) -> bool:
-    """Context weighted search: provide mesh ids without strict filtering"""
-    if mesh_id_list and not strict_filtering:
-        return True
-    return False
-
-
-def _is_weighted(weight: bool, mesh_ids: bool, strict_mesh_id_filtering: bool) -> bool:
-    """Any type of weighted search"""
-    if mesh_ids:
-        ctx_w = _is_context_weighted(
-            mesh_id_list=mesh_ids, strict_filtering=strict_mesh_id_filtering
-        )
-        return weight or ctx_w
-    else:
-        return weight

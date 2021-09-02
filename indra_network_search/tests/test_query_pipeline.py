@@ -40,7 +40,8 @@ from indra_network_search.query import (
 )
 from indra_network_search.result_handler import (
     ResultManager,
-    alg_manager_mapping, MultiInteractorsResultManager,
+    alg_manager_mapping,
+    MultiInteractorsResultManager,
 )
 from indra_network_search.tests.test_curation_cache import MockCurationCache
 from indra_network_search.tests.util import (
@@ -250,8 +251,7 @@ def _check_shared_interactors(
 
 
 def _check_multi_interactors(
-        rest_query: MultiInteractorsRestQuery,
-        expected_res: MultiInteractorsResults
+    rest_query: MultiInteractorsRestQuery, expected_res: MultiInteractorsResults
 ):
     # Get the Query model
     query = MultiInteractorsQuery(rest_query)
@@ -264,19 +264,15 @@ def _check_multi_interactors(
 
     # Check results
     assert all(
-        _node_equals(ne, nr) for ne, nr in zip(
-            expected_res.targets, multi_res.targets
-        )
+        _node_equals(ne, nr) for ne, nr in zip(expected_res.targets, multi_res.targets)
     )
     assert all(
-        _node_equals(ne, nr) for ne, nr in zip(
-            expected_res.regulators, multi_res.regulators
-        )
+        _node_equals(ne, nr)
+        for ne, nr in zip(expected_res.regulators, multi_res.regulators)
     )
     assert all(
-        _edge_data_equals(ee, er) for ee, er in zip(
-            expected_res.edge_data, multi_res.edge_data
-        )
+        _edge_data_equals(ee, er)
+        for ee, er in zip(expected_res.edge_data, multi_res.edge_data)
     )
 
     return True
@@ -308,7 +304,7 @@ def _check_pipeline(
             signed=rest_query.sign is not None,
         )
         hashes = list(brca1_ar_hash.union(ar_chek1_hash))
-        hash_blacklist = MockCurationCache(hashes).get_hashes()
+        hash_blacklist = MockCurationCache(hashes).get_all_hashes()
         assert set(hash_blacklist) == set(hashes)
     else:
         hash_blacklist = None
@@ -416,7 +412,7 @@ def test_ssp_signed_query1():
     brca2_up = Node(name="BRCA2", namespace="HGNC", identifier="1101", sign=0)
     brca1_up = Node(name="BRCA1", namespace="HGNC", identifier="1100", sign=0)
     signed_rest_query = NetworkSearchQuery(
-        filter_curated=False, source="BRCA1", target="BRCA2", sign="+"
+        filter_curated=False, source="BRCA1", target="BRCA2", sign=0
     )
     sign_str_paths = [(("BRCA1", 0), ("AR", 0), ("CHEK1", 0), ("BRCA2", 0))]
     sign_paths = {
@@ -439,7 +435,7 @@ def test_ssp_signed_query2():
     brca2_up = Node(name="BRCA2", namespace="HGNC", identifier="1101", sign=0)
     brca1_down = Node(name="BRCA1", namespace="HGNC", identifier="1100", sign=1)
     signed_rest_query2 = NetworkSearchQuery(
-        filter_curated=False, source="BRCA2", target="BRCA1", sign="-"
+        filter_curated=False, source="BRCA2", target="BRCA1", sign=1
     )
     sign_str_paths2 = [(("BRCA2", 0), ("BRCA1", 1))]
     sign_paths2 = {
@@ -463,7 +459,41 @@ def test_ssp_belief_weighted():
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     belief_weighted_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1.name, target=brca2.name, weighted=True
+        filter_curated=False, source=brca1.name, target=brca2.name, weighted="belief"
+    )
+    str_paths = [
+        ("BRCA1", n, "CHEK1", "BRCA2")
+        for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    str_paths5 = [
+        ("BRCA1", n, "CHEK1", "NCOA", "BRCA2")
+        for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
+    paths = {
+        4: _get_path_list(
+            str_paths=str_paths, graph=unsigned_graph, large=False, signed=False
+        ),
+        5: _get_path_list(
+            str_paths=str_paths5, graph=unsigned_graph, large=False, signed=False
+        ),
+    }
+    expected_paths: PathResultData = PathResultData(
+        source=brca1, target=brca2, paths=paths
+    )
+    assert _check_path_queries(
+        graph=unsigned_graph,
+        QueryCls=ShortestSimplePathsQuery,
+        rest_query=belief_weighted_query,
+        expected_res=expected_paths,
+    )
+
+
+def test_ssp_z_score_weighted():
+    # Create rest query - belief weighted
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
+    belief_weighted_query = NetworkSearchQuery(
+        filter_curated=False, source=brca1.name, target=brca2.name, weighted="z_score"
     )
     str_paths = [
         ("BRCA1", n, "CHEK1", "BRCA2")
@@ -817,14 +847,14 @@ def test_ssp_cull_best_node():
 # todo: add timeout test
 
 
-def test_dijkstra():
+def test_dijkstra_belief():
     # Test weighted searches with all applicable options
     # Test signed weighted searches
 
     # Test belief weight
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     rest_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1.name, weighted=True
+        filter_curated=False, source=brca1.name, weighted="belief"
     )
     interm = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
 
@@ -844,6 +874,33 @@ def test_dijkstra():
         rest_query=rest_query,
         expected_res=pr,
     )
+
+
+def test_dijkstra_z_score():
+    # Test z-score weight
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    rest_query = NetworkSearchQuery(
+        filter_curated=False, source=brca1.name, weighted="z_score"
+    )
+    interm = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+
+    str_paths2 = [("BRCA1", n) for n in interm]
+    str_paths3 = [("BRCA1", "AR", "CHEK1")]
+    str_paths4 = [("BRCA1", "AR", "CHEK1", "BRCA2"), ("BRCA1", "AR", "CHEK1", "NCOA")]
+    kwargs = dict(graph=unsigned_graph, large=False, signed=False)
+    paths = {
+        2: _get_path_list(str_paths2, **kwargs),
+        3: _get_path_list(str_paths3, **kwargs),
+        4: _get_path_list(str_paths4, **kwargs),
+    }
+    pr = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(
+        graph=unsigned_graph,
+        QueryCls=DijkstraQuery,
+        rest_query=rest_query,
+        expected_res=pr,
+    )
+
 
     # Test context weight
     # rest_query = NetworkSearchQuery(filter_curated=False, source='A', mesh_ids=['D000544'],
@@ -1356,7 +1413,8 @@ def test_signed_shared_targets():
     )
 
     rest_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1_up.name, target=hdac3_up.name, sign="+"
+        filter_curated=False, source=brca1_up.name, target=hdac3_up.name,
+        sign=0
     )
     source_edges = [(brca1_up.signed_node_tuple(), ("AR", 0))]
     target_edges = [(hdac3_up.signed_node_tuple(), ("AR", 0))]
@@ -1401,7 +1459,7 @@ def test_signed_shared_regulators():
         source=chek1_up.name,
         target=h2az1_up.name,
         shared_regulators=True,
-        sign="+",
+        sign=0,
     )
     source_edges = [(("AR", 0), chek1_up.signed_node_tuple())]
     target_edges = [(("AR", 0), h2az1_up.signed_node_tuple())]
@@ -1434,9 +1492,9 @@ def test_signed_shared_regulators():
 
 
 def test_multi_interactors():
-    brca1 = _get_node('BRCA1')
-    hdac3 = _get_node('HDAC3')
-    reg_names = ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']
+    brca1 = _get_node("BRCA1")
+    hdac3 = _get_node("HDAC3")
+    reg_names = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
     regulators = [_get_node(n) for n in reg_names]
     input_nodes = [brca1.name, hdac3.name]
     edges = list(map(tuple, product(input_nodes, reg_names)))

@@ -58,7 +58,7 @@ def test_shortest_simple_paths_query():
         _match_args(set(options.keys()), alg_func_mapping[q_unw.alg_name])
 
     # Test belief weighted
-    query = NetworkSearchQuery(source='A', target='B', weighted=True)
+    query = NetworkSearchQuery(source='A', target='B', weighted='belief')
     sspq_w = ShortestSimplePathsQuery(query)
     options = sspq_w.run_options()
     _match_args(set(options.keys()), alg_func_mapping[sspq_w.alg_name])
@@ -109,7 +109,7 @@ def test_breadth_first_search_query():
 
 def test_dijkstra_query():
     # Test belief weight
-    query = NetworkSearchQuery(source='A', weighted=True)
+    query = NetworkSearchQuery(source='A', weighted='belief')
     dijq = DijkstraQuery(query)
     options = set(dijq.run_options().keys())
     _match_args(run_options=options, alg_fun=alg_func_mapping[dijq.alg_name])
@@ -183,9 +183,8 @@ def test_bfs_edge_filter():
     assert edge_filter_func(unsigned_graph, 'BRCA1', 'testosterone') == False
 
     # hash_blacklist
-    rq = NetworkSearchQuery(source='BRCA1',
-                            edge_hash_blacklist=[5603789525715921])
-    bfsq = BreadthFirstSearchQuery(rq)
+    rq = NetworkSearchQuery(source='BRCA1')
+    bfsq = BreadthFirstSearchQuery(rq, hash_blacklist={5603789525715921})
     run_options = bfsq.run_options(graph=unsigned_graph)
     edge_filter_func: EdgeFilter = run_options['edge_filter']
     assert edge_filter_func(unsigned_graph, 'BRCA1', 'AR') == False

@@ -148,6 +148,9 @@ class UIQuery(Query):
 class PathQuery(UIQuery):
     """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
 
+    # Map name for mapping to edge attribute key
+    _weight_map = WEIGHT_NAME_MAPPING
+
     def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]]):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
@@ -240,7 +243,7 @@ class ShortestSimplePathsQuery(PathQuery):
             "source": source,
             "target": target,
             "ignore_nodes": self._get_node_blacklist(),
-            "weight": "weight" if self.query.weighted else None,
+            "weight": self._weight_map.get(self.query.weighted),
         }
 
     def mesh_options(
@@ -390,7 +393,7 @@ class DijkstraQuery(PathQuery):
             "ignore_nodes": self._get_node_blacklist(),
             "ignore_edges": None,  # Not provided as an option in UI
             "terminal_ns": self.query.terminal_ns,
-            "weight": "weight" if self.query.weighted else None,
+            "weight": self._weight_map.get(self.query.weighted),
         }
 
     def mesh_options(
