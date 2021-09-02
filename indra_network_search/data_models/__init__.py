@@ -439,9 +439,9 @@ class EdgeData(BaseModel):
     statements: Dict[str, StmtTypeSupport]  # key by stmt_type
     belief: confloat(ge=0, le=1)  # Aggregated belief
     weight: confloat(ge=0)  # Weight corresponding to aggregated belief weight
-    context_weight: Union[str, float, Literal["N/A"]] = "N/A"  # Set for context
+    context_weight: Union[str, confloat(gt=0), Literal["N/A"]] = "N/A"  # Set for context
     z_score: Optional[float] = None  # z-score
-    corr_weight: Optional[confloat(ge=0.0)] = None  # Weight from z-score
+    corr_weight: Optional[confloat(gt=0.0)] = None  # Weight from z-score
     sign: Optional[conint(ge=0, le=1)]  # Used for signed paths
     db_url_edge: str  # Linkout to subj-obj level
     source_counts: Dict[str, int] = {}
