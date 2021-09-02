@@ -426,8 +426,7 @@ class PathResultManager(UIResultManager):
                 seconds=self.timeout
             ):
                 logger.info(
-                    f"Timeout reached ({self.timeout} seconds), "
-                    f"breaking results loop"
+                    f"Timeout reached ({self.timeout} seconds), breaking results loop"
                 )
                 self.timed_out = True
                 break
@@ -991,6 +990,7 @@ class SubgraphResultManager(ResultManager):
         # Get edge aggregated belief, weight
         edge_belief = ed["belief"]
         edge_weight = ed["weight"]
+        # FixMe: expose z-score and corr_weight here?
 
         edge_url = DB_URL_EDGE.format(
             subj_id=a_node.identifier,
