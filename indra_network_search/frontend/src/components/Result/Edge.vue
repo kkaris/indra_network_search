@@ -175,14 +175,23 @@ export default {
           this.GStore.currentQuery.mesh_ids.length > 0
     },
     weightToShow() {
-      // No weighted query
-      if (this.isContextWeighted) {
-        return this.fixDecimals(this.context_weight)
+      let weightType = this.GStore.currentQuery.weighted
+
+      if (weightType === null) return 'N/A'
+
+      switch (weightType) {
+        case 'belief':
+          return this.fixDecimals(this.weight)
+        case 'context':
+          if (this.isContextWeighted) {
+            return this.fixDecimals(this.context_weight)
+          }
+          return 'N/A'
+        case 'z_score':
+          return this.fixDecimals(this.corr_weight)
+        default:
+          throw `Unrecognized weight type ${weightType}`
       }
-      if (this.GStore.currentQuery.weighted) {
-        return this.fixDecimals(this.weight)
-      }
-      return 'N/A'
     },
   }
 }
