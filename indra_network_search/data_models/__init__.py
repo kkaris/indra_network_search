@@ -112,7 +112,8 @@ class FilterOptions(BaseModel):
     curated_db_only: bool = False
     max_paths: int = 50
     cull_best_node: Optional[int] = None
-    weighted: Optional[Literal["belief", "context", "z_score"]] = None
+    weighted: Optional[Literal["weight", "context_weight", "corr_weight"]] = \
+        None
     context_weighted: bool = False
     overall_weighted: bool = False
 
@@ -251,7 +252,7 @@ class NetworkSearchQuery(BaseModel):
             max_paths=self.k_shortest,
             cull_best_node=self.cull_best_node,
             overall_weighted=self.is_overall_weighted(),
-            weighted=self.weighted,
+            weighted=WEIGHT_NAME_MAPPING.get(self.weighted),
             context_weighted=is_context_weighted(
                 mesh_id_list=self.mesh_ids,
                 strict_filtering=self.strict_mesh_id_filtering,
