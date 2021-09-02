@@ -70,6 +70,7 @@ __all__ = [
     "SubgraphResults",
     "MultiInteractorsResults",
     "DEFAULT_TIMEOUT",
+    "WEIGHT_NAME_MAPPING",
     "basemodels_equal",
     "basemodel_in_iterable",
     "StmtTypeSupport",
@@ -81,6 +82,11 @@ logger = logging.getLogger(__name__)
 
 # Set defaults
 DEFAULT_TIMEOUT = 30
+WEIGHT_NAME_MAPPING = {
+    "belief": "weight",
+    "context": "context_weight",
+    "z_score": "corr_weight",
+}
 
 
 # Models for API options and filtering options
