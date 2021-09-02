@@ -75,15 +75,24 @@ export default {
     },
     belief: {
       type: Number,
-      required: true
+      required: true,
+      validator: b => {
+        return 0 <= b <= 1
+      }
     },
     weight: {
       type: Number,
-      required: true
+      required: true,
+      validator: w => {
+        return sharedHelpers.isPosNum(w)
+      }
     },
     context_weight: {
       type: [Number, String],
-      default: 'N/A'
+      default: 'N/A',
+      validator: cw => {
+        return cw === 'N/A' || sharedHelpers.isPosNum(cw)
+      }
     },
     z_score: {
       type: Number,
