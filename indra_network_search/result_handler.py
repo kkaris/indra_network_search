@@ -412,12 +412,14 @@ class PathResultManager(UIResultManager):
         paths_built = 0
         prev_path: Optional[List[str]] = None
         culled_nodes: Set[str] = set()
+        # Only set "context_weight" if non-strict context search is made
         if self.filter_options.context_weighted:
-            weight = "context_weight"
-        elif self.filter_options.weighted:
-            weight = "weight"
+            assert self.filter_options.weighted == "context_weight"
+            weight = self.filter_options.weighted
+        # Since context weight is handled above, simply set other weight
+        # options according to filer_options.weighted
         else:
-            weight = None
+            weight = self.filter_options.weighted
 
         while True:
             if self.timeout and datetime.utcnow() - self.start_time > timedelta(
