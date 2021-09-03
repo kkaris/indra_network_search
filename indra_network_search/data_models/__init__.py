@@ -26,7 +26,8 @@ from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
-from pydantic import BaseModel, validator, Extra, constr, conint, confloat
+from pydantic import BaseModel, validator, Extra, constr, conint, confloat, \
+    HttpUrl
 
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
@@ -406,7 +407,7 @@ class StmtData(BaseModel):
 
     stmt_type: str
     evidence_count: int
-    stmt_hash: int
+    stmt_hash: Union[int, HttpUrl]
     source_counts: Dict[str, int]
     belief: float
     curated: bool
