@@ -406,16 +406,16 @@ class StmtData(BaseModel):
     """Data for one statement supporting an edge"""
 
     stmt_type: str
-    evidence_count: int
+    evidence_count: conint(ge=1)
     stmt_hash: Union[int, HttpUrl]
     source_counts: Dict[str, int]
-    belief: float
+    belief: confloat(ge=0.0, le=1.0)
     curated: bool
     english: str
     weight: Optional[float] = None
     residue: Optional[str] = ""
     position: Optional[str] = ""
-    initial_sign: Optional[int] = None
+    initial_sign: Optional[conint(ge=0, le=1)] = None
     db_url_hash: str  # Linkout to hash-level
 
 
