@@ -174,8 +174,8 @@ class ResultManager:
                 f"Validation of statement data failed for "
                 f'"{stmt_dict.get("english", "(unknown statement)")}" with '
                 f'hash {stmt_dict.get("stmt_hash", "(unknown hash)")}:'
-                f" {str(err)}"
             )
+            logger.exception(err)
             return None
 
     def _get_edge_data(
