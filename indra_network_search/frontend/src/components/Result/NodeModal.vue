@@ -70,6 +70,7 @@ import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 
 export default {
+  inject: ['GStore'],
   // Match the fields of class Node in indra_network_search/data_models.py
   props: {
     name: {
@@ -115,18 +116,26 @@ export default {
   },
   methods: {
     fillXrefs() {
-      if (!this.xrefs.length) {
+      if (this.GStore.xrefs[this.name]) {
+        // Check for xrefs in GStore
+        console.log('Found xref in GStore')
+        this.xrefs = this.GStore.xrefs[this.name]
+      } else if (!this.xrefs.length) {
+        // Get xrefs from server
         AxiosMethods.getXrefs(this.namespace, this.identifier)
             .then(response => {
               this.serverError = false;
-              this.xrefs = response.data;
+              const xrefData = response.data;
+              this.xrefs = xrefData;
+              this.GStore.xrefs[this.name] = xrefData;
+              console.log('Got xrefs from server')
             })
             .catch(error => {
               console.log(error)
               this.serverError = true;
             })
-      }
-      else {
+      } else {
+        // Nothing needs to be done
         return false;
       }
     }

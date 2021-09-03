@@ -7,7 +7,12 @@ import "./assets/sources.css";
 import { createApp, reactive } from "vue";
 import App from "./App.vue";
 
-const GStore = reactive({ currentQuery: {} })
+const GStore = reactive(
+    {
+        currentQuery: {},
+        xrefs: {},
+    }
+)
 
 const app = createApp(App);
 app.provide('GStore', GStore);
