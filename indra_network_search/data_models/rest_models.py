@@ -9,7 +9,7 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-__all__ = ["Health"]
+__all__ = ["Health", "ServerStatus"]
 
 
 class Health(BaseModel):
