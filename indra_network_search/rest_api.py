@@ -236,6 +236,11 @@ def sub_graph(search_query: SubgraphRestQuery):
     return subgraph_results
 
 
+# Todo: figure out how to do all the loading async so the server is
+#  available to respond to health checks while it's loading
+#  See:
+#  - https://fastapi.tiangolo.com/advanced/events/#startup-event
+#  - https://www.starlette.io/events/
 if DEBUG:
     from indra_network_search.tests.util import _setup_graph, _setup_signed_node_graph
 
