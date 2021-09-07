@@ -29,5 +29,4 @@ class ServerStatus(BaseModel):
     signed_nodes: Optional[int] = None
     unsigned_edges: Optional[int] = None
     signed_edges: Optional[int] = None
-    unique_entitity_count: Optional[int] = None
     status: STR_STATUS
