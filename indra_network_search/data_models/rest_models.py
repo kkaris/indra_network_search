@@ -24,7 +24,6 @@ class Health(BaseModel):
 class ServerStatus(BaseModel):
     """Status with more detail than health"""
 
-    graphs_available: List[Literal["signed", "unsigned"]] = []
     unsigned_nodes: Optional[int] = None
     signed_nodes: Optional[int] = None
     unsigned_edges: Optional[int] = None
