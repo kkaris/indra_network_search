@@ -2,7 +2,7 @@
 Contains return models from the rest api
 """
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 try:
     from typing import Literal
@@ -12,18 +12,22 @@ except ImportError:
 __all__ = ["Health", "ServerStatus"]
 
 
+STR_STATUS = Literal["booting", "available"]
+
+
 class Health(BaseModel):
     """Health status"""
 
-    status: Literal["booting", "available"]
+    status: STR_STATUS
 
 
 class ServerStatus(BaseModel):
     """Status with more detail than health"""
 
-    graphs_available: List[Literal["signed", "unsigned"]]
-    unsigned_nodes: int
-    signed_nodes: int
-    unsigned_edges: int
-    signed_edges: int
-    unique_entitity_count: int
+    graphs_available: Optional[List[Literal["signed", "unsigned"]]] = None
+    unsigned_nodes: Optional[int] = None
+    signed_nodes: Optional[int] = None
+    unsigned_edges: Optional[int] = None
+    signed_edges: Optional[int] = None
+    unique_entitity_count: Optional[int] = None
+    status: STR_STATUS
