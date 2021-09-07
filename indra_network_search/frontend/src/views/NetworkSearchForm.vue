@@ -393,6 +393,10 @@
       </div>
     </form>
   </div>
+  <StatusBox
+      v-if="submissionError"
+      :axios-error="submissionError"
+  />
   <ResultArea
       v-if="!emptyResult"
       v-bind="results"
@@ -407,6 +411,7 @@ import BaseInputAutoCompBS from "@/components/Form/BaseInputAutoCompBS";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
+import StatusBox from "@/components/status_box/StatusBox";
 import Multiselect from "@vueform/multiselect"
 import sharedHelpers from "@/helpers/sharedHelpers";
 import useVuelidate from "@vuelidate/core";
@@ -419,6 +424,7 @@ const cullFreq = (val) => !helpers.req(val) || val > 0;
 export default {
   inject: ['GStore'],
   components: {
+    StatusBox,
     BaseInputAutoCompBS,
     ResultArea,
     BaseSelectBS,
@@ -540,7 +546,8 @@ export default {
         ontology_results: {},
         shared_target_results: {},
         shared_regulators_results: {},
-      }
+      },
+      submissionError: null,
     };
   },
   computed: {
@@ -663,10 +670,12 @@ export default {
       .then(response => {
         console.log('Query resolved!');
         console.log(response);
-        this.results = response.data
+        this.results = response.data;
+        this.submissionError = null;
       })
       .catch(error => {
         console.log(error)
+        this.submissionError = error.toJSON()
       })
       .then(() => {
         this.isLoading = false;
