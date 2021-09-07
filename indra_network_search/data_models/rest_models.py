@@ -2,7 +2,8 @@
 Contains return models from the rest api
 """
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
+from datetime import date
 
 try:
     from typing import Literal
@@ -28,4 +29,5 @@ class ServerStatus(BaseModel):
     signed_nodes: Optional[int] = None
     unsigned_edges: Optional[int] = None
     signed_edges: Optional[int] = None
+    graph_date: Optional[date] = None
     status: STR_STATUS
