@@ -17,7 +17,7 @@
       <div class="text-center container">
         <b class="text-muted">Currently unavailable on dev endpoint:</b>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item text-muted">Rank by depmap correlations</li>
+          <li class="list-group-item text-muted">Server status box</li>
         </ul>
       </div>
       <h2 class="text-center">Basic Search Options</h2>
@@ -361,7 +361,7 @@
       <div
           class="row justify-content-center align-middle d-flex align-items-center"
           style="margin-top: 10px">
-        <div class="col-2">
+        <div class="col-2 text-center">
           <button
               :class="{ disabledButton: cannotSubmit }"
               :disabled="cannotSubmit || isLoading || v$.$invalid"
@@ -377,7 +377,7 @@
             Submit
           </button>
         </div>
-        <div class="col-2">
+        <div class="col-2 text-center">
           <BaseInputBS
               v-model.number="user_timeout"
               :max="120"
