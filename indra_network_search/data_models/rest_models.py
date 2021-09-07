@@ -2,9 +2,10 @@
 Contains return models from the rest api
 """
 from pydantic import BaseModel
+from typing import List
 
 try:
-    from typing import Literal, List
+    from typing import Literal
 except ImportError:
     from typing_extensions import Literal
 
