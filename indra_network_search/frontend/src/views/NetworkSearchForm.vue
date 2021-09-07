@@ -663,6 +663,7 @@ export default {
       if (this.v$.$error) {
         return false
       }
+      this.submissionError = null;
       this.isLoading = true;
       const currentQuery = this.networkSearchQuery
       this.GStore.currentQuery = currentQuery
@@ -671,7 +672,6 @@ export default {
         console.log('Query resolved!');
         console.log(response);
         this.results = response.data;
-        this.submissionError = null;
       })
       .catch(error => {
         console.log(error)
