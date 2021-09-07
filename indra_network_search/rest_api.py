@@ -8,7 +8,7 @@ from typing import List, Optional
 from fastapi import FastAPI, Query as RestQuery
 
 from indra.databases import get_identifiers_url
-from indra_network_search.data_models.rest_models import Health
+from indra_network_search.data_models.rest_models import Health, ServerStatus
 from indra_network_search.rest_util import load_indra_graph
 from indra_network_search.data_models import (
     Results,
@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 DEBUG = environ.get("API_DEBUG") == "1"
 USE_CACHE = environ.get("USE_CACHE") == "1"
 HEALTH = Health(status="booting")
+STATUS = ServerStatus(status="booting")
 
 
 @app.get("/xrefs", response_model=List[List[str]])
@@ -174,6 +175,18 @@ async def health():
     return HEALTH
 
 
+@app.get("/status", response_model=ServerStatus)
+async def server_status():
+    """Returns the status of the server and some info about the loaded graphs
+
+    Returns
+    -------
+    :
+    """
+    logger.info("Got status check")
+    return STATUS
+
+
 @app.post("/query", response_model=Results)
 def query(search_query: NetworkSearchQuery):
     """Interface with IndraNetworkSearchAPI.handle_query
@@ -223,6 +236,11 @@ def sub_graph(search_query: SubgraphRestQuery):
     return subgraph_results
 
 
+# Todo: figure out how to do all the loading async so the server is
+#  available to respond to health checks while it's loading
+#  See:
+#  - https://fastapi.tiangolo.com/advanced/events/#startup-event
+#  - https://www.starlette.io/events/
 if DEBUG:
     from indra_network_search.tests.util import _setup_graph, _setup_signed_node_graph
 
@@ -244,10 +262,17 @@ logger.info("Loading Trie structure with unsigned graph nodes")
 nodes_trie = NodesTrie.from_node_names(graph=dir_graph)
 nsid_trie = NodesTrie.from_node_ns_id(graph=dir_graph)
 
+# Set numbers for server status
+STATUS.unsigned_nodes = len(dir_graph.nodes)
+STATUS.unsigned_edges = len(dir_graph.edges)
+STATUS.signed_nodes = len(sign_node_graph.nodes)
+STATUS.signed_edges = len(sign_node_graph.edges)
+
 # Setup search API
 logger.info("Setting up IndraNetworkSearchAPI with signed and unsigned " "graphs")
 network_search_api = IndraNetworkSearchAPI(
     unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
 )
 logger.info("Service is available")
+STATUS.status = "available"
 HEALTH.status = "available"
