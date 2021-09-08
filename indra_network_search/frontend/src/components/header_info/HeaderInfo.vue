@@ -12,7 +12,7 @@
 <script>
 import AxiosMethods from "../../services/AxiosMethods";
 export default {
-  name: "StatusBox.vue",
+  name: "HeaderInfo.vue",
   data() {
     return {
       response: {},
