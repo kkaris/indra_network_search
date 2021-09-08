@@ -1,6 +1,8 @@
 <template>
   <div class="card">
-    <h5 class="card-header">Service Status</h5>
+    <h5 class="card-header d-flex justify-content-between align-items-center">Service Status
+      <i class="bi bi-circle-fill" :class="circleClass"></i>
+    </h5>
     <div class="card-body">
       <ul class="list-group">
         <li
@@ -81,6 +83,14 @@ export default {
         return 'server-available'
       }
       return 'server-other'
+    },
+    circleClass() {
+      if (this.serverError) {
+        return 'server-error-sm'
+      } else if (this.response && this.response.status === 'available') {
+        return 'server-available-sm'
+      }
+      return 'server-other-sm'
     }
   },
   mounted() {
@@ -107,12 +117,21 @@ export default {
     background-color: #00A000;
     color: white;
   }
+  .server-available-sm {
+    color: #00A000;
+  }
   .server-other {
     background-color: #1f78b4;
     color: white;
   }
+  .server-other-sm {
+    color: #1f78b4;
+  }
   .server-error {
     background-color: #ac2925;
     color: white;
+  }
+  .server-error-sm {
+    color: #ac2925;
   }
 </style>
