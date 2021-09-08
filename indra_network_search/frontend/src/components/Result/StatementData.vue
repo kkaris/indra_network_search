@@ -19,7 +19,7 @@
 import StatementTitle from "@/components/Result/StatementTitle";
 
 export default {
-  components: {StatementTitle},
+  components: { StatementTitle },
   props: {
     // Pass nodes to StatmentTitle
     subjNode: {
@@ -61,15 +61,15 @@ export default {
     },
     weight: {
       type: [String, Number],
-      default: '',
+      default: "",
     },
     residue: {
       type: String,
-      default: '',
+      default: "",
     },
     position: {
       type: String,
-      default: '',
+      default: "",
     },
     initial_sign: {
       type: Number,

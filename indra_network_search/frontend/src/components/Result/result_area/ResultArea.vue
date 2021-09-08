@@ -1,32 +1,32 @@
 <template>
   <div class="container">
     <h1 class="text-center">Results</h1>
-    <p class="text-center">Click on <i title="Click to expand" class="bi-plus-circle"></i>/<i title="Click to collapse" class="bi-dash-circle"></i> to expand/collapse results</p>
+    <p class="text-center">
+      Click on <i title="Click to expand" class="bi-plus-circle"></i>/<i
+        title="Click to collapse"
+        class="bi-dash-circle"
+      ></i>
+      to expand/collapse results
+    </p>
     <!--Source/Target info???-->
     <!--Ontology Results-->
-    <CommonParents
-        v-if="hasOntRes"
-        v-bind="ontology_results"
-    />
+    <CommonParents v-if="hasOntRes" v-bind="ontology_results" />
     <!--Path Results-->
     <PathResults
-        v-if="hasPathRes"
-        v-bind="{...path_results, title: 'Path Results'}"
+      v-if="hasPathRes"
+      v-bind="{ ...path_results, title: 'Path Results' }"
     />
     <!--Reverse Path Results-->
     <PathResults
-        v-if="hasRevPathRes"
-        v-bind="{ ...reverse_path_results, title: 'Reverse Path Results' }"
+      v-if="hasRevPathRes"
+      v-bind="{ ...reverse_path_results, title: 'Reverse Path Results' }"
     />
     <!--Shared Targets-->
-    <SharedInteractors
-        v-if="hasSharedTargets"
-        v-bind="shared_target_results"
-    />
+    <SharedInteractors v-if="hasSharedTargets" v-bind="shared_target_results" />
     <!--Shared Regulators-->
     <SharedInteractors
-        v-if="hasSharedRegs"
-        v-bind="shared_regulators_results"
+      v-if="hasSharedRegs"
+      v-bind="shared_regulators_results"
     />
   </div>
 </template>
@@ -38,33 +38,39 @@ import CommonParents from "@/components/Result/CommonParents";
 import SharedInteractors from "@/components/Result/SharedInteractors";
 
 export default {
-  components: {SharedInteractors, CommonParents, PathResults},
+  components: { SharedInteractors, CommonParents, PathResults },
   /* To spread together two objects into another object for usage in a v-bind:
-  * v-bind="{...this.testStmt111,
-  *          subjNode: this.testNode1,
-  *          objNode: this.testNode2}"
-  * */
+   * v-bind="{...this.testStmt111,
+   *          subjNode: this.testNode1,
+   *          objNode: this.testNode2}"
+   * */
   computed: {
     hasPathRes() {
-      return !(sharedHelpers.isEmptyObject(this.path_results))
+      return !sharedHelpers.isEmptyObject(this.path_results);
     },
     hasRevPathRes() {
-      return !(sharedHelpers.isEmptyObject(this.reverse_path_results))
+      return !sharedHelpers.isEmptyObject(this.reverse_path_results);
     },
     hasOntRes() {
-      return !sharedHelpers.isEmptyObject(this.ontology_results) &&
-          this.ontology_results.parents &&
-          this.ontology_results.parents.length > 0
+      return (
+        !sharedHelpers.isEmptyObject(this.ontology_results) &&
+        this.ontology_results.parents &&
+        this.ontology_results.parents.length > 0
+      );
     },
     hasSharedTargets() {
-      return !(sharedHelpers.isEmptyObject(this.shared_target_results)) &&
-          this.shared_target_results.source_data.length &&
-          this.shared_target_results.target_data.length;
+      return (
+        !sharedHelpers.isEmptyObject(this.shared_target_results) &&
+        this.shared_target_results.source_data.length &&
+        this.shared_target_results.target_data.length
+      );
     },
     hasSharedRegs() {
-      return !(sharedHelpers.isEmptyObject(this.shared_regulators_results)) &&
-          this.shared_regulators_results.source_data.length &&
-          this.shared_regulators_results.target_data.length;
+      return (
+        !sharedHelpers.isEmptyObject(this.shared_regulators_results) &&
+        this.shared_regulators_results.source_data.length &&
+        this.shared_regulators_results.target_data.length
+      );
     },
   },
   props: {
@@ -82,47 +88,47 @@ export default {
     timed_out: {
       // bool
       type: Boolean,
-      required: true
+      required: true,
     },
     hashes: {
       // List[str]
       type: Array,
       required: true,
-      validator: arr => {
+      validator: (arr) => {
         // Check if array if string
-        return arr.every(sharedHelpers.isStr)
-      }
+        return arr.every(sharedHelpers.isStr);
+      },
     },
     path_results: {
       // Optional[PathResultData] = None
       type: Object,
-      default: null
+      default: null,
       // Validated in children
     },
     reverse_path_results: {
       // Optional[PathResultData] = None
       type: Object,
-      default: null
+      default: null,
       // Validated in children
     },
     ontology_results: {
       // Optional[OntologyResults] = None
       type: Object,
-      default: null
+      default: null,
       // Validated in children
     },
     shared_target_results: {
       // Optional[SharedInteractorsResults] = None
       type: Object,
-      default: null
+      default: null,
       // Validated in children
     },
     shared_regulators_results: {
       // Optional[SharedInteractorsResults]
       type: Object,
-      default: null
+      default: null,
       // Validated in children
     },
-  }
+  },
 };
 </script>

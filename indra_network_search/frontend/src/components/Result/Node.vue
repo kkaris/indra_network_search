@@ -1,6 +1,8 @@
 <template>
   <span>
-    <a v-if="lookup" :href="lookup" :title="title"><b>{{ name }}</b></a>
+    <a v-if="lookup" :href="lookup" :title="title"
+      ><b>{{ name }}</b></a
+    >
     <b v-else :title="title">{{ name }}</b>
   </span>
 </template>
@@ -11,30 +13,30 @@ export default {
   props: {
     name: {
       type: String,
-      default: ''
+      default: "",
     },
     namespace: {
       type: String,
-      required: true
+      required: true,
     },
     identifier: {
       type: String,
-      required: true
+      required: true,
     },
     sign: {
       // Currently unused in this context
       type: Number,
-      default: null
+      default: null,
     },
     lookup: {
       type: String,
-      default: ''
+      default: "",
     },
   },
   computed: {
     title() {
-      return `Grounded to: ${this.namespace}:${this.identifier}`
-    }
-  }
-}
+      return `Grounded to: ${this.namespace}:${this.identifier}`;
+    },
+  },
+};
 </script>

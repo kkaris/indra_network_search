@@ -1,5 +1,5 @@
 <template>
-<!-- Organize table with one row per statement type -->
+  <!-- Organize table with one row per statement type -->
   <table class="table table-sm table-borderless table-hover">
     <thead>
       <tr>
@@ -10,9 +10,9 @@
     </thead>
     <tbody>
       <tr
-          class="border-bottom"
-          v-for="(stmtTypeSupport, type, index) in stmtDataObj"
-          :key="index"
+        class="border-bottom"
+        v-for="(stmtTypeSupport, type, index) in stmtDataObj"
+        :key="index"
       >
         <SupportRow
           :subj-node="subjNode"
@@ -30,31 +30,31 @@ import sharedHelpers from "@/helpers/sharedHelpers";
 import SupportRow from "@/components/Result/SupportRow";
 
 export default {
-  components: {SupportRow},
+  components: { SupportRow },
   props: {
     objNode: {
       type: Object,
       required: true,
-      validator: obj => {
-        return sharedHelpers.isNode(obj)
-      }
+      validator: (obj) => {
+        return sharedHelpers.isNode(obj);
+      },
     },
     subjNode: {
       type: Object,
       required: true,
-      validator: obj => {
-        return sharedHelpers.isNode(obj)
-      }
+      validator: (obj) => {
+        return sharedHelpers.isNode(obj);
+      },
     },
     stmtDataObj: {
       // Follows EdgeData.statements: Dict[str, StmtTypeSupport]
       type: Object,
       required: true,
-      validator: obj => {
+      validator: (obj) => {
         // The values, [stmtData, ...], is checked by child component SupportRow
-        return !(sharedHelpers.isEmptyObject(obj));
-      }
-    }
-  }
-}
+        return !sharedHelpers.isEmptyObject(obj);
+      },
+    },
+  },
+};
 </script>

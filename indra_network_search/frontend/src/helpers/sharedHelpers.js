@@ -20,15 +20,15 @@ const isStr = function (str, emptyOK = false) {
 };
 
 const isPosNum = function (num, canBeStr = false) {
-  let val
+  let val;
   if (canBeStr) {
     try {
-      val = Number(num)
+      val = Number(num);
     } catch {
-      return false
+      return false;
     }
   } else {
-    val = num
+    val = num;
   }
   const isNum = typeof val === "number";
   const geqZero = val >= 0;
@@ -94,8 +94,7 @@ const isStmtTypeSupport = function (obj) {
   const stStr = Boolean(obj.stmt_type); // str
   const srcCount = isSourceCount(obj.source_counts);
   const isStmtArr =
-    typeof obj.statements === "object" &&
-    isStmtDataArray(obj.statements); // List[StmtData]
+    typeof obj.statements === "object" && isStmtDataArray(obj.statements); // List[StmtData]
 
   return stIsStr && stStr && srcCount && isStmtArr;
 };
