@@ -2,6 +2,7 @@
 The IndraNetworkSearch REST API
 """
 import logging
+from datetime import date
 from os import environ
 from typing import List, Optional
 
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 DEBUG = environ.get("API_DEBUG") == "1"
 USE_CACHE = environ.get("USE_CACHE") == "1"
 HEALTH = Health(status="booting")
-STATUS = ServerStatus(status="booting")
+STATUS = ServerStatus(status="booting", graph_date='2021-08-09')
 
 
 @app.get("/xrefs", response_model=List[List[str]])
@@ -267,6 +268,8 @@ STATUS.unsigned_nodes = len(dir_graph.nodes)
 STATUS.unsigned_edges = len(dir_graph.edges)
 STATUS.signed_nodes = len(sign_node_graph.nodes)
 STATUS.signed_edges = len(sign_node_graph.edges)
+dt = dir_graph.graph.get('date')
+STATUS.graph_date = date.fromisoformat(dt) if dt else None
 
 # Setup search API
 logger.info("Setting up IndraNetworkSearchAPI with signed and unsigned " "graphs")
