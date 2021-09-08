@@ -18,25 +18,25 @@
         <li
             v-if="unsigned_nodes"
             class="list-group-item d-flex justify-content-between align-items-center"
-        >Unsigned nodes
+        >Nodes
           <span class="badge bg-primary rounded-pill">{{ unsigned_nodes }}</span>
         </li>
         <li
             v-if="unsigned_edges"
             class="list-group-item d-flex justify-content-between align-items-center"
-        >DB Snapshot Date
+        >Edges
           <span class="badge bg-primary rounded-pill">{{ unsigned_edges }}</span>
         </li>
         <li
             v-if="signed_nodes"
             class="list-group-item d-flex justify-content-between align-items-center"
-        >DB Snapshot Date
+        >Signed nodes
           <span class="badge bg-primary rounded-pill">{{ signed_nodes }}</span>
         </li>
         <li
             v-if="signed_edges"
             class="list-group-item d-flex justify-content-between align-items-center"
-        >DB Snapshot Date
+        >Signed edges
           <span class="badge bg-primary rounded-pill">{{ signed_edges }}</span>
         </li>
       </ul>
@@ -82,6 +82,9 @@ export default {
       }
       return 'server-other'
     }
+  },
+  mounted() {
+    this.checkStatus()
   },
   methods: {
     checkStatus() {
