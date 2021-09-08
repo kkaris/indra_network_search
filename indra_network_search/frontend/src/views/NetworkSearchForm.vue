@@ -9,7 +9,6 @@
           undefined. Otherwise, check out vuelidate (until vuetify exists)
      -->
     <form id="search-form" @submit.prevent="sendForm">
-      <HeaderInfo header="The INDRA Network Search" />
       <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
@@ -397,7 +396,6 @@ import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/components/Result/result_area/ResultArea";
 import RequestError from "@/components/request_error/RequestError";
-import HeaderInfo from "@/components/header_info/HeaderInfo";
 import Multiselect from "@vueform/multiselect";
 import sharedHelpers from "@/helpers/sharedHelpers";
 import useVuelidate from "@vuelidate/core";
@@ -414,7 +412,6 @@ const cullFreq = (val) => !helpers.req(val) || val > 0;
 export default {
   inject: ["GStore"],
   components: {
-    HeaderInfo,
     RequestError,
     BaseInputAutoCompBS,
     ResultArea,
