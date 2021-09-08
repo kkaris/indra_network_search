@@ -9,19 +9,7 @@
           undefined. Otherwise, check out vuelidate (until vuetify exists)
      -->
     <form id="search-form" @submit.prevent="sendForm">
-      <div class="row">
-        <div class="col-3"></div>
-        <div class="col">
-          <h1 class="text-center">The INDRA Network Search</h1>
-          <p class="text-center">
-            Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and
-            read the <a href="https://indra-network-search.readthedocs.io/en/latest/">General Docs</a>
-          </p>
-        </div>
-        <div class="col-3">
-          <StatusBox />
-        </div>
-      </div>
+      <StatusBox />
       <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
