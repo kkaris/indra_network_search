@@ -1,5 +1,5 @@
 <template>
-  <h1 class="text-center">The INDRA Network Search</h1>
+  <h1 class="text-center">{{ header }}</h1>
   <p class="text-center align-items-center">
     Search across {{ unsigned_nodes }} nodes, {{ unsigned_edges }} edges. Current status: <span class="badge" :class="badgeClass">{{ status }}</span>
   </p>
@@ -13,6 +13,12 @@
 import AxiosMethods from "../../services/AxiosMethods";
 export default {
   name: "HeaderInfo.vue",
+  props: {
+    header: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
       response: {},

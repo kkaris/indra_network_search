@@ -9,7 +9,7 @@
           undefined. Otherwise, check out vuelidate (until vuetify exists)
      -->
     <form id="search-form" @submit.prevent="sendForm">
-      <HeaderInfo />
+      <HeaderInfo header="The INDRA Network Search" />
       <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
