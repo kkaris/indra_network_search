@@ -1,49 +1,12 @@
 <template>
-  <div class="card">
-    <h5 class="card-header d-flex justify-content-between align-items-center">Service Status
-      <i class="bi bi-circle-fill" :class="circleClass"></i>
-    </h5>
-    <div class="card-body">
-      <ul class="list-group">
-        <li
-            v-if="status"
-            class="list-group-item d-flex justify-content-between align-items-center"
-        >Status
-          <span class="badge" :class="badgeClass">{{ status }}</span>
-        </li>
-        <li
-            v-if="graph_date"
-            class="list-group-item d-flex justify-content-between align-items-center"
-        >Date
-          <span class="badge bg-secondary">{{ graph_date }}</span>
-        </li>
-        <li
-            v-if="unsigned_nodes"
-            class="list-group-item d-flex justify-content-between align-items-center"
-        >Nodes
-          <span class="badge bg-primary rounded-pill">{{ unsigned_nodes }}</span>
-        </li>
-        <li
-            v-if="unsigned_edges"
-            class="list-group-item d-flex justify-content-between align-items-center"
-        >Edges
-          <span class="badge bg-primary rounded-pill">{{ unsigned_edges }}</span>
-        </li>
-        <li
-            v-if="signed_nodes"
-            class="list-group-item d-flex justify-content-between align-items-center"
-        >Signed nodes
-          <span class="badge bg-primary rounded-pill">{{ signed_nodes }}</span>
-        </li>
-        <li
-            v-if="signed_edges"
-            class="list-group-item d-flex justify-content-between align-items-center"
-        >Signed edges
-          <span class="badge bg-primary rounded-pill">{{ signed_edges }}</span>
-        </li>
-      </ul>
-    </div>
-  </div>
+  <h1 class="text-center">The INDRA Network Search</h1>
+  <p class="text-center align-items-center">
+    Search across {{ unsigned_nodes }} nodes, {{ unsigned_edges }} edges. Current status: <span class="badge" :class="badgeClass">{{ status }}</span>
+  </p>
+  <p class="text-center">
+    Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and
+    read the <a href="https://indra-network-search.readthedocs.io/en/latest/">General Docs</a>
+  </p>
 </template>
 
 <script>
