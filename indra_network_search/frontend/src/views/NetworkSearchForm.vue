@@ -400,7 +400,7 @@ import BaseInputBS from "@/components/Form/BaseInputBS";
 import BaseInputAutoCompBS from "@/components/Form/BaseInputAutoCompBS";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
-import ResultArea from "@/views/ResultArea";
+import ResultArea from "@/components/Result/result_area/ResultArea";
 import RequestError from "@/components/request_error/RequestError";
 import HeaderInfo from "@/components/header_info/HeaderInfo";
 import Multiselect from "@vueform/multiselect"
