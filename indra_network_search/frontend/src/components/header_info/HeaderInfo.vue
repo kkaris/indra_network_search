@@ -1,7 +1,7 @@
 <template>
   <h1 class="text-center">{{ header }}</h1>
   <p class="text-center align-items-center">
-    Search across {{ unsigned_nodes }} nodes, {{ unsigned_edges }} edges. Current status: <span class="badge" :class="badgeClass">{{ status }}</span>
+    <template v-if="unsigned_nodes && unsigned_edges">Search across {{ unsigned_nodes }} nodes, {{ unsigned_edges }} edges.</template> <template v-if="graph_date">Last updated: {{ graph_date }}.</template> Current status: <span class="badge" :class="badgeClass">{{ status }}</span>
   </p>
   <p class="text-center">
     Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and
