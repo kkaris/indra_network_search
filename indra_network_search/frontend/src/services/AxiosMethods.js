@@ -31,5 +31,8 @@ export default {
   },
   checkNodeNSID(dbName, dbID) {
     return apiGetClient.get(`/node-name-in-graph?db-name=${dbName}&db-id=${dbID}`)
+  },
+  checkServerStatus() {
+    return apiGetClient('/status')
   }
 };

@@ -9,17 +9,7 @@
           undefined. Otherwise, check out vuelidate (until vuetify exists)
      -->
     <form id="search-form" @submit.prevent="sendForm">
-      <h1 class="text-center">The INDRA Network Search</h1>
-      <p class="text-center">
-        Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and
-        read the <a href="https://indra-network-search.readthedocs.io/en/latest/">General Docs</a>
-      </p>
-      <div class="text-center container">
-        <b class="text-muted">Currently unavailable on dev endpoint:</b>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item text-muted">Server status box</li>
-        </ul>
-      </div>
+      <HeaderInfo header="The INDRA Network Search" />
       <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
@@ -393,7 +383,7 @@
       </div>
     </form>
   </div>
-  <StatusBox
+  <RequestError
       v-if="submissionError"
       :axios-error="submissionError"
   />
@@ -411,7 +401,8 @@ import BaseInputAutoCompBS from "@/components/Form/BaseInputAutoCompBS";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
-import StatusBox from "@/components/status_box/StatusBox";
+import RequestError from "@/components/request_error/RequestError";
+import HeaderInfo from "@/components/header_info/HeaderInfo";
 import Multiselect from "@vueform/multiselect"
 import sharedHelpers from "@/helpers/sharedHelpers";
 import useVuelidate from "@vuelidate/core";
@@ -424,7 +415,8 @@ const cullFreq = (val) => !helpers.req(val) || val > 0;
 export default {
   inject: ['GStore'],
   components: {
-    StatusBox,
+    HeaderInfo,
+    RequestError,
     BaseInputAutoCompBS,
     ResultArea,
     BaseSelectBS,
