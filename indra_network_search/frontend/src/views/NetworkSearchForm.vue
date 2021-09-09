@@ -741,8 +741,9 @@ export default {
         valArr = [value]
       }
 
-      if (this.isInMultiOptions(varName, valArr)) {
-        this.$data[varName] = valArr
+      let vvalArr = this.isInMultiOptions(varName, valArr)
+      if (vvalArr){
+        this.$data[varName] = vvalArr
       }
     },
     fillForm(urlQuery) {
