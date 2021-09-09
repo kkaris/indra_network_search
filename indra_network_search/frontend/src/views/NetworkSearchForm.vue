@@ -357,13 +357,13 @@
             class="button btn btn-secondary btn-lg"
             type="submit"
           >
-            <div v-show="isLoading">
+            <template v-if="isLoading">
               <span
                 class="spinner-border spinner-border-sm"
                 role="status"
                 aria-hidden="true"
               ></span>
-            </div>
+            </template>
             Submit
           </button>
         </div>
