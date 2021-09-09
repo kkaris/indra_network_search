@@ -829,7 +829,7 @@ export default {
       v$: useVuelidate(),
     };
   },
-  created() {
+  mounted() {
     const urlQuery = this.$route.query;
     if (!sharedHelpers.isEmptyObject(urlQuery)) {
       this.fillForm(urlQuery)
