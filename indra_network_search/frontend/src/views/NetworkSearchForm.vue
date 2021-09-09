@@ -575,6 +575,18 @@ export default {
         format: this.format,
       };
     },
+    signValues() {
+      return this.signOptions.map((obj) => obj.value)
+    },
+    weightValues() {
+      return this.weightOptions.map((obj) => obj.value)
+    },
+    stmtFilterValues() {
+      return this.stmtFilterOptions.map((obj) => obj.value)
+    },
+    nodeNamespaceValues() {
+      return this.nodeNamespaceOptions.map((obj) => obj.value)
+    },
     isContextSearch() {
       return this.mesh_ids_text.length > 0;
     },
@@ -694,6 +706,13 @@ export default {
       uuid,
       v$: useVuelidate(),
     };
+  },
+  created() {
+    const urlQuery = this.$route.query;
+    if (!sharedHelpers.isEmptyObject(urlQuery)) {
+      this.fillForm(urlQuery)
+    }
+    return false;
   },
   validations() {
     return {
