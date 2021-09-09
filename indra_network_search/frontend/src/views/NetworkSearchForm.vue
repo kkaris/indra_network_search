@@ -537,6 +537,7 @@ export default {
         shared_regulators_results: {},
       },
       submissionError: null,
+      fillFormError: false, // Maybe make it an Array and store all errors
     };
   },
   computed: {
@@ -699,6 +700,119 @@ export default {
         return [];
       }
     },
+    isInOptions(varName, value) {
+      let compareValues
+      // Flag if a value is not in the options
+      if (['terminal_ns', 'allowed_ns'].includes(varName)) {
+        compareValues = this.nodeNamespaceValues
+      } else if (varName === 'stmt_filter') {
+        compareValues = this.stmtFilterValues
+      } else if (varName === 'weighted') {
+        compareValues = this.weightValues
+      } else if (varName === 'sign') {
+        // If '1' or '0' cast as number
+        if (['0', '1'].includes(value)) {
+          value = Number(value)
+        }
+        compareValues = this.signValues
+      } else {
+        return false
+      }
+
+      return compareValues.includes(value)
+    },
+    isInMultiOptions(varName, valArr) {
+      // FixMe: filter out illegal values and flag for form error
+      let validValues = []
+      for (const value of valArr) {
+        if (!this.isInOptions(varName, value)) {
+          this.fillFormError = true
+        } else {
+          validValues.push(value)
+        }
+      }
+      return validValues
+    },
+    fillMultiSel(varName, value) {
+      let valArr
+      if (value.constructor.name === 'Array') {
+        valArr = value
+      } else {
+        valArr = [value]
+      }
+
+      if (this.isInMultiOptions(varName, valArr)) {
+        this.$data[varName] = valArr
+      }
+    },
+    fillForm(urlQuery) {
+      const fillMap = {
+        source: "input",
+        target: "input",
+        stmt_filter: "multiselect",
+        allowed_ns: "multiselect",
+        node_blacklist: "input_join", // Join array to comma separated text
+        path_length: "input",
+        depth_limit: "input",
+        sign: "select",
+        weighted: "select",
+        belief_cutoff: "input",
+        curated_db_only: "checkbox",
+        fplx_expand: "checkbox",
+        k_shortest: "input",
+        max_per_node: "input",
+        cull_best_node: "input",
+        mesh_ids: "input_join", // Join array to comma separated text
+        strict_mesh_id_filtering: "checkbox",
+        const_c: "input",
+        const_tk: "input",
+        user_timeout: "input",
+        two_way: "checkbox",
+        shared_regulators: "checkbox",
+        terminal_ns: "multiselect",
+      }
+
+      // Loop key-method pairs present in fillMap
+      for (const [key, fillType] of Object.entries(fillMap)) {
+        // Only fill if key is present in urlQuery
+        if (urlQuery[key]) {
+          let value = urlQuery[key]
+          // input:
+          if (['input', ].includes(fillType)) {
+            // ToDo: Is it necessary to check for number filling?
+            console.log(`Filling ${fillType} for variable ${key} with ${value}`)
+            this.$data[key] = value
+          } else if (fillType === 'select' && this.isInOptions(key, value)) {
+            console.log(`Filling ${fillType} for variable ${key} with ${value}`)
+            this.$data[key] = value
+          } else if (fillType === 'input_join' && value.constructor.name === 'Array') {
+            // Transform array to comma separated string
+            console.log(`Filling ${fillType} for variable ${key} with "${value.join(', ')}"`)
+            this.$data[key] = value.join(', ')
+          // checkbox
+          } else if (fillType === 'checkbox') {
+            if (['true', 'false'].includes(value)) {
+              value = Boolean(value)
+            }
+            if (typeof value === 'boolean') {
+              this.$data[key] = value
+              console.log(`Filling ${fillType} for variable ${key} with ${value}`)
+            } else {
+              this.fillFormError = true
+            }
+          // multiselect (from vueform/multiselect)
+          } else if (fillType === 'multiselect') {
+            console.log(`Filling ${fillType} for ${key} with ${value}`)
+            this.fillMultiSel(key, value)
+          } else {
+            this.fillFormError = true
+          }
+        }
+      }
+      console.log(urlQuery)
+      // TodO:
+      //  - Add boolean that decides if search should be executed
+    }
   },
   setup() {
     const uuid = UniqueID().getID();
