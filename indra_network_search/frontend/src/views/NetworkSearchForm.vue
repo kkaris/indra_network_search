@@ -778,8 +778,7 @@ export default {
         if (urlQuery[key]) {
           let value = urlQuery[key]
           // input:
-          if (['input', ].includes(fillType)) {
-            // ToDo: Is it necessary to check for number filling?
+          if (fillType === 'input') {
             console.log(`Filling ${fillType} for variable ${key} with ${value}`)
             this.$data[key] = value
           } else if (fillType === 'select' && this.isInOptions(key, value)) {
