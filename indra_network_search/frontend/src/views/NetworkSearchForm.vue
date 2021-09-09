@@ -668,7 +668,7 @@ export default {
   methods: {
     sendForm() {
       this.v$.$touch();
-      if (this.v$.$error) {
+      if (this.v$.$error || this.cannotSubmit) {
         return false;
       }
       this.submissionError = null;
