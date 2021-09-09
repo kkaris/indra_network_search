@@ -816,9 +816,10 @@ export default {
           }
         }
       }
-      console.log(urlQuery)
-      // TodO:
-      //  - Add boolean that decides if search should be executed
+      if (!this.fillFormError && (urlQuery.execute === true || urlQuery.execute === 'true')) {
+        console.log('Submitting form')
+        this.sendForm()
+      }
     }
   },
   setup() {
