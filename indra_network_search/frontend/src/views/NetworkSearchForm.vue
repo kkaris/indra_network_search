@@ -784,10 +784,17 @@ export default {
           } else if (fillType === 'select' && this.isInOptions(key, value)) {
             console.log(`Filling ${fillType} for variable ${key} with ${value}`)
             this.$data[key] = value
-          } else if (fillType === 'input_join' && value.constructor.name === 'Array') {
+          } else if (fillType === 'input_join') {
+            const formKey = key + '_text'
+            let fillVal
+            if (value.constructor.name === 'Array') {
+              fillVal = value.join(', ')
+            } else {
+              fillVal = [value]
+            }
             // Transform array to comma separated string
-            console.log(`Filling ${fillType} for variable ${key} with "${value.join(', ')}"`)
-            this.$data[key] = value.join(', ')
+            console.log(`Filling ${fillType} for variable ${formKey} with "${fillVal}"`)
+            this.$data[formKey] = fillVal
           // checkbox
           } else if (fillType === 'checkbox') {
             if (['true', 'false'].includes(value)) {
