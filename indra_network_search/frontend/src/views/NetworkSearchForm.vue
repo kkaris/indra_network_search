@@ -56,7 +56,7 @@
               <strong>General Options</strong>
               <template v-if="generalErrors"
                 >|
-                <span style="color: #a00000">
+                <span class="form-error">
                   {{ generalErrors }} error{{ generalErrors > 1 ? "s" : "" }}
                   detected
                 </span>
@@ -201,7 +201,7 @@
               <strong>Context and Weighted Search Options</strong>
               <template v-if="contextErrors"
                 >|
-                <span style="color: #a00000">
+                <span class="form-error">
                   {{ contextErrors }} error{{ contextErrors > 1 ? "s" : "" }}
                   detected
                 </span>
@@ -287,7 +287,7 @@
               <strong>Open Search Options</strong>
               <template v-if="openErrors"
                 >|
-                <span style="color: #a00000">
+                <span class="form-error">
                   {{ openErrors }} error{{ openErrors > 1 ? "s" : "" }}
                   detected
                 </span>
@@ -352,7 +352,10 @@
         class="row justify-content-center align-middle d-flex align-items-center"
         style="margin-top: 10px"
       >
-        <div class="col-2 text-center">
+        <div class="col-4">
+          <p v-if="fillFormError" class="form-error">Failed to fill out some form values, check url query</p>
+        </div>
+        <div class="col-2">
           <button
             :class="{ disabledButton: cannotSubmit }"
             :disabled="cannotSubmit || isLoading || v$.$invalid"
@@ -381,6 +384,9 @@
             :errors="v$.user_timeout.$errors"
             @blur="v$.user_timeout.$touch()"
           />
+        </div>
+        <div class="col-4">
+          <!-- Just for padding -->
         </div>
       </div>
     </form>
@@ -724,10 +730,10 @@ export default {
       return compareValues.includes(value)
     },
     isInMultiOptions(varName, valArr) {
-      // FixMe: filter out illegal values and flag for form error
       let validValues = []
       for (const value of valArr) {
         if (!this.isInOptions(varName, value)) {
+          // Flag for form error
           this.fillFormError = true
         } else {
           validValues.push(value)
@@ -831,8 +837,10 @@ export default {
         }
       }
       if (!this.fillFormError && (urlQuery.execute === true || urlQuery.execute === 'true')) {
-        console.log('Submitting form')
+        console.log('Executing query param search')
         this.sendForm()
+      } else if (this.fillFormError) {
+        console.log('The form filled out incorrectly')
       }
     }
   },
@@ -894,3 +902,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.form-error {
+  color: #a00000
+}
+</style>
