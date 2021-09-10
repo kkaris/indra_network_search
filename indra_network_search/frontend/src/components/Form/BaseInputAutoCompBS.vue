@@ -165,12 +165,13 @@ export default {
         // false if we're waiting for results
       } else if (this.awaitingResults) {
         vn = false;
+      } else {
+        // true if among results with case match
+        vn = Boolean(
+            this.autoSearchResult.length &&
+            this.autoSearchResult.map((t) => t[0]).includes(this.modelValue)
+        );
       }
-      // true if among results with case match
-      vn = Boolean(
-        this.autoSearchResult.length &&
-          this.autoSearchResult.map((t) => t[0]).includes(this.modelValue)
-      );
       this.emitValidNode(vn);
       return vn;
     },
