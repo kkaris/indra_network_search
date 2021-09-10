@@ -22,6 +22,7 @@
               :allowWhitespace="false"
               :errors="v$.source.$errors"
               @blur="v$.source.$touch()"
+              ref="sourceComponent"
             />
           </div>
           <div class="col">
@@ -34,6 +35,7 @@
               :allowWhitespace="false"
               :errors="v$.target.$errors"
               @blur="v$.target.$touch()"
+              ref="targetComponent"
             />
           </div>
         </div>
@@ -782,6 +784,18 @@ export default {
           if (fillType === 'input') {
             console.log(`Filling ${fillType} for variable ${key} with ${value}`)
             this.$data[key] = value
+            // Trigger prefix search when source/target are filled
+            if (['source', 'target'].includes(key)) {
+              let childRef
+              if (key === 'source') {
+                console.log('Executing source node check')
+                childRef = 'sourceComponent'
+              } else {
+                console.log('Executing target node check')
+                childRef = 'targetComponent'
+              }
+              this.$refs[childRef].getExternalAutoCompleteList(value)
+            }
           } else if (fillType === 'select' && this.isInOptions(key, value)) {
             console.log(`Filling ${fillType} for variable ${key} with ${value}`)
             this.$data[key] = value
