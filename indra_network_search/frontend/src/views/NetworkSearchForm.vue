@@ -836,6 +836,12 @@ export default {
           }
         }
       }
+      // Touch the form to run validators
+      this.v$.$touch();
+      if (this.v$.$error) {
+        this.fillFormError = true
+      }
+
       if (!this.fillFormError && (urlQuery.execute === true || urlQuery.execute === 'true')) {
         console.log('Executing query param search')
         this.sendForm()
