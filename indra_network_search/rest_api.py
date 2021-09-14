@@ -7,10 +7,13 @@ from os import environ
 from typing import List, Optional
 
 from fastapi import FastAPI, Query as RestQuery
+from pydantic import ValidationError
 
+from depmap_analysis.util.io_functions import file_opener
 from indra.databases import get_identifiers_url
 from indra_network_search.data_models.rest_models import Health, ServerStatus
-from indra_network_search.rest_util import load_indra_graph
+from indra_network_search.rest_util import load_indra_graph, \
+    check_existence_and_date_s3
 from indra_network_search.data_models import (
     Results,
     NetworkSearchQuery,
@@ -201,8 +204,24 @@ def query(search_query: NetworkSearchQuery):
     -------
     Results
     """
-    logger.info(f"Got NetworkSearchQuery: {search_query.dict()}")
-    results = network_search_api.handle_query(rest_query=search_query)
+    query_hash = search_query.get_hash()
+    logger.info(f"Got NetworkSearchQuery #{query_hash}: {search_query.dict()}")
+
+    # Check if results are on S3
+    keys_dict = check_existence_and_date_s3(query_hash=query_hash)
+    if keys_dict.get('result_json_key'):
+        logger.info('Found results cached on S3')
+        results_json = file_opener(keys_dict['result_json_key'])
+        try:
+            results = Results(**results_json)
+        except ValidationError as verr:
+            logger.error(verr)
+            logger.info('Result could not be validated, re-running search')
+            results = network_search_api.handle_query(rest_query=search_query)
+
+    else:
+        logger.info('Performing new search')
+        results = network_search_api.handle_query(rest_query=search_query)
     return results
 
 
