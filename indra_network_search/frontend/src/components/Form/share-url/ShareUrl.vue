@@ -1,17 +1,18 @@
 <template>
   <!-- Utilizes BootStrap 5's modal component -->
-  <!-- Button triggered modal -->
-  <button
-    type="button"
-    :class="{ disabledButton: isDisabled }"
-    :title="isDisabled ? 'Must have results to be able to generate share link' : 'Click to get a shareable url'"
-    class="btn btn-primary"
-    :data-bs-toggle="isDisabled ? '' : 'modal'"
-    :data-bs-target="isDisabled ? '' : `#${strUUID}`"
-    :disabled="isDisabled"
-  >
-    <b>Share</b>
-  </button>
+  <!-- Button triggering modal -->
+  <span :title="isDisabled ? 'Must have results to be able to generate share link' : 'Click to get a shareable url'">
+    <button
+        type="button"
+        :class="{ disabledButton: isDisabled }"
+        class="btn btn-primary"
+        :data-bs-toggle="isDisabled ? '' : 'modal'"
+        :data-bs-target="isDisabled ? '' : `#${strUUID}`"
+        :disabled="isDisabled"
+    >
+      <b>Share</b>
+    </button>
+  </span>
 
   <!-- Modal -->
   <div
