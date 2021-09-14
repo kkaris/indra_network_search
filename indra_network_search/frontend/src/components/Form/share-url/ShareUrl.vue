@@ -101,6 +101,9 @@ export default {
       let shareQuery = {}
       // Loop queryObj and check values are non-default
       for (const [key, value] of Object.entries(queryObj)) {
+        if (key === 'format') {
+          continue
+        }
         // Save to new object if value is non-default
         if (!this.isDefault(key, value)) {
           shareQuery[key] = value
