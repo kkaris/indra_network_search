@@ -316,35 +316,31 @@ def find_related_hashes(mesh_ids):
     return result.json().get('results', [])
 
 
-def check_existence_and_date_s3(query_hash, indranet_date=None):
+def check_existence_and_date_s3(query_hash):
     s3 = get_s3_client(unsigned=False)
     key_prefix = 'indra_network_search/%s' % query_hash
     query_json_key = key_prefix + '_query.json'
     result_json_key = key_prefix + '_result.json'
-    exits_dict = {}
-    if indranet_date:
-        # Check 'LastModified' key in results
-        # res_query = s3.head_object(Bucket=SIF_BUCKET, Key=query_json_key)
-        # res_results = s3.head_object(Bucket=SIF_BUCKET, Key=result_json_key)
-        pass
-    else:
-        try:
-            query_json = s3.head_object(Bucket=DUMPS_BUCKET,
-                                        Key=query_json_key)
-        except ClientError:
-            query_json = ''
-        if query_json:
-            exits_dict['query_json_key'] = query_json_key
-        try:
-            result_json = s3.head_object(Bucket=DUMPS_BUCKET,
-                                         Key=result_json_key)
-        except ClientError:
-            result_json = ''
-        if result_json:
-            exits_dict['result_json_key'] = result_json_key
-        return exits_dict
+    exists_dict = {}
 
-    return {}
+    # Get query json
+    try:
+        query_json = s3.head_object(Bucket=DUMPS_BUCKET,
+                                    Key=query_json_key)
+    except ClientError:
+        query_json = ''
+    if query_json:
+        exists_dict['query_json_key'] = query_json_key
+
+    # Get result json
+    try:
+        result_json = s3.head_object(Bucket=DUMPS_BUCKET,
+                                     Key=result_json_key)
+    except ClientError:
+        result_json = ''
+    if result_json:
+        exists_dict['result_json_key'] = result_json_key
+    return exists_dict
 
 
 def load_pickled_net_from_s3(name):
