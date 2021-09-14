@@ -1,14 +1,13 @@
 <template>
   <!-- Utilizes BootStrap 5's modal component -->
   <!-- Button triggered modal -->
-  <!-- FixMe: make button appear disabled (since anchors don't have 'disabled' attribute) -->
   <button
     type="button"
     :class="{ disabledButton: isDisabled }"
-    title="Click to get a shareable url"
-    class="button"
-    data-bs-toggle="modal"
-    :data-bs-target="`#${strUUID}`"
+    :title="isDisabled ? 'Must have results to be able to generate share link' : 'Click to get a shareable url'"
+    class="btn btn-primary"
+    :data-bs-toggle="isDisabled ? '' : 'modal'"
+    :data-bs-target="isDisabled ? '' : `#${strUUID}`"
     :disabled="isDisabled"
   >
     <b>Share</b>
