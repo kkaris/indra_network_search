@@ -9,6 +9,13 @@ const isEmptyObject = function (obj) {
   return true;
 };
 
+const evaluatesToFalse = function (thing) {
+  if (Boolean(thing) === false) {
+    return true
+  }
+  return isEmptyObject(thing)
+};
+
 const isNode = function (obj) {
   return obj.name && obj.identifier && obj.namespace;
 };
@@ -166,6 +173,7 @@ const getSourceCounts = function (stmtDataArr) {
 
 export default {
   isEmptyObject,
+  evaluatesToFalse,
   isNode,
   isStr,
   isPosNum,
