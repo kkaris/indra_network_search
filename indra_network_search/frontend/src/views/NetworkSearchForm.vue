@@ -436,39 +436,41 @@ export default {
   },
   data() {
     return {
-      source: "",
       validSource: false,
-      target: "",
       validTarget: false,
+      /* Begin query */
+      source: "",
+      target: "",
       stmt_filter: [],
       filter_curated: true,
       allowed_ns: [],
       node_blacklist_text: "",
       path_length: null,
-      depth_limit: 2,
+      depth_limit: DefaultValues.DEPTH_LIMIT,
       sign: null,
       weighted: null,
       belief_cutoff: 0.0,
       curated_db_only: false,
       fplx_expand: false,
-      k_shortest: 50,
-      max_per_node: 5,
+      k_shortest: DefaultValues.K_SHORTEST,
+      max_per_node: DefaultValues.MAX_PER_NODE,
       cull_best_node: null,
       mesh_ids_text: "",
       strict_mesh_id_filtering: false,
-      const_c: 1,
-      const_tk: 10,
-      user_timeout: 30,
+      const_c: DefaultValues.CONST_C,
+      const_tk: DefaultValues.CONST_TK,
+      user_timeout: DefaultValues.USER_TIMEOUT,
       two_way: false,
       shared_regulators: false,
       terminal_ns: [],
-      isLoading: false,
       format: "html", // This is hardcoded here and is not an option
+      /* End query */
       cullTitle:
         "At the specified frequency, the highest degree node will " +
         "be added to the node blacklist and excluded from further " +
         "results for path queries (only applies to breadth first search " +
         "and source-target path searches)",
+      isLoading: false,
       signOptions: [
         { label: "+", value: 0 },
         { label: "-", value: 1 },
