@@ -293,12 +293,12 @@ def load_indra_graph(unsigned_graph: bool = True,
 
 
 def dump_query_json_to_s3(query_hash, json_obj, get_url=False):
-    filename = '%s_query.json' % query_hash
+    filename = f'{query_hash}_query.json'
     return dump_query_result_to_s3(filename, json_obj, get_url)
 
 
 def dump_result_json_to_s3(query_hash, json_obj, get_url=False):
-    filename = '%s_result.json' % query_hash
+    filename = f'{query_hash}_result.json'
     return dump_query_result_to_s3(filename, json_obj, get_url)
 
 
