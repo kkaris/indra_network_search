@@ -25,7 +25,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" :id="`label-${strUUID}`">
-            Share the result
+            Share the result <span v-if="flashMessage" id="flashMessage">{{ flashMessage }}</span>
           </h5>
           <button
             type="button"
@@ -49,6 +49,7 @@
                 type="button"
                 @click="copyUrlToClipBoard()"
                 :id="copyBtnId"
+                :title="flashMessage"
             >Copy</button>
           </div>
         </div>
@@ -112,8 +113,25 @@ export default {
       const urlPars = new URLSearchParams(shareQuery)
       return urlPars.toString()
     },
+    flashCopied() {
+      this.flashMessage = 'Link copied!'
+      setTimeout(() => {
+        this.flashMessage = ''
+      }, 3000)
+    },
     copyUrlToClipBoard() {
-      navigator.clipboard.writeText(this.shareUrl)  // Copies the url
+      try {
+        this.flashCopied() // Flashes the message
+        navigator.clipboard.writeText(this.shareUrl)  // Copies the url
+      } catch (e) {
+        console.log('Could not copy Url to clipboard')
+        throw e
+      }
+    }
+  },
+  data() {
+    return {
+      flashMessage: ''
     }
   },
   computed: {
@@ -150,5 +168,19 @@ export default {
 </script>
 
 <style scoped>
+@keyframes yellowfade {
+  from {
+    color: black;
+    background: yellow;
+  }
+  to {
+    color: white;
+    background: transparent;
+  }
+}
 
+#flashMessage {
+  animation-name: yellowfade;
+  animation-duration: 3s;
+}
 </style>
