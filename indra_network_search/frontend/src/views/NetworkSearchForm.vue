@@ -386,7 +386,10 @@
           />
         </div>
         <div class="col-4">
-          <!-- Just for padding -->
+          <ShareUrl
+              :nonFalseDefaults="nonFalseDefaultValues"
+              :isDisabled="emptyResult"
+          />
         </div>
       </div>
     </form>
@@ -400,12 +403,14 @@ import BaseSelectBS from "@/components/Form/BaseSelectBS";
 import BaseCheckboxBS from "@/components/Form/BaseCheckboxBS";
 import BaseInputBS from "@/components/Form/BaseInputBS";
 import BaseInputAutoCompBS from "@/components/Form/BaseInputAutoCompBS";
+import ShareUrl from "@/components/Form/share-url/ShareUrl";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/components/Result/result_area/ResultArea";
 import RequestError from "@/components/request_error/RequestError";
 import Multiselect from "@vueform/multiselect";
 import sharedHelpers from "@/helpers/sharedHelpers";
+import DefaultValues from "../../public/DefaultValues"
 import useVuelidate from "@vuelidate/core";
 import {
   requiredIf,
@@ -427,6 +432,7 @@ export default {
     BaseCheckboxBS,
     BaseInputBS,
     Multiselect,
+    ShareUrl,
   },
   data() {
     return {
@@ -582,6 +588,16 @@ export default {
         shared_regulators: this.shared_regulators,
         terminal_ns: this.terminal_ns, // Pick from multi-select
         format: this.format,
+      };
+    },
+    nonFalseDefaultValues() {
+      return {
+        depth_limit: DefaultValues.DEPTH_LIMIT,
+        k_shortest: DefaultValues.K_SHORTEST,
+        max_per_node: DefaultValues.MAX_PER_NODE,
+        const_c: DefaultValues.CONST_C,
+        const_tk: DefaultValues.CONST_TK,
+        user_timeout: DefaultValues.USER_TIMEOUT,
       };
     },
     signValues() {
