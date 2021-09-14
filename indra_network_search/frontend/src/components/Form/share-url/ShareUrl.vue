@@ -122,9 +122,13 @@ export default {
        *
        * Return `${<BaseUrl>}${<Service Prefix>}${query string}`
       **/
-      const baseUrl = this.$route.path // Get from router
+      const origin = window.location.origin // Gets http(s)://hostname(:port)
+      const path = window.location.pathname // Gets /location/
       const queryStr = this.getQueryString(this.GStore.currentQuery) // Generate from currentQuery
-      return `${baseUrl}?${queryStr}`
+      const hash = window.location.href.includes('#') ? '#/' : ''
+      let fullUrl = `${origin}${path}${hash}?${queryStr}`
+      console.log(fullUrl)
+      return fullUrl
     },
     strUUID() {
       return `modal-${this.uuid}`
