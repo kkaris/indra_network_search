@@ -5,7 +5,9 @@
     :value="modelValue"
     v-bind="{
       ...$attrs,
-      onChange: ($event) => { $emit('update:modelValue', $event.target.value) }
+      onChange: ($event) => {
+        $emit('update:modelValue', $event.target.value);
+      },
     }"
   >
     <option
@@ -13,7 +15,9 @@
       :value="option.value"
       :key="option.value"
       :selected="option.value === modelValue"
-    >{{ option.label }}</option>
+    >
+      {{ option.label }}
+    </option>
   </select>
 </template>
 
@@ -22,17 +26,17 @@ export default {
   props: {
     label: {
       type: String,
-      default: ''
+      default: "",
     },
     modelValue: {
       type: [String, Number],
-      default: ''
+      default: "",
     },
     options: {
       // Assumed to be an object with option.label and option.value
       type: Array,
-      required: true
-    }
-  }
-}
+      required: true,
+    },
+  },
+};
 </script>

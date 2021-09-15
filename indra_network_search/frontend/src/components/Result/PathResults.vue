@@ -4,14 +4,18 @@
       <div class="d-flex justify-content-between">
         <h2>{{ title }}</h2>
         <a
-            role="button"
-            data-bs-toggle="collapse"
-            :href="`#${strUUID}`"
-            :aria-expanded="false"
-            :aria-controls="strUUID"
-            @click="toggleShowFlag()"
+          role="button"
+          data-bs-toggle="collapse"
+          :href="`#${strUUID}`"
+          :aria-expanded="false"
+          :aria-controls="strUUID"
+          @click="toggleShowFlag()"
         >
-          <i v-if="isExpanded" title="Click to expand" class="bi-dash-circle fs-2"></i>
+          <i
+            v-if="isExpanded"
+            title="Click to expand"
+            class="bi-dash-circle fs-2"
+          ></i>
           <i v-else title="Click to expand" class="bi-plus-circle fs-2"></i>
         </a>
       </div>
@@ -39,58 +43,58 @@ import NPathResult from "@/components/Result/NPathResult";
 import UniqueID from "@/helpers/BasicHelpers";
 
 export default {
-  components: {NPathResult},
+  components: { NPathResult },
   props: {
     // Corresponds to indra_network_search/data_models::PathResultData
     // source and target are Node objects
     title: {
       type: String,
-      required: true
+      required: true,
     },
     source: {
       type: Object,
       default: null,
-      validator: obj => {
-        return sharedHelpers.isOptionalNode(obj)
-      }
+      validator: (obj) => {
+        return sharedHelpers.isOptionalNode(obj);
+      },
     },
     target: {
       type: Object,
       default: null,
-      validator: obj => {
-        return sharedHelpers.isOptionalNode(obj)
-      }
+      validator: (obj) => {
+        return sharedHelpers.isOptionalNode(obj);
+      },
     },
     paths: {
       // {<int>: [Path]}
       type: Object,
-      required: true
+      required: true,
       // ToDo:
       //  - validate that keys are ints
       //  - that the listed objects in the Arrays are Path objects
       //  - that the keys correspond to node count in the list Paths in paths
-    }
+    },
   },
   setup() {
     const uuid = UniqueID().getID();
     return {
       uuid,
-    }
+    };
   },
   methods: {
     toggleShowFlag() {
-      this.isExpanded = !this.isExpanded
-    }
+      this.isExpanded = !this.isExpanded;
+    },
   },
   data() {
     return {
-      isExpanded: true
-    }
+      isExpanded: true,
+    };
   },
   computed: {
     strUUID() {
-      return `collapse-${this.uuid}`
+      return `collapse-${this.uuid}`;
     },
-  }
-}
+  },
+};
 </script>

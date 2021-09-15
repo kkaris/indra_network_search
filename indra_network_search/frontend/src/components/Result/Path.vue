@@ -3,7 +3,7 @@
     <NodeModal v-bind="path[0]" />
     <template v-for="(nodeObj, index) in path.slice(1)" :key="index">
       <i class="bi bi-arrow-right"></i>
-      <NodeModal v-bind="nodeObj"/>
+      <NodeModal v-bind="nodeObj" />
     </template>
   </td>
   <td>
@@ -15,10 +15,10 @@
         <div class="col"><b>DB Link</b></div>
       </div>
       <Edge
-          v-for="(edge, index) in edge_data"
-          :key="index"
-          v-bind="edge"
-          :show-weight="true"
+        v-for="(edge, index) in edge_data"
+        :key="index"
+        v-bind="edge"
+        :show-weight="true"
       />
     </div>
   </td>
@@ -30,23 +30,23 @@ import NodeModal from "@/components/Result/NodeModal";
 import Edge from "@/components/Result/Edge";
 
 export default {
-  components: {Edge, NodeModal},
+  components: { Edge, NodeModal },
   props: {
     // Follows indra_network_search.data_models::Path
     path: {
       type: Array,
       required: true,
-      validator: arr => {
-        return sharedHelpers.isNodeArray(arr)
-      }
+      validator: (arr) => {
+        return sharedHelpers.isNodeArray(arr);
+      },
     },
     edge_data: {
       type: Array,
       required: true,
-      validator: arr => {
+      validator: (arr) => {
         return arr.length > 0;
-      }
-    }
+      },
+    },
   },
-}
+};
 </script>

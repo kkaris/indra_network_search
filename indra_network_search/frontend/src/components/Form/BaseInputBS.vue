@@ -8,18 +8,13 @@
       :title="compTitle"
       @input="$emit('update:modelValue', $event.target.value)"
       class="form-control"
-    >
+    />
     <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
     <template v-if="errors.length > 0 || hasWhitespaceError">
-      <p
-          v-for="error in errors"
-          :key="error.$uid"
-          style="color: #A00000">
-        {{ error.$message ? error.$message : 'Invalid entry' }}
+      <p v-for="error in errors" :key="error.$uid" style="color: #a00000">
+        {{ error.$message ? error.$message : "Invalid entry" }}
       </p>
-      <p
-          v-if="hasWhitespaceError"
-          style="color: #A00000">
+      <p v-if="hasWhitespaceError" style="color: #a00000">
         Check input for whitespace
       </p>
     </template>
@@ -33,50 +28,54 @@ export default {
   props: {
     label: {
       type: String,
-      default: ''
+      default: "",
     },
     modelValue: {
       type: [String, Number],
-      default: ''
+      default: "",
     },
     placeholder: {
       type: String,
-      default: ''
+      default: "",
     },
     title: {
       type: String,
-      default: ''
+      default: "",
     },
     errors: {
       type: Array,
       default: () => {
-        return []
-      }
+        return [];
+      },
     },
     allowWhitespace: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   setup() {
     const uuid = UniqueID().getID();
     return {
-      uuid
-    }
+      uuid,
+    };
   },
   computed: {
     strUUID() {
-      return `input${this.uuid}`
+      return `input${this.uuid}`;
     },
     ph() {
-      return this.placeholder || this.label
+      return this.placeholder || this.label;
     },
     compTitle() {
-      return this.title || this.ph
+      return this.title || this.ph;
     },
     hasWhitespaceError() {
-      return (!this.allowWhitespace && this.modelValue.length > 0 && !/\S/.test(this.modelValue))
-    }
-  }
-}
+      return (
+        !this.allowWhitespace &&
+        this.modelValue.length > 0 &&
+        !/\S/.test(this.modelValue)
+      );
+    },
+  },
+};
 </script>

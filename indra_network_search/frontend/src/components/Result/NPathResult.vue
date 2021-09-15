@@ -14,11 +14,11 @@
           <template v-if="targetExist"><NodeModal v-bind="target" /></template>
           <template v-else>X{{ pathNodeCountNum + 1 }}</template>
           <span
-              style="margin-left: 10px"
-              class="badge rounded-pill bg-primary"
-              :title="`${pathArray.length} paths found`"
-          >{{ pathArray.length }}</span>
-
+            style="margin-left: 10px"
+            class="badge rounded-pill bg-primary"
+            :title="`${pathArray.length} paths found`"
+            >{{ pathArray.length }}</span
+          >
         </h4>
         <a
           role="button"
@@ -28,7 +28,11 @@
           :aria-controls="strUUID"
           @click="toggleShowFlag()"
         >
-          <i v-if="isExpanded" title="Click to collapse" class="bi-dash-circle fs-4"></i>
+          <i
+            v-if="isExpanded"
+            title="Click to collapse"
+            class="bi-dash-circle fs-4"
+          ></i>
           <i v-else title="Click to expand" class="bi-plus-circle fs-4"></i>
         </a>
       </div>
@@ -37,16 +41,16 @@
       <!-- Table (or grid) with two columns: Path | Support -->
       <div class="container">
         <table class="table" style="width: 100%">
-          <col style="width: 25%">
-          <col style="width: 75%">
+          <col style="width: 25%" />
+          <col style="width: 75%" />
           <thead>
-          <tr>
-            <th scope="col">Path</th>
-            <th scope="col">Support</th>
-          </tr>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Support</th>
+            </tr>
           </thead>
           <tbody>
-          <!-- v-for loop over table/grid rows: <Path />; <Path /> currently assumes
+            <!-- v-for loop over table/grid rows: <Path />; <Path /> currently assumes
                a table encapsulating it -->
             <tr v-for="(path, index) in pathArray" :key="index">
               <Path v-bind="path" />
@@ -65,7 +69,7 @@ import Path from "@/components/Result/Path";
 import UniqueID from "@/helpers/BasicHelpers";
 
 export default {
-  components: {Path, NodeModal},
+  components: { Path, NodeModal },
   props: {
     // Follows one entry in
     // indra_network_search.data_models::PathResultData.paths: Dict[int, List[Path]]
@@ -76,21 +80,21 @@ export default {
     source: {
       type: Object,
       default: null,
-      validator: obj => {
+      validator: (obj) => {
         return sharedHelpers.isOptionalNode(obj);
-      }
+      },
     },
     target: {
       type: Object,
       default: null,
-      validator: obj => {
-        return sharedHelpers.isOptionalNode(obj)
-      }
+      validator: (obj) => {
+        return sharedHelpers.isOptionalNode(obj);
+      },
     },
     pathArray: {
       type: Array,
       required: true,
-      validator: arr => {
+      validator: (arr) => {
         // Check if array and array of Path
         const isArr = Array.isArray(arr);
         // TodO: Find out why 'arr.every(sharedHelpers.isNodeArray)' errors with:
@@ -100,47 +104,47 @@ export default {
         // console.log(arr);
         // return isArr && arr.every(sharedHelpers.isNodeArray);
         return isArr;
-      }
-    }
+      },
+    },
   },
   created() {
     // Throw error if source && target are null
     if (this.source === null && this.target === null) {
-      throw Error('Must provide at least one of source and target as props')
+      throw Error("Must provide at least one of source and target as props");
     }
   },
   setup() {
     const uuid = UniqueID().getID();
     return {
-      uuid
-    }
+      uuid,
+    };
   },
   methods: {
     toggleShowFlag() {
-      this.isExpanded = !this.isExpanded
-    }
+      this.isExpanded = !this.isExpanded;
+    },
   },
   data() {
     return {
-      isExpanded: true // Fixme: set this by reading classList from tags
-    }
+      isExpanded: true, // Fixme: set this by reading classList from tags
+    };
   },
   computed: {
     sourceExist() {
-      return this.source !== null
+      return this.source !== null;
     },
     targetExist() {
-      return this.target !== null
+      return this.target !== null;
     },
     pathNodeCountNum() {
-      return Number(this.pathNodeCount)
+      return Number(this.pathNodeCount);
     },
     edgeCount() {
-      return this.pathNodeCountNum - 1
+      return this.pathNodeCountNum - 1;
     },
     strUUID() {
-      return `collapse-${this.uuid}`
-    }
-  }
-}
+      return `collapse-${this.uuid}`;
+    },
+  },
+};
 </script>

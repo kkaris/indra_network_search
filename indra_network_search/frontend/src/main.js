@@ -6,14 +6,13 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "./assets/sources.css";
 import { createApp, reactive } from "vue";
 import App from "./App.vue";
+import router from "./router";
 
-const GStore = reactive(
-    {
-        currentQuery: {},
-        xrefs: {},
-    }
-)
+const GStore = reactive({
+  currentQuery: {},
+  xrefs: {},
+});
 
-const app = createApp(App);
-app.provide('GStore', GStore);
+const app = createApp(App).use(router);
+app.provide("GStore", GStore);
 app.mount("#app");
