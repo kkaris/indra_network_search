@@ -12,6 +12,7 @@ from fnvhash import fnv1a_32
 
 from indra.util.aws import get_s3_client, get_s3_file_tree
 from indra_db.client.readonly.query import FromMeshIds
+from indra_db.util.s3_path import S3Path
 from indra_db.util.dump_sif import NS_LIST
 from indra.statements import (
     get_all_descendants,
@@ -383,7 +384,7 @@ def dump_result_json_to_s3(
 def dump_query_result_to_s3(
     filename: str, json_obj: Dict, get_url: bool = False
 ) -> Optional[str]:
-    """Dump a result or query json to S3
+    """Dump a result or query json from the network search to S3
 
     Parameters
     ----------
@@ -426,7 +427,9 @@ def check_existence_and_date_s3(query_hash):
     except ClientError:
         query_json = ""
     if query_json:
-        exists_dict["query_json_key"] = query_json_key
+        exists_dict["query_json_key"] = S3Path.from_key_parts(
+            DUMPS_BUCKET, query_json_key
+        ).to_string()
 
     # Get result json
     try:
@@ -434,7 +437,9 @@ def check_existence_and_date_s3(query_hash):
     except ClientError:
         result_json = ""
     if result_json:
-        exists_dict["result_json_key"] = result_json_key
+        exists_dict["result_json_key"] = S3Path.from_key_parts(
+            DUMPS_BUCKET, result_json_key
+        ).to_string()
     return exists_dict
 
 
