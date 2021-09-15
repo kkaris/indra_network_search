@@ -292,17 +292,69 @@ def load_indra_graph(unsigned_graph: bool = True,
         indra_signed_node_graph
 
 
-def dump_query_json_to_s3(query_hash, json_obj, get_url=False):
+def dump_query_json_to_s3(query_hash: Union[str, int], json_obj: Dict,
+                          get_url: bool = False):
+    """Dump a query json to S3
+
+    Parameters
+    ----------
+    query_hash :
+        The query hash associated with the query
+    json_obj :
+        The json object to upload
+    get_url :
+        If True return the S3 url of the object. Default: False.
+
+    Returns
+    -------
+    :
+        Optionally return the S3 url of the json file
+    """
     filename = f'{query_hash}_query.json'
     return dump_query_result_to_s3(filename, json_obj, get_url)
 
 
-def dump_result_json_to_s3(query_hash, json_obj, get_url=False):
+def dump_result_json_to_s3(query_hash: Union[str, int], json_obj: Dict,
+                                                       get_url: bool =
+                                                       False) -> Optional[str]:
+    """Dump a result json to S3
+
+    Parameters
+    ----------
+    query_hash :
+        The query hash associated with the result
+    json_obj :
+        The json object to upload
+    get_url :
+        If True return the S3 url of the object. Default: False.
+
+    Returns
+    -------
+    :
+        Optionally return the S3 url of the json file
+    """
     filename = f'{query_hash}_result.json'
     return dump_query_result_to_s3(filename, json_obj, get_url)
 
 
-def dump_query_result_to_s3(filename, json_obj, get_url=False):
+def dump_query_result_to_s3(filename: str, json_obj: Dict, get_url:
+bool = False) -> Optional[str]:
+    """Dump a result or query json to S3
+    
+    Parameters
+    ----------
+    filename :
+        The filename to use
+    json_obj :
+        The json object to upload
+    get_url :
+        If True return the S3 url of the object. Default: False.
+
+    Returns
+    -------
+    :
+        Optionally return the S3 url of the json file
+    """
     download_link = dump_json_to_s3(name=filename, json_obj=json_obj,
                                     public=True, get_url=get_url)
     if get_url:
