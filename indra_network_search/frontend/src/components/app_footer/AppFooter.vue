@@ -1,7 +1,7 @@
 <template>
-  <div class="container" id="footer-container">
+  <div class="container my-2" id="footer-container">
     <footer class="footer text-muted" id="about">
-      <h5 class="my-0 mr-md-auto font-weight-normal fs-2" id="about-header">About</h5>
+      <h5 class="me-md-auto font-weight-normal fs-2" id="about-header">About</h5>
       <small>
         <ul class="list-unstyled justify-content-start">
           <li class="float-end">
