@@ -218,6 +218,7 @@ def query(search_query: NetworkSearchQuery, background_tasks: BackgroundTasks):
             logger.error(verr)
             logger.info('Result could not be validated, re-running search')
             results = network_search_api.handle_query(rest_query=search_query)
+            logger.info('Uploading results to S3')
             background_tasks.add_task(dump_result_json_to_s3, query_hash,
                                                              results.dict())
             background_tasks.add_task(dump_query_json_to_s3,
@@ -227,6 +228,7 @@ def query(search_query: NetworkSearchQuery, background_tasks: BackgroundTasks):
     else:
         logger.info('Performing new search')
         results = network_search_api.handle_query(rest_query=search_query)
+        logger.info('Uploading results to S3')
         background_tasks.add_task(dump_result_json_to_s3, query_hash,
                                   results.dict())
         background_tasks.add_task(dump_query_json_to_s3,
