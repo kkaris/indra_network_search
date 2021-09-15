@@ -814,22 +814,18 @@ export default {
           let value = urlQuery[key]
           // input:
           if (fillType === 'input') {
-            console.log(`Filling ${fillType} for variable ${key} with ${value}`)
             this.$data[key] = value
             // Trigger prefix search when source/target are filled
             if (['source', 'target'].includes(key)) {
               let childRef
               if (key === 'source') {
-                console.log('Executing source node check')
                 childRef = 'sourceComponent'
               } else {
-                console.log('Executing target node check')
                 childRef = 'targetComponent'
               }
               this.$refs[childRef].getExternalAutoCompleteList(value)
             }
           } else if (fillType === 'select' && this.isInOptions(key, value)) {
-            console.log(`Filling ${fillType} for variable ${key} with ${value}`)
             this.$data[key] = value
           } else if (fillType === 'input_join') {
             const formKey = key + '_text'
@@ -840,7 +836,6 @@ export default {
               fillVal = [value]
             }
             // Transform array to comma separated string
-            console.log(`Filling ${fillType} for variable ${formKey} with "${fillVal}"`)
             this.$data[formKey] = fillVal
           // checkbox
           } else if (fillType === 'checkbox') {
@@ -849,15 +844,15 @@ export default {
             }
             if (typeof value === 'boolean') {
               this.$data[key] = value
-              console.log(`Filling ${fillType} for variable ${key} with ${value}`)
             } else {
+              console.log(`fillFormError for ${key}:${value}`)
               this.fillFormError = true
             }
           // multiselect (from vueform/multiselect)
           } else if (fillType === 'multiselect') {
-            console.log(`Filling ${fillType} for ${key} with ${value}`)
             this.fillMultiSel(key, value)
           } else {
+            console.log(`fillFormError for ${key}:${value}`)
             this.fillFormError = true
           }
         }
