@@ -40,6 +40,9 @@ DEBUG = environ.get("API_DEBUG") == "1"
 USE_CACHE = environ.get("USE_CACHE") == "1"
 HEALTH = Health(status="booting")
 STATUS = ServerStatus(status="booting", graph_date="2021-08-09")
+network_search_api: IndraNetworkSearchAPI
+nsid_trie: NodesTrie
+nodes_trie: Node
 
 
 @app.get("/xrefs", response_model=List[List[str]])
@@ -273,45 +276,48 @@ def sub_graph(search_query: SubgraphRestQuery):
     return subgraph_results
 
 
-# Todo: figure out how to do all the loading async so the server is
-#  available to respond to health checks while it's loading
-#  See:
-#  - https://fastapi.tiangolo.com/advanced/events/#startup-event
-#  - https://www.starlette.io/events/
-if DEBUG:
-    from indra_network_search.tests.util import _setup_graph, _setup_signed_node_graph
+@app.on_event("startup")
+async def startup_event():
+    global network_search_api, nsid_trie, nodes_trie
+    # Todo: figure out how to do all the loading async so the server is
+    #  available to respond to health checks while it's loading
+    #  See:
+    #  - https://fastapi.tiangolo.com/advanced/events/#startup-event
+    #  - https://www.starlette.io/events/
+    if DEBUG:
+        from indra_network_search.tests.util import _setup_graph, _setup_signed_node_graph
 
-    dir_graph = _setup_graph()
-    sign_node_graph = _setup_signed_node_graph(False)
-else:
-    dir_graph, _, sign_node_graph, _ = load_indra_graph(
-        unsigned_graph=True,
-        unsigned_multi_graph=False,
-        sign_node_graph=True,
-        sign_edge_graph=False,
-        use_cache=USE_CACHE,
+        dir_graph = _setup_graph()
+        sign_node_graph = _setup_signed_node_graph(False)
+    else:
+        dir_graph, _, sign_node_graph, _ = load_indra_graph(
+            unsigned_graph=True,
+            unsigned_multi_graph=False,
+            sign_node_graph=True,
+            sign_edge_graph=False,
+            use_cache=USE_CACHE,
+        )
+
+        bio_ontology.initialize()
+
+    # Get a Trie for autocomplete
+    logger.info("Loading Trie structure with unsigned graph nodes")
+    nodes_trie = NodesTrie.from_node_names(graph=dir_graph)
+    nsid_trie = NodesTrie.from_node_ns_id(graph=dir_graph)
+
+    # Set numbers for server status
+    STATUS.unsigned_nodes = len(dir_graph.nodes)
+    STATUS.unsigned_edges = len(dir_graph.edges)
+    STATUS.signed_nodes = len(sign_node_graph.nodes)
+    STATUS.signed_edges = len(sign_node_graph.edges)
+    dt = dir_graph.graph.get("date")
+    STATUS.graph_date = date.fromisoformat(dt) if dt else None
+
+    # Setup search API
+    logger.info("Setting up IndraNetworkSearchAPI with signed and unsigned " "graphs")
+    network_search_api = IndraNetworkSearchAPI(
+        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
     )
-
-    bio_ontology.initialize()
-
-# Get a Trie for autocomplete
-logger.info("Loading Trie structure with unsigned graph nodes")
-nodes_trie = NodesTrie.from_node_names(graph=dir_graph)
-nsid_trie = NodesTrie.from_node_ns_id(graph=dir_graph)
-
-# Set numbers for server status
-STATUS.unsigned_nodes = len(dir_graph.nodes)
-STATUS.unsigned_edges = len(dir_graph.edges)
-STATUS.signed_nodes = len(sign_node_graph.nodes)
-STATUS.signed_edges = len(sign_node_graph.edges)
-dt = dir_graph.graph.get("date")
-STATUS.graph_date = date.fromisoformat(dt) if dt else None
-
-# Setup search API
-logger.info("Setting up IndraNetworkSearchAPI with signed and unsigned " "graphs")
-network_search_api = IndraNetworkSearchAPI(
-    unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
-)
-logger.info("Service is available")
-STATUS.status = "available"
-HEALTH.status = "available"
+    logger.info("Service is available")
+    STATUS.status = "available"
+    HEALTH.status = "available"
