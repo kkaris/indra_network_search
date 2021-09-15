@@ -6,14 +6,14 @@ from datetime import date
 from os import environ
 from typing import List, Optional
 
-from fastapi import FastAPI, Query as RestQuery
+from fastapi import FastAPI, Query as RestQuery, BackgroundTasks
 from pydantic import ValidationError
 
 from depmap_analysis.util.io_functions import file_opener
 from indra.databases import get_identifiers_url
 from indra_network_search.data_models.rest_models import Health, ServerStatus
 from indra_network_search.rest_util import load_indra_graph, \
-    check_existence_and_date_s3
+    check_existence_and_date_s3, dump_result_json_to_s3, dump_query_json_to_s3
 from indra_network_search.data_models import (
     Results,
     NetworkSearchQuery,
@@ -192,7 +192,7 @@ async def server_status():
 
 
 @app.post("/query", response_model=Results)
-def query(search_query: NetworkSearchQuery):
+def query(search_query: NetworkSearchQuery, background_tasks: BackgroundTasks):
     """Interface with IndraNetworkSearchAPI.handle_query
 
     Parameters
@@ -218,10 +218,21 @@ def query(search_query: NetworkSearchQuery):
             logger.error(verr)
             logger.info('Result could not be validated, re-running search')
             results = network_search_api.handle_query(rest_query=search_query)
+            background_tasks.add_task(dump_result_json_to_s3, query_hash,
+                                                             results.dict())
+            background_tasks.add_task(dump_query_json_to_s3,
+                                      query_hash,
+                                      search_query.dict())
 
     else:
         logger.info('Performing new search')
         results = network_search_api.handle_query(rest_query=search_query)
+        background_tasks.add_task(dump_result_json_to_s3, query_hash,
+                                  results.dict())
+        background_tasks.add_task(dump_query_json_to_s3,
+                                  query_hash,
+                                  search_query.dict())
+
     return results
 
 
