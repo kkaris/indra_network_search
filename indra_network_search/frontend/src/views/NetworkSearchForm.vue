@@ -889,6 +889,15 @@ export default {
     }
     return false;
   },
+  watch: {
+    // Watch cannotSubmit and submit form if cannotSubmit === false
+    cannotSubmit(newValue) {
+      if (this.querySearchExec && newValue === false) {
+        this.querySearchExec = false // disable this after first run
+        this.sendForm()
+      }
+    },
+  },
   validations() {
     return {
       source: {
