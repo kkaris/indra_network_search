@@ -5,15 +5,18 @@
     <router-link to="/about">About</router-link>
   </div>
   <router-view />
+  <AppFooter />
 </template>
 
 <script>
 import HeaderInfo from "./components/header_info/HeaderInfo";
+import AppFooter from "./components/app_footer/AppFooter";
 
 export default {
   name: "App",
   components: {
     HeaderInfo,
+    AppFooter,
   },
 }
 </script>
