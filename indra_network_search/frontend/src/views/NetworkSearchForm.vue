@@ -436,6 +436,7 @@ export default {
   },
   data() {
     return {
+      querySearchExec: false, // flag for if form is filled from url query
       validSource: false,
       validTarget: false,
       /* Begin query */
@@ -860,9 +861,8 @@ export default {
         this.fillFormError = true
       }
 
-      if (!this.fillFormError && (urlQuery.execute === true || urlQuery.execute === 'true')) {
-        console.log('Executing query param search')
-        this.sendForm()
+      if (!this.fillFormError && !(urlQuery.execute === false || urlQuery.execute === 'false')) {
+        this.querySearchExec = true // flag that it's ok to submit when source/target become valid
       } else if (this.fillFormError) {
         console.log('The form filled out incorrectly')
       }
