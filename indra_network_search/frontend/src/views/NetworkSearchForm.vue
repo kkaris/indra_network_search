@@ -472,6 +472,14 @@ export default {
         "results for path queries (only applies to breadth first search " +
         "and source-target path searches)",
       isLoading: false,
+      nonFalseDefaultValues: {
+        depth_limit: DefaultValues.DEPTH_LIMIT,
+        k_shortest: DefaultValues.K_SHORTEST,
+        max_per_node: DefaultValues.MAX_PER_NODE,
+        const_c: DefaultValues.CONST_C,
+        const_tk: DefaultValues.CONST_TK,
+        user_timeout: DefaultValues.USER_TIMEOUT,
+      },
       signOptions: [
         { label: "+", value: 0 },
         { label: "-", value: 1 },
@@ -591,16 +599,6 @@ export default {
         shared_regulators: this.shared_regulators,
         terminal_ns: this.terminal_ns, // Pick from multi-select
         format: this.format,
-      };
-    },
-    nonFalseDefaultValues() {
-      return {
-        depth_limit: DefaultValues.DEPTH_LIMIT,
-        k_shortest: DefaultValues.K_SHORTEST,
-        max_per_node: DefaultValues.MAX_PER_NODE,
-        const_c: DefaultValues.CONST_C,
-        const_tk: DefaultValues.CONST_TK,
-        user_timeout: DefaultValues.USER_TIMEOUT,
       };
     },
     signValues() {
