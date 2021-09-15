@@ -120,7 +120,7 @@ def get_prefix_autocomplete(
         The prefix of a node name to search for. Note: for prefixes of
         1 and 2 characters, only exact matches are returned. For 3+
         characters, prefix matching is done. If the prefix contains ':',
-        an namspace:id search is done.
+        an namespace:id search is done.
     max_res :
         The top ranked (by node degree) results will be returned, cut off at
         this many results.
