@@ -857,16 +857,13 @@ export default {
           }
         }
       }
-      // Touch the form to run validators
-      this.v$.$touch();
-      if (this.v$.$error) {
-        this.fillFormError = true
-      }
 
       if (!this.fillFormError && !(urlQuery.execute === false || urlQuery.execute === 'false')) {
         this.querySearchExec = true // flag that it's ok to submit when source/target become valid
       } else if (this.fillFormError) {
-        console.log('The form filled out incorrectly')
+        console.log('The form filled out incorrectly from query')
+      } else if (urlQuery.execute === false || urlQuery.execute === 'false') {
+        console.log('Query was set to not execute')
       }
     }
   },
