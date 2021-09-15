@@ -700,9 +700,9 @@ export default {
     },
   },
   methods: {
-    sendForm() {
-      this.v$.$touch();
-      if (this.v$.$error || this.cannotSubmit) {
+    async sendForm() {
+      const canSubmit = await this.v$.$validate();
+      if (!canSubmit || this.cannotSubmit) {
         return false;
       }
       this.submissionError = null;
