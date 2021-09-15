@@ -12,8 +12,12 @@ from pydantic import ValidationError
 from depmap_analysis.util.io_functions import file_opener
 from indra.databases import get_identifiers_url
 from indra_network_search.data_models.rest_models import Health, ServerStatus
-from indra_network_search.rest_util import load_indra_graph, \
-    check_existence_and_date_s3, dump_result_json_to_s3, dump_query_json_to_s3
+from indra_network_search.rest_util import (
+    load_indra_graph,
+    check_existence_and_date_s3,
+    dump_result_json_to_s3,
+    dump_query_json_to_s3,
+)
 from indra_network_search.data_models import (
     Results,
     NetworkSearchQuery,
@@ -35,7 +39,7 @@ logger = logging.getLogger(__name__)
 DEBUG = environ.get("API_DEBUG") == "1"
 USE_CACHE = environ.get("USE_CACHE") == "1"
 HEALTH = Health(status="booting")
-STATUS = ServerStatus(status="booting", graph_date='2021-08-09')
+STATUS = ServerStatus(status="booting", graph_date="2021-08-09")
 
 
 @app.get("/xrefs", response_model=List[List[str]])
@@ -209,31 +213,31 @@ def query(search_query: NetworkSearchQuery, background_tasks: BackgroundTasks):
 
     # Check if results are on S3
     keys_dict = check_existence_and_date_s3(query_hash=query_hash)
-    if keys_dict.get('result_json_key'):
-        logger.info('Found results cached on S3')
-        results_json = file_opener(keys_dict['result_json_key'])
+    if keys_dict.get("result_json_key"):
+        logger.info("Found results cached on S3")
+        results_json = file_opener(keys_dict["result_json_key"])
         try:
             results = Results(**results_json)
         except ValidationError as verr:
             logger.error(verr)
-            logger.info('Result could not be validated, re-running search')
+            logger.info("Result could not be validated, re-running search")
             results = network_search_api.handle_query(rest_query=search_query)
-            logger.info('Uploading results to S3')
-            background_tasks.add_task(dump_result_json_to_s3, query_hash,
-                                                             results.dict())
-            background_tasks.add_task(dump_query_json_to_s3,
-                                      query_hash,
-                                      search_query.dict())
+            logger.info("Uploading results to S3")
+            background_tasks.add_task(
+                dump_result_json_to_s3, query_hash, results.dict()
+            )
+            background_tasks.add_task(
+                dump_query_json_to_s3, query_hash, search_query.dict()
+            )
 
     else:
-        logger.info('Performing new search')
+        logger.info("Performing new search")
         results = network_search_api.handle_query(rest_query=search_query)
-        logger.info('Uploading results to S3')
-        background_tasks.add_task(dump_result_json_to_s3, query_hash,
-                                  results.dict())
-        background_tasks.add_task(dump_query_json_to_s3,
-                                  query_hash,
-                                  search_query.dict())
+        logger.info("Uploading results to S3")
+        background_tasks.add_task(dump_result_json_to_s3, query_hash, results.dict())
+        background_tasks.add_task(
+            dump_query_json_to_s3, query_hash, search_query.dict()
+        )
 
     return results
 
@@ -300,7 +304,7 @@ STATUS.unsigned_nodes = len(dir_graph.nodes)
 STATUS.unsigned_edges = len(dir_graph.edges)
 STATUS.signed_nodes = len(sign_node_graph.nodes)
 STATUS.signed_edges = len(sign_node_graph.edges)
-dt = dir_graph.graph.get('date')
+dt = dir_graph.graph.get("date")
 STATUS.graph_date = date.fromisoformat(dt) if dt else None
 
 # Setup search API
