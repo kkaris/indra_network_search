@@ -622,14 +622,21 @@ export default {
       return this.source.length > 0 && this.target.length > 0;
     },
     cannotSubmit() {
+      /**
+       * Flag if source/target are valid
+       * **/
       // Source and target are both either of empty or filled only with whitespace
-      return (
-        (this.source.length === 0 && this.target.length === 0) ||
-        (!/\S/.test(this.source) && this.source.length > 0) ||
-        (!/\S/.test(this.target) && this.target.length > 0) ||
-        (this.source.length > 0 && !this.validSource) ||
-        (this.target.length > 0 && !this.validTarget)
-      );
+      const bothEmpty = this.source.length === 0 && this.target.length === 0
+      // OR source contains only whitespace
+      const srcWhiteSpace = !/\S/.test(this.source) && this.source.length > 0
+      // OR target contains only whitespace
+      const trgtWhiteSpace = !/\S/.test(this.target) && this.target.length > 0
+      // OR source is not valid when filled
+      const srcInvalid = this.source.length > 0 && !this.validSource
+      // OR target is not valid when filled
+      const trgtInvalid = this.target.length > 0 && !this.validTarget
+
+      return bothEmpty || srcWhiteSpace || trgtWhiteSpace || srcInvalid || trgtInvalid
     },
     isContextWeighted() {
       return this.isContextSearch && !this.strict_mesh_id_filtering;
