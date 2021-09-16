@@ -87,6 +87,7 @@ WEIGHT_NAME_MAPPING = {
     "belief": "weight",
     "context": "context_weight",
     "z_score": "corr_weight",
+    "unweighted": None,
 }
 
 
@@ -154,7 +155,7 @@ class NetworkSearchQuery(BaseModel):
     path_length: Optional[int] = None
     depth_limit: int = 2
     sign: Optional[conint(ge=0, le=1)] = None
-    weighted: Literal["belief", "context", "z_score", "unweighted"]
+    weighted: Literal["belief", "context", "z_score", "unweighted"] = "unweighted"
     belief_cutoff: Union[float, bool] = 0.0
     curated_db_only: bool = False
     fplx_expand: bool = False
