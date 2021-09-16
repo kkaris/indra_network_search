@@ -154,7 +154,7 @@ class NetworkSearchQuery(BaseModel):
     path_length: Optional[int] = None
     depth_limit: int = 2
     sign: Optional[conint(ge=0, le=1)] = None
-    weighted: Optional[Literal["belief", "context", "z_score"]] = None
+    weighted: Literal["belief", "context", "z_score", "unweighted"]
     belief_cutoff: Union[float, bool] = 0.0
     curated_db_only: bool = False
     fplx_expand: bool = False
