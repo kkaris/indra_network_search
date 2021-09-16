@@ -207,7 +207,7 @@ def process_query():
         if not API_DEBUG and cached_files.get('result_json_key'):
             qjs3_key = cached_files['result_json_key']
             logger.info('Result found on s3: %s' % qjs3_key)
-            result = read_query_json_from_s3(qjs3_key)
+            result = file_opener(qjs3_key)
         # Files not cached on s3, run new query
         elif API_DEBUG:
             logger.info('API_DEBUG is set to "True" so no network is '
