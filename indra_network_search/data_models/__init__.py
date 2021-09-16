@@ -26,8 +26,7 @@ from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
-from pydantic import BaseModel, validator, Extra, constr, conint, confloat, \
-    HttpUrl
+from pydantic import BaseModel, validator, Extra, constr, conint, confloat, HttpUrl
 
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
@@ -87,6 +86,7 @@ WEIGHT_NAME_MAPPING = {
     "belief": "weight",
     "context": "context_weight",
     "z_score": "corr_weight",
+    "unweighted": None,
 }
 
 
@@ -113,8 +113,7 @@ class FilterOptions(BaseModel):
     curated_db_only: bool = False
     max_paths: int = 50
     cull_best_node: Optional[int] = None
-    weighted: Optional[Literal["weight", "context_weight", "corr_weight"]] = \
-        None
+    weighted: Optional[Literal["weight", "context_weight", "corr_weight"]] = None
     context_weighted: bool = False
     overall_weighted: bool = False
 
@@ -154,7 +153,7 @@ class NetworkSearchQuery(BaseModel):
     path_length: Optional[int] = None
     depth_limit: int = 2
     sign: Optional[conint(ge=0, le=1)] = None
-    weighted: Optional[Literal["belief", "context", "z_score"]] = None
+    weighted: Literal["belief", "context", "z_score", "unweighted"] = "unweighted"
     belief_cutoff: Union[float, bool] = 0.0
     curated_db_only: bool = False
     fplx_expand: bool = False
@@ -206,7 +205,7 @@ class NetworkSearchQuery(BaseModel):
         unweighted is strict mesh id search.
         """
         return is_weighted(
-            weighted=self.weighted in ('belief', 'z_score'),
+            weighted=self.weighted in ("belief", "z_score"),
             mesh_ids=self.mesh_ids,
             strict_mesh_filtering=self.strict_mesh_id_filtering,
         )
@@ -440,7 +439,9 @@ class EdgeData(BaseModel):
     statements: Dict[str, StmtTypeSupport]  # key by stmt_type
     belief: confloat(ge=0, le=1)  # Aggregated belief
     weight: confloat(ge=0)  # Weight corresponding to aggregated belief weight
-    context_weight: Union[str, confloat(gt=0), Literal["N/A"]] = "N/A"  # Set for context
+    context_weight: Union[
+        str, confloat(gt=0), Literal["N/A"]
+    ] = "N/A"  # Set for context
     z_score: Optional[float] = None  # z-score
     corr_weight: Optional[confloat(gt=0.0)] = None  # Weight from z-score
     sign: Optional[conint(ge=0, le=1)]  # Used for signed paths

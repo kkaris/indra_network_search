@@ -449,7 +449,7 @@ export default {
       path_length: null,
       depth_limit: DefaultValues.DEPTH_LIMIT,
       sign: null,
-      weighted: null,
+      weighted: "unweighted",
       belief_cutoff: 0.0,
       curated_db_only: false,
       fplx_expand: false,
@@ -489,7 +489,7 @@ export default {
         { label: "Belief weighted", value: "belief" },
         { label: "DepMap z-score weighted", value: "z_score" },
         { label: "Mesh Context", value: "context" },
-        { label: "Unweighted", value: null },
+        { label: "Unweighted", value: "unweighted" },
       ],
       stmtFilterOptions: [
         // Idea:Load options from an endpoint that returns all options,
