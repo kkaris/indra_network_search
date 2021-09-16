@@ -80,7 +80,7 @@ else:
             INDRANET_DATE = datetime.utcfromtimestamp(get_earliest_date(file))
             break
     if argv[0].split('/')[-1].lower() != 'api.py':
-        dg, _, sng, seg = load_indra_graph(unsigned_graph=True,
+        dg, _, seg, sng = load_indra_graph(unsigned_graph=True,
                                            sign_edge_graph=True,
                                            sign_node_graph=True,
                                            unsigned_multi_graph=False,

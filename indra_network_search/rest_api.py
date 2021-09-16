@@ -290,7 +290,7 @@ async def startup_event():
         dir_graph = _setup_graph()
         sign_node_graph = _setup_signed_node_graph(False)
     else:
-        dir_graph, _, sign_node_graph, _ = load_indra_graph(
+        dir_graph, _, _, sign_node_graph = load_indra_graph(
             unsigned_graph=True,
             unsigned_multi_graph=False,
             sign_node_graph=True,
