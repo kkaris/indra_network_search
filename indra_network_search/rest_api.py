@@ -42,7 +42,7 @@ HEALTH = Health(status="booting")
 STATUS = ServerStatus(status="booting", graph_date="2021-08-09")
 network_search_api: IndraNetworkSearchAPI
 nsid_trie: NodesTrie
-nodes_trie: Node
+nodes_trie: NodesTrie
 
 
 @app.get("/xrefs", response_model=List[List[str]])
