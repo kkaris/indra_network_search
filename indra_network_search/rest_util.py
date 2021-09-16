@@ -229,14 +229,14 @@ def get_latest_graphs() -> Dict[str, str]:
 def load_indra_graph(
     unsigned_graph: bool = True,
     unsigned_multi_graph: bool = False,
-    sign_node_graph: bool = True,
     sign_edge_graph: bool = False,
+    sign_node_graph: bool = True,
     use_cache: bool = False,
 ) -> Tuple[
     Optional[nx.DiGraph],
     Optional[nx.MultiDiGraph],
-    Optional[nx.MultiDiGraph],
     Optional[nx.DiGraph],
+    Optional[nx.MultiDiGraph],
 ]:
     """Return a tuple of graphs to be used in the network search API
 
@@ -259,8 +259,8 @@ def load_indra_graph(
         Returns, as a tuple:
             - unsigned graph
             - unsigned multi graph
-            - signed node graph
             - signed edge graphs
+            - signed node graph
         If a graph was not chosen to be loaded or wasn't found, None will be
         returned in its place in the tuple.
     """
