@@ -192,9 +192,9 @@ export default {
     weightToShow() {
       let weightType = this.GStore.currentQuery.weighted;
 
-      if (weightType === null) return "N/A";
-
       switch (weightType) {
+        case "unweighted":
+          return "N/A"
         case "belief":
           return this.fixDecimals(this.weight);
         case "context":

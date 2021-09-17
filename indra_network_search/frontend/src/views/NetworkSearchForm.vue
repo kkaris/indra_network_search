@@ -449,7 +449,7 @@ export default {
       path_length: null,
       depth_limit: DefaultValues.DEPTH_LIMIT,
       sign: null,
-      weighted: "unweighted",
+      weighted: DefaultValues.WEIGHTED,
       belief_cutoff: 0.0,
       curated_db_only: false,
       fplx_expand: false,
@@ -479,6 +479,7 @@ export default {
         const_c: DefaultValues.CONST_C,
         const_tk: DefaultValues.CONST_TK,
         user_timeout: DefaultValues.USER_TIMEOUT,
+        weighted: DefaultValues.WEIGHTED,
       },
       signOptions: [
         { label: "+", value: 0 },
