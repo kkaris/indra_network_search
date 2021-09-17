@@ -3,7 +3,7 @@
   <p class="text-center align-items-center">
     <template v-if="unsigned_nodes && unsigned_edges"
       >Search across {{ unsigned_nodes }} nodes,
-      {{ unsigned_edges }} edges.</template
+      {{ unsigned_edges }} edges.<br></template
     >
     <template v-if="graph_date">Last updated: {{ graph_date }}.</template>
     Current status: <span class="badge" :class="badgeClass">{{ status }}</span>
