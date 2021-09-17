@@ -76,7 +76,7 @@ export default {
        *  - const_tk_default: 10
        *  - const_c_default: 1
        *  - user_timeout_default: 30
-       *  - belief_cutoff_default: 0.0
+       *  - weighted: "uweighted"
        * **/
       type: Object,
       required: true
