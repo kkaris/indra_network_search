@@ -48,6 +48,8 @@ __all__ = [
     "SubgraphResultManager",
     "MultiInteractorsResultManager",
     "alg_manager_mapping",
+    "DB_URL_HASH",
+    "DB_URL_EDGE",
 ]
 
 
