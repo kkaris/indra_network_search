@@ -13,24 +13,17 @@ Search Service.
 
 The Graphs Used
 ---------------
-The multiple graphs used for the network search is assembled from a full
-snapshot of the `INDRA DataBase <https://github.com/indralab/indra_db>`_ and
-is updated regularly. Each statement that includes two or three agents are
-assembled into the support for the edges for the graphs with one edge
-possibly containing multiple statements. There are three graph types used:
+The two graphs used for the network search are assembled from a full
+snapshot of the `INDRA DataBase <https://github.com/indralab/indra_db>`_ that
+is updated regularly. Any statement that includes two or three agents are
+assembled into the support for the edges for the graphs, with one edge
+containing one or more statements. The two types of graphs used are:
 
-1. DiGraph
-2. signed edge DiGraph
-3. signed node DiGraph
+1. Unsigned directed graph
+2. Signed node directed graph
 
-The **DiGraph** is used for unsigned causal search and for assembling the
-statement data supporting the results of the search while the **signed node
-graph** is used for signed causal search and the **signed edge graph** is
-used for assembling the statement data supporting the signed node search
-results.
-
-The edges in the signed edge graphs only contain statements that have clear
-up- or downreguations associated with them, which currently is
+The edges in the signed graph only contain statements that have clear
+up- or downreguations associated with them, which currently are
 `IncreaseAmount` and `Activation` for upregulation, and `DecreaseAmount` and
 `Inhibition` for downregulation.
 
