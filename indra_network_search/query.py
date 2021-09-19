@@ -40,6 +40,8 @@ __all__ = [
     "alg_name_query_mapping",
     "SubgraphQuery",
     "MultiInteractorsQuery",
+    "MissingParametersError",
+    "InvalidParametersError",
 ]
 
 
