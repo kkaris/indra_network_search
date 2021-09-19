@@ -9,19 +9,25 @@ This document introduces the web interface of the INDRA Network Search Service
 
   *The network search interface with no input or results.*
 
-
-Search Options
---------------
-
 Source and Target
-~~~~~~~~~~~~~~~~~
-At least one of source and target is mandatory for the search. The source
-and target are the nodes between which to find a path. Source and target does
-not have to be of the allowed namespaces (see below). If no result is found
-initially, grounding is done on the service backend to try to find an
-alternative name for the provided node name. If only one of source or target
-is provided, an open ended breadth first search is done instead if a path
-search.
+-----------------
+The source and target are the nodes between which to find a path and at least
+one of source and target is needed to do a search. If only one of source or
+target is provided, an open ended breadth first search is done instead of a
+path search. Note that the source and target are not affected by the choice of
+*allowed namespaces* (see below) <-- provide internal link.
+
+Autocompleting source/target inputs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Autocompletion of source/target based on prefix and entity identifier are
+made automatically as an input is typed or pasted into the text boxes. The
+suggestions are picked from the nodes in the graph and the text box will
+mark the entered text as correct if it matches an existing node in the graph.
+ADD IMAGE WITH CORRECT NODE AND SUGGESTIONS
+
+
+Detailed Search Options
+-----------------------
 
 Path Length
 ~~~~~~~~~~~
