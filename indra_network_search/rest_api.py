@@ -9,15 +9,10 @@ from typing import List, Optional
 from fastapi import FastAPI, Query as RestQuery, BackgroundTasks
 from pydantic import ValidationError
 
+from depmap_analysis.network_functions.net_functions import bio_ontology
 from depmap_analysis.util.io_functions import file_opener
 from indra.databases import get_identifiers_url
-from indra_network_search.data_models.rest_models import Health, ServerStatus
-from indra_network_search.rest_util import (
-    load_indra_graph,
-    check_existence_and_date_s3,
-    dump_result_json_to_s3,
-    dump_query_json_to_s3,
-)
+from indra_network_search.autocomplete import NodesTrie, Prefixes
 from indra_network_search.data_models import (
     Results,
     NetworkSearchQuery,
@@ -27,12 +22,16 @@ from indra_network_search.data_models import (
     MultiInteractorsRestQuery,
     MultiInteractorsResults,
 )
-from indra_network_search.autocomplete import NodesTrie, Prefixes
+from indra_network_search.data_models.rest_models import Health, ServerStatus
+from indra_network_search.rest_util import (
+    load_indra_graph,
+    check_existence_and_date_s3,
+    dump_result_json_to_s3,
+    dump_query_json_to_s3,
+)
 from indra_network_search.search_api import IndraNetworkSearchAPI
-from depmap_analysis.network_functions.net_functions import bio_ontology
 
-
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 logger = logging.getLogger(__name__)
 
