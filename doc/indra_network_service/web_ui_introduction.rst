@@ -11,27 +11,6 @@ Service
   *The network search interface with no input or results.*
 
 
-The Graphs Used
----------------
-The two graphs used for the network search are assembled from a full
-snapshot of the `INDRA DataBase <https://github.com/indralab/indra_db>`_ that
-is updated regularly. Any statement that includes two or three agents are
-assembled into the support for the edges for the graphs, with one edge
-containing one or more statements. The two types of graphs used are:
-
-1. Unsigned directed graph
-2. Signed node directed graph
-
-The edges in the signed graph only contain statements that have clear
-up- or downreguations associated with them, which currently are
-`IncreaseAmount` and `Activation` for upregulation, and `DecreaseAmount` and
-`Inhibition` for downregulation.
-
-The code assembling the graphs can be found in `net_functions.py
-<https://github.com/indralab/depmap_analysis/blob/master/depmap_analysis
-/network_functions/net_functions.py>`_ in the function
-`sif_dump_df_to_digraph()`.
-
 Search Options
 --------------
 
@@ -253,3 +232,24 @@ Download Results
 ----------------
 You can download the search result json and the statement jsons from the *path
 search* by clicking the link provided after the search has resolved.
+
+The Graphs Used
+---------------
+The two graphs used for the network search are assembled from a full
+snapshot of the `INDRA DataBase <https://github.com/indralab/indra_db>`_ that
+is updated regularly. Any statement that includes two or three agents are
+assembled into the support for the edges for the graphs, with one edge
+containing one or more statements. The two types of graphs used are:
+
+1. Unsigned directed graph
+2. Signed node directed graph
+
+The edges in the signed graph only contain statements that have clear
+up- or downreguations associated with them, which currently are
+`IncreaseAmount` and `Activation` for upregulation, and `DecreaseAmount` and
+`Inhibition` for downregulation.
+
+The code assembling the graphs can be found in `net_functions.py
+<https://github.com/indralab/depmap_analysis/blob/master/depmap_analysis
+/network_functions/net_functions.py>`_ in the function
+`sif_dump_df_to_digraph()`.
