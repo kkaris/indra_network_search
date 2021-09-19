@@ -1,8 +1,8 @@
 =====================
 Network Search Web UI
 =====================
-This documentation introduces the web user interface for the INDRA Network
-Search Service.
+This documentation introduces the web interface of the INDRA Network Search
+Service
 
 .. figure:: ../_static/images/indra_network_search_screenshot.png
   :align: center
