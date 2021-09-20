@@ -341,8 +341,8 @@ edge_data = {
     ("BRCA2", "BRCA"): {
         "belief": 1,
         "weight": wm(1),
-        # "z_score": self_corr,
-        # "corr_weight": _zw(self_corr - 6, self_corr),
+        "z_score": self_corr,
+        "corr_weight": _zw(self_corr, self_corr),
         "statements": [
             {
                 "stmt_hash": "https://identifiers.org/fplx:BRCA",
