@@ -33,6 +33,13 @@ Path Length
 ~~~~~~~~~~~
 Only paths of this many edges will be returned. Must be a positive integer.
 
+Node Name Blacklist
+~~~~~~~~~~~~~~~~~~~
+Node names entered here are skipped in the path search. This is a good way
+to avoid nodes of extremely high degree that overwhelms the results and
+effectively blocks out results that include nodes of lower degree. *See also
+Cull Highest Degree Node below.* <-- provide internal link
+
 Max Paths
 ~~~~~~~~~
 The maximum number of results to return per category in the results. The
@@ -90,13 +97,6 @@ Statement Types to *Exclude*
 This is a multiselect dropdown which contains multiple statement type names
 to exclude from the results. If an edge of a path only contain statement
 types that are excluded, the whole path will be skipped from the result.
-
-Node Name Blacklist
-~~~~~~~~~~~~~~~~~~~
-Node names entered here are skipped in the path search. This is a good way
-to avoid nodes of extremely high degree that overwhelms the results and
-effectively blocks out results including lower degree nodes. *See also Cull
-Highest Degree Node below.*
 
 Edge Hash Blacklist
 ~~~~~~~~~~~~~~~~~~~
