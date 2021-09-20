@@ -47,6 +47,25 @@ default and the maximum allowed is 50 results. For unweighted searches this
 number rarely makes a perceivable difference in response time but for
 weighted searches keep this number low for a faster response time.
 
+Cull Highest Degree Node
+~~~~~~~~~~~~~~~~~~~~~~~~
+Entering an integer N here allows the path search to include the highest
+degree node for the first N returned paths, after which it is added to the
+**Node Name Blacklist**. This is repeated for the second highest degree node
+for the following N paths, then for the third highest degree node and so
+forth. *Note:* This option is currently only applied for unsigned path
+searches.
+
+Signed Search
+~~~~~~~~~~~~~
+To perform a signed search, click on the drop down menu that says "No sign"
+and chose a sign. "+" means that all the returned paths are upregulations,
+and "-" means that all the returned paths are downregulations. For the
+purpose of signed search, only statements that imply a clear up- or
+downregulation are considered. Currently this mean `IncreaseAmount` and
+`Activation` for upregulation, and `DecreaseAmount` and `Inhibition` for
+downregulation.
+
 Allowed Node Namespaces
 ~~~~~~~~~~~~~~~~~~~~~~~
 The namespaces included here are the ones that are allowed on any node
@@ -110,25 +129,6 @@ egde has to have a belief score above this threshold. It is set to zero by
 default. Read more about belief scores in the `belief module
 <https://indra.readthedocs.io/en/latest/modules/belief/index.html>`_ of
 INDRA.
-
-Cull Highest Degree Node
-~~~~~~~~~~~~~~~~~~~~~~~~
-Entering an integer N here allows the path search to include the highest
-degree node for the first N returned paths, after which it is added to the
-**Node Name Blacklist**. This is repeated for the second highest degree node
-for the following N paths, then for the third highest degree node and so
-forth. *Note:* This option is currently only applied for unsigned path
-searches.
-
-Signed Search
-~~~~~~~~~~~~~
-To perform a signed search, click on the drop down menu that says "No sign"
-and chose a sign. "+" means that all the returned paths are upregulations,
-and "-" means that all the returned paths are downregulations. For the
-purpose of signed search, only statements that imply a clear up- or
-downregulation are considered. Currently this mean `IncreaseAmount` and
-`Activation` for upregulation, and `DecreaseAmount` and `Inhibition` for
-downregulation.
 
 Include Shared Regulators
 ~~~~~~~~~~~~~~~~~~~~~~~~~
