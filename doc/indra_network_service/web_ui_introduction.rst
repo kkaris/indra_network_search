@@ -33,8 +33,8 @@ Path Length
 ~~~~~~~~~~~
 Only paths of this many edges will be returned. Must be a positive integer.
 
-Node Name Blacklist
-~~~~~~~~~~~~~~~~~~~
+Node Blacklist
+~~~~~~~~~~~~~~
 Node names entered here are skipped in the path search. This is a good way
 to avoid nodes of extremely high degree that overwhelms the results and
 effectively blocks out results that include nodes of lower degree. *See also
