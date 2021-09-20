@@ -75,11 +75,14 @@ default to include all edges. Read more about belief scores in the `belief
 module <https://indra.readthedocs.io/en/latest/modules/belief/index.html>`_ of
 INDRA.
 
-Statement Types to *Exclude*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Allowed Statement Types
+~~~~~~~~~~~~~~~~~~~~~~~
 This is a multiselect dropdown which contains multiple statement type names
-to exclude from the results. If an edge of a path only contain statement
-types that are excluded, the whole path will be skipped from the result.
+to allow in the results. If an edge of a path does not contain the selected
+statement types, the whole path will be skipped from the result. Read more
+about statement types in the
+`statements module <https://indra.readthedocs.io/en/latest/modules/statements.html>`_
+of INDRA.
 
 Allowed Node Namespaces
 ~~~~~~~~~~~~~~~~~~~~~~~
