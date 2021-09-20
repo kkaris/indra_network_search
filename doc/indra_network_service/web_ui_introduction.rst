@@ -61,10 +61,18 @@ Highest Degree Node Culling Frequency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Entering a positive integer here allows the path search to include the highest
 degree node for the first N returned paths, after which that node is added to
-the *Node Blacklist*. This is repeated for the second highest degree node for
+the *Node Blacklist*. <-- internal link This is repeated for the second highest degree node for
 the following N paths, then for the third highest degree node and so forth.
 *Limitations:* This option is only applied to unweighted open search and
 source-target searches.
+
+Belief Score cut-off
+~~~~~~~~~~~~~~~~~~~~
+This option enables a belief score cut-off so that statements supporting an
+egde has to have a belief score above this threshold. It is set to zero by
+default. Read more about belief scores in the `belief module
+<https://indra.readthedocs.io/en/latest/modules/belief/index.html>`_ of
+INDRA.
 
 Allowed Node Namespaces
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -121,14 +129,6 @@ Edge Hash Blacklist
 ~~~~~~~~~~~~~~~~~~~
 To ignore a specific statement supporting an edge, the statement hash for
 that statement can be added here.
-
-Belief Score cut-off
-~~~~~~~~~~~~~~~~~~~~
-This option enables a belief score cut-off so that statements supporting an
-egde has to have a belief score above this threshold. It is set to zero by
-default. Read more about belief scores in the `belief module
-<https://indra.readthedocs.io/en/latest/modules/belief/index.html>`_ of
-INDRA.
 
 Include Shared Regulators
 ~~~~~~~~~~~~~~~~~~~~~~~~~
