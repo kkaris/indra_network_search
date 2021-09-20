@@ -26,8 +26,8 @@ mark the entered text as correct if it matches an existing node in the graph.
 ADD IMAGE WITH CORRECT NODE AND SUGGESTIONS
 
 
-Detailed Search Options
------------------------
+Detailed Search Options - General Options
+-----------------------------------------
 
 Path Length
 ~~~~~~~~~~~
