@@ -33,10 +33,12 @@ Path Length
 ~~~~~~~~~~~
 Only paths of this many edges will be returned. Must be a positive integer.
 
-Max # Paths
-~~~~~~~~~~~
+Max Paths
+~~~~~~~~~
 The maximum number of results to return per category in the results. The
-default and the maximum allowed is 50 results.
+default and the maximum allowed is 50 results. For unweighted searches this
+number rarely makes a perceivable difference in response time but for
+weighted searches keep this number low for a faster response time.
 
 Allowed Node Namespaces
 ~~~~~~~~~~~~~~~~~~~~~~~
