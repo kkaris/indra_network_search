@@ -66,12 +66,13 @@ the following N paths, then for the third highest degree node and so forth.
 *Limitations:* This option is only applied to unweighted open search and
 source-target searches.
 
-Belief Score cut-off
-~~~~~~~~~~~~~~~~~~~~
-This option enables a belief score cut-off so that statements supporting an
-egde has to have a belief score above this threshold. It is set to zero by
-default. Read more about belief scores in the `belief module
-<https://indra.readthedocs.io/en/latest/modules/belief/index.html>`_ of
+Belief Cutoff
+~~~~~~~~~~~~~
+Any statement with a belief score below this number will be excluded from the
+edge support. If all statements are excluded from the edge, all paths
+containing that edge become invalid and are skipped. It is set to zero by
+default to include all edges. Read more about belief scores in the `belief
+module <https://indra.readthedocs.io/en/latest/modules/belief/index.html>`_ of
 INDRA.
 
 Allowed Node Namespaces
