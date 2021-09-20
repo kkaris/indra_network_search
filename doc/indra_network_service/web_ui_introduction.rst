@@ -59,8 +59,8 @@ source-target searches.
 Signed Search
 ~~~~~~~~~~~~~
 To perform a signed search, click on the drop down menu that says "No sign"
-and chose a sign. "+" means that all the returned paths are upregulations,
-and "-" means that all the returned paths are downregulations. For the
+and chose a sign. "+" means that the returned paths are upregulations,
+and "-" means that the returned paths are downregulations. For the
 purpose of signed search, only statements that imply a clear up- or
 downregulation are considered. Currently this mean `IncreaseAmount` and
 `Activation` for upregulation, and `DecreaseAmount` and `Inhibition` for
