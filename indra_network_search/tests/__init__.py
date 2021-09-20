@@ -4,8 +4,10 @@ Todo:
     - Create standalone test files for subgraph queries
 """
 from copy import deepcopy
-from depmap_analysis.network_functions.net_functions import \
-    _weight_from_belief, z_sc_weight
+from depmap_analysis.network_functions.net_functions import (
+    _weight_from_belief,
+    z_sc_weight,
+)
 from indra.databases import get_identifiers_url
 from indra_network_search.data_models import Node
 
@@ -35,10 +37,11 @@ nodes = {
     "NR2C2": {"ns": "HGNC", "id": "7972"},  # C
     "MBD2": {"ns": "HGNC", "id": "6917"},  # D
     "PATZ1": {"ns": "HGNC", "id": "13071"},  # E
-    "HDAC3": {"ns": "HGNC", "id": "4854"},  # F (unused in edges)
-    "H2AZ1": {"ns": "HGNC", "id": "4741"},  # G (unused in edges)
+    "HDAC3": {"ns": "HGNC", "id": "4854"},  # F
+    "H2AZ1": {"ns": "HGNC", "id": "4741"},  # G
     "NCOA": {"ns": "FPLX", "id": "NCOA"},
-}  # H
+    "BRCA": {"ns": "FPLX", "id": "BRCA"},
+}
 
 
 def _get_node(name: str) -> Node:
@@ -332,6 +335,26 @@ edge_data = {
                 "curated": True,
                 "position": None,
                 "english": "CHEK1 inhibits BRCA2.",
+            }
+        ],
+    },
+    ("BRCA2", "BRCA"): {
+        "belief": 1,
+        "weight": wm(1),
+        # "z_score": self_corr,
+        # "corr_weight": _zw(self_corr - 6, self_corr),
+        "statements": [
+            {
+                "stmt_hash": "https://identifiers.org/fplx:BRCA",
+                "stmt_type": "fplx",
+                "evidence_count": 1,
+                "belief": 1,
+                "source_counts": {"fplx": 1},
+                "residue": None,
+                "weight": wm(1),
+                "curated": True,
+                "position": None,
+                "english": "FPLX:BRCA is an ontological parent of HGNC:1101",
             }
         ],
     },
