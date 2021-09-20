@@ -75,6 +75,12 @@ default to include all edges. Read more about belief scores in the `belief
 module <https://indra.readthedocs.io/en/latest/modules/belief/index.html>`_ of
 INDRA.
 
+Statement Types to *Exclude*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is a multiselect dropdown which contains multiple statement type names
+to exclude from the results. If an edge of a path only contain statement
+types that are excluded, the whole path will be skipped from the result.
+
 Allowed Node Namespaces
 ~~~~~~~~~~~~~~~~~~~~~~~
 The namespaces included here are the ones that are allowed on any node
@@ -119,12 +125,6 @@ given as MeSH terms.
 Here, `refcount` is the number of references with the associated MeSH
 ID(s) that are supporting edge :math:`e` and `total` is the total number of
 references supporting edge :math:`e`.
-
-Statement Types to *Exclude*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This is a multiselect dropdown which contains multiple statement type names
-to exclude from the results. If an edge of a path only contain statement
-types that are excluded, the whole path will be skipped from the result.
 
 Edge Hash Blacklist
 ~~~~~~~~~~~~~~~~~~~
