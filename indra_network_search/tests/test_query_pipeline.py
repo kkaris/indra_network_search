@@ -1099,6 +1099,34 @@ def test_bfs_stmt_filter():
     )
 
 
+def test_bfs_stmt_filter_fplx_edges():
+    brca2 = Node(
+        name="BRCA2",
+        namespace="HGNC",
+        identifier="1101",
+        lookup=get_identifiers_url(db_name="HGNC", db_id="1101"),
+    )
+
+    # stmt_filter with fplx - should only leave ('BRCA2', 'BRCA')
+    stmt_filter_query = NetworkSearchQuery(
+        filter_curated=False, source="BRCA2", stmt_filter=["fplx"]
+    )
+    str_paths2 = [("BRCA2", "BRCA")]
+    paths = {
+        2: _get_path_list(
+            str_paths=str_paths2, graph=unsigned_graph, large=False, signed=False
+        ),
+    }
+
+    expected_paths: PathResultData = PathResultData(source=brca2, paths=paths)
+    assert _check_path_queries(
+        graph=unsigned_graph,
+        QueryCls=BreadthFirstSearchQuery,
+        rest_query=stmt_filter_query,
+        expected_res=expected_paths,
+    )
+
+
 def test_bfs_hash_blacklist():
     brca1 = Node(
         name="BRCA1",
