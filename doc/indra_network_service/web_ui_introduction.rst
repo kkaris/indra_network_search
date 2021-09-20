@@ -47,15 +47,6 @@ default and the maximum allowed is 50 results. For unweighted searches this
 number rarely makes a perceivable difference in response time but for
 weighted searches keep this number low for a faster response time.
 
-Highest Degree Node Culling Frequency
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Entering a positive integer here allows the path search to include the highest
-degree node for the first N returned paths, after which that node is added to
-the *Node Blacklist*. This is repeated for the second highest degree node for
-the following N paths, then for the third highest degree node and so forth.
-*Limitations:* This option is only applied to unweighted open search and
-source-target searches.
-
 Signed Search
 ~~~~~~~~~~~~~
 To perform a signed search, click on the drop down menu that says "No sign"
@@ -65,6 +56,15 @@ purpose of signed search, only statements that imply a clear up- or
 downregulation are considered. Currently this mean `IncreaseAmount` and
 `Activation` for upregulation, and `DecreaseAmount` and `Inhibition` for
 downregulation.
+
+Highest Degree Node Culling Frequency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Entering a positive integer here allows the path search to include the highest
+degree node for the first N returned paths, after which that node is added to
+the *Node Blacklist*. This is repeated for the second highest degree node for
+the following N paths, then for the third highest degree node and so forth.
+*Limitations:* This option is only applied to unweighted open search and
+source-target searches.
 
 Allowed Node Namespaces
 ~~~~~~~~~~~~~~~~~~~~~~~
