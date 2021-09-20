@@ -88,10 +88,10 @@ Allowed Node Namespaces
 ~~~~~~~~~~~~~~~~~~~~~~~
 The namespaces included here are the ones that are allowed on any node
 visited in the path search. The namespace of the source and target are
-excluded from this restriction. A namespace in INDRA is the type of
-identifier used to uniquely identify an entity. For example, a chemical can
-be identified using a `CHEBI` identifier and would then be identified in the
-`CHEBI` namespace.
+excluded from this restriction. A namespace in INDRA is the prefix or name of
+the *type* of identifier used to uniquely identify an entity from a specific
+knowledge source. For example, a chemical can be identified using a `CHEBI`
+identifier and would then be identified in the `CHEBI` namespace.
 
 Open Search Options
 ~~~~~~~~~~~~~~~~~~~
