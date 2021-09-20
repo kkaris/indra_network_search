@@ -168,8 +168,8 @@
                       label="Only Database Supported Sources"
                     />
                     <BaseCheckboxBS
-                      v-model="fplx_expand"
-                      label="Set source/target equivalent to their parents"
+                      v-model="fplx_edges"
+                      label="Allow ontological edges"
                     />
                     <BaseCheckboxBS
                       v-model="two_way"
@@ -453,6 +453,7 @@ export default {
       belief_cutoff: 0.0,
       curated_db_only: false,
       fplx_expand: false,
+      fplx_edges: false,
       k_shortest: DefaultValues.K_SHORTEST,
       max_per_node: DefaultValues.MAX_PER_NODE,
       cull_best_node: null,
@@ -577,7 +578,7 @@ export default {
       return {
         source: this.source,
         target: this.target,
-        stmt_filter: this.stmt_filter,
+        stmt_filter: this.fplx_edges ? [...this.stmt_filter, 'fplx'] : this.stmt_filter, // Multiselect; add fplx edges
         filter_curated: this.filter_curated,
         allowed_ns: this.allowed_ns, // Pick from multi-select
         node_blacklist: this.splitTrim(this.node_blacklist_text),
