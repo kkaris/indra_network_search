@@ -31,9 +31,7 @@ Detailed Search Options - General Options
 
 Path Length
 ~~~~~~~~~~~
-The path length to search for. Should be a positive integer. For the purpose
-of this search interface, the path length is defined here as the number of
-edges between the source and the target.
+Only paths of this many edges will be returned. Must be a positive integer.
 
 Max # Paths
 ~~~~~~~~~~~
