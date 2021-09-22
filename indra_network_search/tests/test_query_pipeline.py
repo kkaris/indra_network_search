@@ -891,7 +891,6 @@ def test_dijkstra_z_score():
         expected_res=pr,
     )
 
-
     # Test context weight
     # rest_query = NetworkSearchQuery(filter_curated=False, source='A', mesh_ids=['D000544'],
     #                            strict_mesh_id_filtering=False)
@@ -1403,8 +1402,7 @@ def test_signed_shared_targets():
     )
 
     rest_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1_up.name, target=hdac3_up.name,
-        sign=0
+        filter_curated=False, source=brca1_up.name, target=hdac3_up.name, sign=0
     )
     source_edges = [(brca1_up.signed_node_tuple(), ("AR", 0))]
     target_edges = [(hdac3_up.signed_node_tuple(), ("AR", 0))]
