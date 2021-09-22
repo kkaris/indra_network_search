@@ -105,7 +105,12 @@ class ResultManager:
         # - curated db
         # Order the checks by likelihood of being applied
 
-        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
+        # Skip checking fplx edges as they don't have int hashes
+        if (
+            self._hash_blacklist
+            and stmt_dict["stmt_type"].lower() != "fplx"
+            and int(stmt_dict["stmt_hash"]) in self._hash_blacklist
+        ):
             return False
 
         if (
