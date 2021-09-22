@@ -285,7 +285,10 @@ async def startup_event():
     #  - https://fastapi.tiangolo.com/advanced/events/#startup-event
     #  - https://www.starlette.io/events/
     if DEBUG:
-        from indra_network_search.tests.util import _setup_graph, _setup_signed_node_graph
+        from indra_network_search.tests.util import (
+            _setup_graph,
+            _setup_signed_node_graph,
+        )
 
         dir_graph = _setup_graph()
         sign_node_graph = _setup_signed_node_graph(False)
