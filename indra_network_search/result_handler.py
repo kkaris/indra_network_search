@@ -588,8 +588,8 @@ class DijkstraResultManager(PathResultManager):
             return False
 
         if (
-            self.filter_options.exclude_stmts
-            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
+            self.filter_options.stmt_filter
+            and stmt_dict["stmt_type"].lower() in self.filter_options.stmt_filter
         ):
             return False
 
@@ -646,7 +646,7 @@ class BreadthFirstSearchResultManager(PathResultManager):
         # terminal ns <-- not in post filtering anyway
         #
         # Edge filters:
-        # exclude_stmts ('stmt_filter' NetworkSearchQuery)
+        # stmt_filter
         # hash_blacklist ('edge_hash_blacklist'  NetworkSearchQuery)
         # belief_cutoff
         # curated_db_only
@@ -655,7 +655,7 @@ class BreadthFirstSearchResultManager(PathResultManager):
                 exclude={
                     "allowed_ns",
                     "node_blacklist",
-                    "exclude_stmts",
+                    "stmt_filter",
                     "belief_cutoff",
                     "curated_db_only",
                 },
@@ -734,8 +734,8 @@ class ShortestSimplePathsResultManager(PathResultManager):
             return False
 
         if (
-            self.filter_options.exclude_stmts
-            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
+            self.filter_options.stmt_filter
+            and stmt_dict["stmt_type"].lower() in self.filter_options.stmt_filter
         ):
             return False
 
@@ -947,8 +947,8 @@ class SubgraphResultManager(ResultManager):
         # Check:
         # - stmt_type
         if (
-            self.filter_options.exclude_stmts
-            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
+            self.filter_options.stmt_filter
+            and stmt_dict["stmt_type"].lower() in self.filter_options.stmt_filter
         ):
             return False
 
@@ -957,7 +957,7 @@ class SubgraphResultManager(ResultManager):
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         # Hard code removal of stmt type 'fplx'
-        return FilterOptions(exclude_stmts=["fplx"])
+        return FilterOptions(stmt_filter=["fplx"])
 
     def _get_edge_data_by_hash(
         self, a: Union[str, Node], b: Union[str, Node]

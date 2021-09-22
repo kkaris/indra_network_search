@@ -105,7 +105,7 @@ class ApiOptions(BaseModel):
 class FilterOptions(BaseModel):
     """Options for filtering out nodes or edges"""
 
-    exclude_stmts: List[constr(to_lower=True)] = []
+    stmt_filter: List[constr(to_lower=True)] = []
     allowed_ns: List[constr(to_lower=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
@@ -120,7 +120,7 @@ class FilterOptions(BaseModel):
     def no_filters(self) -> bool:
         """Return True if all filter options are set to defaults"""
         return (
-            len(self.exclude_stmts) == 0
+            len(self.stmt_filter) == 0
             and len(self.allowed_ns) == 0
             and len(self.node_blacklist) == 0
             and self.path_length is None
@@ -132,7 +132,7 @@ class FilterOptions(BaseModel):
         """Return True if the stmt filter options allow all statements"""
         return (
             self.belief_cutoff == 0.0
-            and len(self.exclude_stmts) == 0
+            and len(self.stmt_filter) == 0
             and self.curated_db_only is False
         )
 
@@ -246,7 +246,7 @@ class NetworkSearchQuery(BaseModel):
     def get_filter_options(self) -> FilterOptions:
         """Returns the filter options"""
         return FilterOptions(
-            exclude_stmts=self.stmt_filter,
+            stmt_filter=self.stmt_filter,
             allowed_ns=self.allowed_ns,
             node_blacklist=self.node_blacklist,
             path_length=self.path_length,
