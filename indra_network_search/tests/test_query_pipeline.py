@@ -554,31 +554,21 @@ def test_ssp_reverse():
 
 
 def test_ssp_stmt_filter():
-    # Filter should remove ('testosterone', 'CHEK1'), ('NR2C2', 'CHEK1')
+    # Filter should only allow ('BRCA1', 'AR'), ('AR', 'CHEK1'), ('CHEK1',
+    # 'BRCA2')
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     stmt_filter_query = NetworkSearchQuery(
         filter_curated=False,
         source="BRCA1",
         target="BRCA2",
-        stmt_filter=["Phosphorylation"],
+        stmt_filter=["Activation"],
     )
-    stmt_filter_paths = [
-        ("BRCA1", n, "CHEK1", "BRCA2") for n in ["AR", "MBD2", "PATZ1"]
-    ]
-    stmt_filter_paths5 = [
-        ("BRCA1", n, "CHEK1", "NCOA", "BRCA2") for n in ["AR", "MBD2", "PATZ1"]
-    ]
+    stmt_filter_paths = [("BRCA1", "AR", "CHEK1", "BRCA2")]
 
     paths = {
         4: _get_path_list(
             str_paths=stmt_filter_paths, graph=unsigned_graph, large=False, signed=False
-        ),
-        5: _get_path_list(
-            str_paths=stmt_filter_paths5,
-            graph=unsigned_graph,
-            large=False,
-            signed=False,
         ),
     }
     expected_paths: PathResultData = PathResultData(
@@ -900,7 +890,6 @@ def test_dijkstra_z_score():
         rest_query=rest_query,
         expected_res=pr,
     )
-
 
     # Test context weight
     # rest_query = NetworkSearchQuery(filter_curated=False, source='A', mesh_ids=['D000544'],
@@ -1345,6 +1334,53 @@ def test_shared_targets():
     )
 
 
+def test_shared_targets_stmt_filter():
+    brca1 = Node(
+        name="BRCA1",
+        namespace="HGNC",
+        identifier="1100",
+        lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
+    )
+
+    # 'HDAC3': {'ns': 'HGNC', 'id': '4854'}
+    hdac3 = Node(
+        name="HDAC3",
+        namespace="HGNC",
+        identifier="4854",
+        lookup=get_identifiers_url(db_name="HGNC", db_id="4854"),
+    )
+
+    # Check shared targets
+    rest_query = NetworkSearchQuery(
+        filter_curated=False, source=brca1.name, target=hdac3.name,
+        stmt_filter=["Activation"]
+    )
+    source_edges = [(brca1.name, "AR")]
+    target_edges = [(hdac3.name, "AR")]
+    stq = SharedTargetsQuery(query=rest_query)
+    expected_results = SharedInteractorsResults(
+        source_data=_get_edge_data_list(
+            edge_list=source_edges,
+            graph=expanded_unsigned_graph,
+            large=True,
+            signed=False,
+        ),
+        target_data=_get_edge_data_list(
+            edge_list=target_edges,
+            graph=expanded_unsigned_graph,
+            large=True,
+            signed=False,
+        ),
+        downstream=True,
+    )
+    assert _check_shared_interactors(
+        rest_query=rest_query,
+        query=stq,
+        graph=expanded_unsigned_graph,
+        expected_res=expected_results,
+    )
+
+
 def test_shared_regulators():
     # 'CHEK1': {'ns': 'HGNC', 'id': '1925'}
     chek1 = Node(
@@ -1413,8 +1449,7 @@ def test_signed_shared_targets():
     )
 
     rest_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1_up.name, target=hdac3_up.name,
-        sign=0
+        filter_curated=False, source=brca1_up.name, target=hdac3_up.name, sign=0
     )
     source_edges = [(brca1_up.signed_node_tuple(), ("AR", 0))]
     target_edges = [(hdac3_up.signed_node_tuple(), ("AR", 0))]

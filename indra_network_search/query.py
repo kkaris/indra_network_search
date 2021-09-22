@@ -812,4 +812,5 @@ alg_name_query_mapping = {
     "shared_regulators": SharedRegulatorsQuery,
     "shared_targets": SharedTargetsQuery,
     get_subgraph_edges.__name__: SubgraphQuery,
+    direct_multi_interactors.__name__: MultiInteractorsQuery,
 }

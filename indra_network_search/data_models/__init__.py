@@ -6,7 +6,7 @@ todo:
  - Use constr(to_lower=True) in appropriate places to enforce lowercase:
     + node_blacklist
     + allowed_ns
-    + stmt_filter (excluded statement types)
+    + stmt_filter (allowed statement types)
  - Use constr(min_length=N) to enforce that str fields are not empty
  - Figure out how to use conlist and other con* enforcers for e.g.:
     + Enforce hashes to be int and/or str
@@ -26,7 +26,8 @@ from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
-from pydantic import BaseModel, validator, Extra, constr, conint, confloat, HttpUrl
+from pydantic import BaseModel, validator, Extra, constr, conint, confloat, \
+    HttpUrl, conlist
 
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
@@ -105,7 +106,7 @@ class ApiOptions(BaseModel):
 class FilterOptions(BaseModel):
     """Options for filtering out nodes or edges"""
 
-    exclude_stmts: List[constr(to_lower=True)] = []
+    stmt_filter: List[constr(to_lower=True)] = []
     allowed_ns: List[constr(to_lower=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
@@ -120,7 +121,7 @@ class FilterOptions(BaseModel):
     def no_filters(self) -> bool:
         """Return True if all filter options are set to defaults"""
         return (
-            len(self.exclude_stmts) == 0
+            len(self.stmt_filter) == 0
             and len(self.allowed_ns) == 0
             and len(self.node_blacklist) == 0
             and self.path_length is None
@@ -132,7 +133,7 @@ class FilterOptions(BaseModel):
         """Return True if the stmt filter options allow all statements"""
         return (
             self.belief_cutoff == 0.0
-            and len(self.exclude_stmts) == 0
+            and len(self.stmt_filter) == 0
             and self.curated_db_only is False
         )
 
@@ -246,7 +247,7 @@ class NetworkSearchQuery(BaseModel):
     def get_filter_options(self) -> FilterOptions:
         """Returns the filter options"""
         return FilterOptions(
-            exclude_stmts=self.stmt_filter,
+            stmt_filter=self.stmt_filter,
             allowed_ns=self.allowed_ns,
             node_blacklist=self.node_blacklist,
             path_length=self.path_length,
@@ -581,20 +582,7 @@ class MultiInteractorsRestQuery(BaseModel):
 class SubgraphRestQuery(BaseModel):
     """Subgraph query"""
 
-    nodes: List[Node]
-
-    @validator("nodes")
-    def node_check(cls, node_list: List[Node]):
-        """Validate there is at least one node in the list"""
-        if len(node_list) < 1:
-            raise ValueError("Must have at least one node in attribute " '"nodes"')
-        max_nodes = 4000
-        if len(node_list) > max_nodes:
-            raise ValueError(
-                f"Maximum allowed nodes is {max_nodes}, "
-                f"{len(node_list)} was provided."
-            )
-        return node_list
+    nodes: conlist(item_type=Node, min_items=1, max_items=4000)
 
 
 class SubgraphOptions(BaseModel):

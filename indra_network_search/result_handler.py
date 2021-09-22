@@ -8,6 +8,7 @@ The result manager deals with things like:
 - Filtering paths when it's not done in the algorithm
 
 """
+# TodO: always filter out statement from the hash blacklist for all results
 import logging
 from datetime import datetime, timedelta
 from itertools import product
@@ -97,7 +98,32 @@ class ResultManager:
         self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
     ) -> bool:
         """Pass an individual statement based statement dict content"""
-        raise NotImplementedError
+        # Check:
+        # - stmt_type
+        # - hash_blacklist
+        # - belief
+        # - curated db
+        # Order the checks by likelihood of being applied
+
+        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
+            return False
+
+        if (
+            self.filter_options.stmt_filter
+            and stmt_dict["stmt_type"].lower() not in self.filter_options.stmt_filter
+        ):
+            return False
+
+        if (
+            self.filter_options.belief_cutoff > 0.0
+            and self.filter_options.belief_cutoff > stmt_dict["belief"]
+        ):
+            return False
+
+        if self.filter_options.curated_db_only and not stmt_dict["curated"]:
+            return False
+
+        return True
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -346,11 +372,6 @@ class UIResultManager(ResultManager):
     def _pass_node(self, node: Node) -> bool:
         raise NotImplementedError
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        raise NotImplementedError
-
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
@@ -401,11 +422,6 @@ class PathResultManager(UIResultManager):
         raise NotImplementedError
 
     def _pass_node(self, node: Node) -> bool:
-        raise NotImplementedError
-
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
         raise NotImplementedError
 
     def _build_paths(self):
@@ -511,6 +527,10 @@ class PathResultManager(UIResultManager):
             except KeyError:
                 self.paths[len(path)] = [path_data]
             paths_built += 1
+
+            # Caution: for reverse open searches, path is reversed here. This
+            # doesn't affect _get_cull_values currently, but remember this
+            # for future updates in this function
             prev_path = path
 
     def _get_results(self) -> PathResultData:
@@ -575,35 +595,6 @@ class DijkstraResultManager(PathResultManager):
 
         return True
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # Check:
-        # - stmt_type
-        # - hash_blacklist
-        # - belief
-        # - curated db
-        # Order the checks by likelihood of being applied
-        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
-            return False
-
-        if (
-            self.filter_options.exclude_stmts
-            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
-        ):
-            return False
-
-        if (
-            self.filter_options.belief_cutoff > 0.0
-            and self.filter_options.belief_cutoff > stmt_dict["belief"]
-        ):
-            return False
-
-        if self.filter_options.curated_db_only and not stmt_dict["curated"]:
-            return False
-
-        return True
-
 
 class BreadthFirstSearchResultManager(PathResultManager):
     """Handles results from bfs_search"""
@@ -644,20 +635,11 @@ class BreadthFirstSearchResultManager(PathResultManager):
         #              longer than path_len, but also allows paths that are
         #              shorter
         # terminal ns <-- not in post filtering anyway
-        #
-        # Edge filters:
-        # exclude_stmts ('stmt_filter' NetworkSearchQuery)
-        # hash_blacklist ('edge_hash_blacklist'  NetworkSearchQuery)
-        # belief_cutoff
-        # curated_db_only
         return FilterOptions(
             **filter_options.dict(
                 exclude={
                     "allowed_ns",
                     "node_blacklist",
-                    "exclude_stmts",
-                    "belief_cutoff",
-                    "curated_db_only",
                 },
                 exclude_defaults=True,
             )
@@ -665,13 +647,6 @@ class BreadthFirstSearchResultManager(PathResultManager):
 
     def _pass_node(self, node: Node) -> bool:
         # allowed_ns, node_blacklist and terminal_ns are all checked in
-        # bfs_search
-        return True
-
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # stmt_type, hash_blacklist, belief, curated already applied in
         # bfs_search
         return True
 
@@ -707,7 +682,7 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # Filters already done in algorithm
+        # Filters already done in algorithm:
         #
         #
         return FilterOptions(
@@ -718,34 +693,6 @@ class ShortestSimplePathsResultManager(PathResultManager):
         # Check:
         # - allowed_ns
         if node.namespace.lower() not in self.filter_options.allowed_ns:
-            return False
-
-        return True
-
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # Check:
-        # - stmt_type
-        # - hash_blacklist
-        # - belief
-        # - curated
-        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
-            return False
-
-        if (
-            self.filter_options.exclude_stmts
-            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
-        ):
-            return False
-
-        if (
-            self.filter_options.belief_cutoff > 0.0
-            and self.filter_options.belief_cutoff > stmt_dict["belief"]
-        ):
-            return False
-
-        if self.filter_options.curated_db_only and not stmt_dict["curated"]:
             return False
 
         return True
@@ -784,18 +731,20 @@ class SharedInteractorsResultManager(UIResultManager):
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # All filters are applied in algorithm
-        return FilterOptions()
+        # Only add stmt data filters
+        return FilterOptions(
+            **filter_options.dict(
+                include={
+                    "stmt_filter",
+                    "belief_cutoff",
+                    "curated_db_only",
+                },
+                exclude_defaults=True,
+            )
+        )
 
     def _pass_node(self, node: Node) -> bool:
         # allowed_ns, node_blacklist are both check in algorithm
-        return True
-
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # stmt_type, hash_blacklist, belief, curated are all checked in
-        # algorithm
         return True
 
     def _get_results(self) -> SharedInteractorsResults:
@@ -861,12 +810,6 @@ class OntologyResultManager(UIResultManager):
         # No filters are applied
         return True
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # No filters are applied
-        return True
-
     def _get_parents(self):
         for name, ns, _id, id_url in self.path_gen:
             if self.timeout and datetime.utcnow() - self.start_time > timedelta(
@@ -897,6 +840,8 @@ def _get_cull_values(
     graph: DiGraph,
     weight: Optional[str] = None,
 ) -> Tuple[Set[str], Set[str]]:
+    # Caution: prev path could be reversed if the search is e.g. upstream open
+    # search. This function is invariant to order, so this is currently OK
     if (
         added_paths >= cull_best_node
         and added_paths % cull_best_node == 0
@@ -944,20 +889,18 @@ class SubgraphResultManager(ResultManager):
     def _pass_stmt(
         self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
     ) -> bool:
-        # Check:
-        # - stmt_type
-        if (
-            self.filter_options.exclude_stmts
-            and stmt_dict["stmt_type"].lower() in self.filter_options.exclude_stmts
-        ):
+        # Overwrite _pass_stmt() from parent to be able to filter out fplx
+        # edges
+        if stmt_dict["stmt_type"].lower() == "fplx":
             return False
 
         return True
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # Hard code removal of stmt type 'fplx'
-        return FilterOptions(exclude_stmts=["fplx"])
+        # Add fplx as allowed type so that pass stmt gets called and overwrite
+        # _pass_stmt to remove edges with it
+        return FilterOptions(stmt_filter=["fplx"])
 
     def _get_edge_data_by_hash(
         self, a: Union[str, Node], b: Union[str, Node]
@@ -1102,17 +1045,19 @@ class MultiInteractorsResultManager(ResultManager):
         # Node blacklist and allowed ns are checked in direct_multi_interactors
         return True
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # belief, stmt type, curated db, source filter, hash blacklist are
-        # checked in direct_multi_interactors
-        return True
-
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # No filters applied
-        return FilterOptions()
+        # Add stmt data filters
+        return FilterOptions(
+            **filter_options.dict(
+                include={
+                    "stmt_type",
+                    "belief_cutoff",
+                    "curated_db_only",
+                },
+                exclude_defaults=True,
+            )
+        )
 
     def _get_edge_iter(self) -> Iterable[Tuple[Node, Node]]:
         """Return all edges as (StrNode, StrNode)"""
@@ -1167,4 +1112,5 @@ alg_manager_mapping = {
     "shared_regulators": SharedInteractorsResultManager,
     shared_parents.__name__: OntologyResultManager,
     get_subgraph_edges.__name__: SubgraphResultManager,
+    direct_multi_interactors.__name__: MultiInteractorsResultManager,
 }
