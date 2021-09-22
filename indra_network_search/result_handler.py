@@ -526,6 +526,10 @@ class PathResultManager(UIResultManager):
             except KeyError:
                 self.paths[len(path)] = [path_data]
             paths_built += 1
+
+            # Caution: for reverse open searches, path is reversed here. This
+            # doesn't affect _get_cull_values currently, but remember this
+            # for future updates in this function
             prev_path = path
 
     def _get_results(self) -> PathResultData:
@@ -835,6 +839,8 @@ def _get_cull_values(
     graph: DiGraph,
     weight: Optional[str] = None,
 ) -> Tuple[Set[str], Set[str]]:
+    # Caution: prev path could be reversed if the search is e.g. upstream open
+    # search. This function is invariant to order, so this is currently OK
     if (
         added_paths >= cull_best_node
         and added_paths % cull_best_node == 0
