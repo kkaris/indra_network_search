@@ -1,49 +1,47 @@
 <template>
-  <div class="container">
-    <div class="row d-flex justify-content-center">
-      <div class="col text-start text-nowrap">
-        <a
-          role="button"
-          class="text-reset"
-          data-bs-toggle="collapse"
-          :href="`#${strUUID}`"
-          :aria-expanded="false"
-          :aria-controls="strUUID"
-          @click="toggleShowFlag()"
-        >
-          <i
-            v-if="isExpanded"
-            title="Click to collapse"
-            class="bi-dash-circle"
-          ></i>
-          <i v-else title="Click to expand" class="bi-plus-circle"></i>
+  <div class="row d-flex justify-content-center">
+    <div class="col text-start text-nowrap">
+      <a
+        role="button"
+        class="text-reset"
+        data-bs-toggle="collapse"
+        :href="`#${strUUID}`"
+        :aria-expanded="false"
+        :aria-controls="strUUID"
+        @click="toggleShowFlag()"
+      >
+        <i
+          v-if="isExpanded"
+          title="Click to collapse"
+          class="bi-dash-circle"
+        ></i>
+        <i v-else title="Click to expand" class="bi-plus-circle"></i>
+      </a>
+      &nbsp;
+      <b title="Edge weight" v-if="showWeight">{{ weightToShow }}</b>
+    </div>
+    <div class="col-5">
+      <NodeModal v-bind="subjNode" />
+      <i class="bi bi-arrow-right"></i>
+      <NodeModal v-bind="objNode" />
+    </div>
+    <div class="col-5 text-end">
+      <SourceDisplay :source_counts="source_counts" />
+    </div>
+    <div class="col">
+      <span>
+        <a :href="db_url_edge">
+          <i class="bi bi-box-arrow-up-right"></i>
         </a>
-        &nbsp;
-        <b title="Edge weight" v-if="showWeight">{{ weightToShow }}</b>
-      </div>
-      <div class="col-5">
-        <NodeModal v-bind="subjNode" />
-        <i class="bi bi-arrow-right"></i>
-        <NodeModal v-bind="objNode" />
-      </div>
-      <div class="col-5 text-end">
-        <SourceDisplay :source_counts="source_counts" />
-      </div>
-      <div class="col">
-        <span>
-          <a :href="db_url_edge">
-            <i class="bi bi-box-arrow-up-right"></i>
-          </a>
-        </span>
-      </div>
+      </span>
     </div>
-    <div class="row collapse" :id="strUUID">
-      <EdgeSupport
-        :subj-node="subjNode"
-        :obj-node="objNode"
-        :stmt-data-obj="statements"
-      />
-    </div>
+  </div>
+  <div class="row collapse" :id="strUUID">
+    <EdgeSupport
+      :subj-node="subjNode"
+      :obj-node="objNode"
+      :stmt-data-obj="statements"
+    />
   </div>
 </template>
 
