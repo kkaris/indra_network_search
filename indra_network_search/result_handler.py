@@ -1096,4 +1096,5 @@ alg_manager_mapping = {
     "shared_regulators": SharedInteractorsResultManager,
     shared_parents.__name__: OntologyResultManager,
     get_subgraph_edges.__name__: SubgraphResultManager,
+    direct_multi_interactors.__name__: MultiInteractorsResultManager,
 }
