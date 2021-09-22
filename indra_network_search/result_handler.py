@@ -735,7 +735,7 @@ class SharedInteractorsResultManager(UIResultManager):
         return FilterOptions(
             **filter_options.dict(
                 include={
-                    "stmt_type",
+                    "stmt_filter",
                     "belief_cutoff",
                     "curated_db_only",
                 },
