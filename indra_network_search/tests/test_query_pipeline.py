@@ -1334,6 +1334,53 @@ def test_shared_targets():
     )
 
 
+def test_shared_targets_stmt_filter():
+    brca1 = Node(
+        name="BRCA1",
+        namespace="HGNC",
+        identifier="1100",
+        lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
+    )
+
+    # 'HDAC3': {'ns': 'HGNC', 'id': '4854'}
+    hdac3 = Node(
+        name="HDAC3",
+        namespace="HGNC",
+        identifier="4854",
+        lookup=get_identifiers_url(db_name="HGNC", db_id="4854"),
+    )
+
+    # Check shared targets
+    rest_query = NetworkSearchQuery(
+        filter_curated=False, source=brca1.name, target=hdac3.name,
+        stmt_filter=["Activation"]
+    )
+    source_edges = [(brca1.name, "AR")]
+    target_edges = [(hdac3.name, "AR")]
+    stq = SharedTargetsQuery(query=rest_query)
+    expected_results = SharedInteractorsResults(
+        source_data=_get_edge_data_list(
+            edge_list=source_edges,
+            graph=expanded_unsigned_graph,
+            large=True,
+            signed=False,
+        ),
+        target_data=_get_edge_data_list(
+            edge_list=target_edges,
+            graph=expanded_unsigned_graph,
+            large=True,
+            signed=False,
+        ),
+        downstream=True,
+    )
+    assert _check_shared_interactors(
+        rest_query=rest_query,
+        query=stq,
+        graph=expanded_unsigned_graph,
+        expected_res=expected_results,
+    )
+
+
 def test_shared_regulators():
     # 'CHEK1': {'ns': 'HGNC', 'id': '1925'}
     chek1 = Node(
