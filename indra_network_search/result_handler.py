@@ -889,8 +889,8 @@ class SubgraphResultManager(ResultManager):
     def _pass_stmt(
         self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
     ) -> bool:
-        # Check:
-        # - stmt_type
+        # Overwrite _pass_stmt() from parent to be able to filter out fplx
+        # edges
         if stmt_dict["stmt_type"].lower() == "fplx":
             return False
 
