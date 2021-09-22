@@ -25,7 +25,7 @@
       <i class="bi bi-arrow-right"></i>
       <NodeModal v-bind="objNode" />
     </div>
-    <div class="col-5 text-end">
+    <div class="col-4 text-end">
       <SourceDisplay :source_counts="source_counts" />
     </div>
     <div class="col">
