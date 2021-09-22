@@ -1413,8 +1413,10 @@ def test_shared_targets_stmt_filter():
 
     # Check shared targets
     rest_query = NetworkSearchQuery(
-        filter_curated=False, source=brca1.name, target=hdac3.name,
-        stmt_filter=["Activation"]
+        filter_curated=False,
+        source=brca1.name,
+        target=hdac3.name,
+        stmt_filter=["Activation"],
     )
     source_edges = [(brca1.name, "AR")]
     target_edges = [(hdac3.name, "AR")]
