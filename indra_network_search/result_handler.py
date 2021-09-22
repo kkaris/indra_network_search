@@ -8,6 +8,7 @@ The result manager deals with things like:
 - Filtering paths when it's not done in the algorithm
 
 """
+# TodO: always filter out statement from the hash blacklist for all results
 import logging
 from datetime import datetime, timedelta
 from itertools import product
@@ -634,20 +635,11 @@ class BreadthFirstSearchResultManager(PathResultManager):
         #              longer than path_len, but also allows paths that are
         #              shorter
         # terminal ns <-- not in post filtering anyway
-        #
-        # Edge filters:
-        # stmt_filter
-        # hash_blacklist ('edge_hash_blacklist'  NetworkSearchQuery)
-        # belief_cutoff
-        # curated_db_only
         return FilterOptions(
             **filter_options.dict(
                 exclude={
                     "allowed_ns",
                     "node_blacklist",
-                    "stmt_filter",
-                    "belief_cutoff",
-                    "curated_db_only",
                 },
                 exclude_defaults=True,
             )
@@ -690,7 +682,7 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # Filters already done in algorithm
+        # Filters already done in algorithm:
         #
         #
         return FilterOptions(
@@ -739,8 +731,17 @@ class SharedInteractorsResultManager(UIResultManager):
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # All filters are applied in algorithm
-        return FilterOptions()
+        # Only add stmt data filters
+        return FilterOptions(
+            **filter_options.dict(
+                include={
+                    "stmt_type",
+                    "belief_cutoff",
+                    "curated_db_only",
+                },
+                exclude_defaults=True,
+            )
+        )
 
     def _pass_node(self, node: Node) -> bool:
         # allowed_ns, node_blacklist are both check in algorithm
@@ -1046,8 +1047,17 @@ class MultiInteractorsResultManager(ResultManager):
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # No filters applied
-        return FilterOptions()
+        # Add stmt data filters
+        return FilterOptions(
+            **filter_options.dict(
+                include={
+                    "stmt_type",
+                    "belief_cutoff",
+                    "curated_db_only",
+                },
+                exclude_defaults=True,
+            )
+        )
 
     def _get_edge_iter(self) -> Iterable[Tuple[Node, Node]]:
         """Return all edges as (StrNode, StrNode)"""
