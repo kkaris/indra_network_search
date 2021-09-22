@@ -582,6 +582,39 @@ def test_ssp_stmt_filter():
     )
 
 
+def test_ssp_stmt_filter_fplx():
+    # Filter should remove ('testosterone', 'CHEK1'), ('NR2C2', 'CHEK1')
+    # The addition of fplx and having FPLX:BRCA as target should make paths
+    # one step longer and have BRCA as last node compared to the test above
+    brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
+    brca = Node(name="BRCA", namespace="FPLX", identifier="BRCA")
+    stmt_filter_query = NetworkSearchQuery(
+        filter_curated=False,
+        source="BRCA1",
+        target="BRCA",
+        stmt_filter=["Activation", "fplx"],
+    )
+    stmt_filter_paths5 = [("BRCA1", "AR", "CHEK1", "BRCA2", "BRCA")]
+
+    paths = {
+        5: _get_path_list(
+            str_paths=stmt_filter_paths5,
+            graph=unsigned_graph,
+            large=False,
+            signed=False,
+        ),
+    }
+    expected_paths: PathResultData = PathResultData(
+        source=brca1, target=brca, paths=paths
+    )
+    assert _check_path_queries(
+        graph=unsigned_graph,
+        QueryCls=ShortestSimplePathsQuery,
+        rest_query=stmt_filter_query,
+        expected_res=expected_paths,
+    )
+
+
 def test_ssp_edge_hash_blacklist():
     # Remove ('BRCA1', 'AR') ('AR', 'CHEK1')
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
