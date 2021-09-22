@@ -97,7 +97,32 @@ class ResultManager:
         self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
     ) -> bool:
         """Pass an individual statement based statement dict content"""
-        raise NotImplementedError
+        # Check:
+        # - stmt_type
+        # - hash_blacklist
+        # - belief
+        # - curated db
+        # Order the checks by likelihood of being applied
+
+        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
+            return False
+
+        if (
+            self.filter_options.stmt_filter
+            and stmt_dict["stmt_type"].lower() not in self.filter_options.stmt_filter
+        ):
+            return False
+
+        if (
+            self.filter_options.belief_cutoff > 0.0
+            and self.filter_options.belief_cutoff > stmt_dict["belief"]
+        ):
+            return False
+
+        if self.filter_options.curated_db_only and not stmt_dict["curated"]:
+            return False
+
+        return True
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -346,11 +371,6 @@ class UIResultManager(ResultManager):
     def _pass_node(self, node: Node) -> bool:
         raise NotImplementedError
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        raise NotImplementedError
-
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
@@ -401,11 +421,6 @@ class PathResultManager(UIResultManager):
         raise NotImplementedError
 
     def _pass_node(self, node: Node) -> bool:
-        raise NotImplementedError
-
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
         raise NotImplementedError
 
     def _build_paths(self):
@@ -575,35 +590,6 @@ class DijkstraResultManager(PathResultManager):
 
         return True
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # Check:
-        # - stmt_type
-        # - hash_blacklist
-        # - belief
-        # - curated db
-        # Order the checks by likelihood of being applied
-        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
-            return False
-
-        if (
-            self.filter_options.stmt_filter
-            and stmt_dict["stmt_type"].lower() in self.filter_options.stmt_filter
-        ):
-            return False
-
-        if (
-            self.filter_options.belief_cutoff > 0.0
-            and self.filter_options.belief_cutoff > stmt_dict["belief"]
-        ):
-            return False
-
-        if self.filter_options.curated_db_only and not stmt_dict["curated"]:
-            return False
-
-        return True
-
 
 class BreadthFirstSearchResultManager(PathResultManager):
     """Handles results from bfs_search"""
@@ -668,13 +654,6 @@ class BreadthFirstSearchResultManager(PathResultManager):
         # bfs_search
         return True
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # stmt_type, hash_blacklist, belief, curated already applied in
-        # bfs_search
-        return True
-
 
 class ShortestSimplePathsResultManager(PathResultManager):
     """Handles results from shortest_simple_paths"""
@@ -722,34 +701,6 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
         return True
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # Check:
-        # - stmt_type
-        # - hash_blacklist
-        # - belief
-        # - curated
-        if self._hash_blacklist and int(stmt_dict["stmt_hash"]) in self._hash_blacklist:
-            return False
-
-        if (
-            self.filter_options.stmt_filter
-            and stmt_dict["stmt_type"].lower() in self.filter_options.stmt_filter
-        ):
-            return False
-
-        if (
-            self.filter_options.belief_cutoff > 0.0
-            and self.filter_options.belief_cutoff > stmt_dict["belief"]
-        ):
-            return False
-
-        if self.filter_options.curated_db_only and not stmt_dict["curated"]:
-            return False
-
-        return True
-
 
 class SharedInteractorsResultManager(UIResultManager):
     """Handles results from shared_interactors, both up and downstream
@@ -789,13 +740,6 @@ class SharedInteractorsResultManager(UIResultManager):
 
     def _pass_node(self, node: Node) -> bool:
         # allowed_ns, node_blacklist are both check in algorithm
-        return True
-
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # stmt_type, hash_blacklist, belief, curated are all checked in
-        # algorithm
         return True
 
     def _get_results(self) -> SharedInteractorsResults:
@@ -858,12 +802,6 @@ class OntologyResultManager(UIResultManager):
         return FilterOptions()
 
     def _pass_node(self, node: Node) -> bool:
-        # No filters are applied
-        return True
-
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
         # No filters are applied
         return True
 
@@ -946,17 +884,15 @@ class SubgraphResultManager(ResultManager):
     ) -> bool:
         # Check:
         # - stmt_type
-        if (
-            self.filter_options.stmt_filter
-            and stmt_dict["stmt_type"].lower() in self.filter_options.stmt_filter
-        ):
+        if stmt_dict["stmt_type"].lower() == "fplx":
             return False
 
         return True
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # Hard code removal of stmt type 'fplx'
+        # Add fplx as allowed type so that pass stmt gets called and overwrite
+        # _pass_stmt to remove edges with it
         return FilterOptions(stmt_filter=["fplx"])
 
     def _get_edge_data_by_hash(
@@ -1100,13 +1036,6 @@ class MultiInteractorsResultManager(ResultManager):
 
     def _pass_node(self, node: Node) -> bool:
         # Node blacklist and allowed ns are checked in direct_multi_interactors
-        return True
-
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
-        # belief, stmt type, curated db, source filter, hash blacklist are
-        # checked in direct_multi_interactors
         return True
 
     @staticmethod
