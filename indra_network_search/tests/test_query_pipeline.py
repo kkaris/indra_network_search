@@ -554,31 +554,21 @@ def test_ssp_reverse():
 
 
 def test_ssp_stmt_filter():
-    # Filter should remove ('testosterone', 'CHEK1'), ('NR2C2', 'CHEK1')
+    # Filter should only allow ('BRCA1', 'AR'), ('AR', 'CHEK1'), ('CHEK1',
+    # 'BRCA2')
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")
     brca2 = Node(name="BRCA2", namespace="HGNC", identifier="1101")
     stmt_filter_query = NetworkSearchQuery(
         filter_curated=False,
         source="BRCA1",
         target="BRCA2",
-        stmt_filter=["Phosphorylation"],
+        stmt_filter=["Activation"],
     )
-    stmt_filter_paths = [
-        ("BRCA1", n, "CHEK1", "BRCA2") for n in ["AR", "MBD2", "PATZ1"]
-    ]
-    stmt_filter_paths5 = [
-        ("BRCA1", n, "CHEK1", "NCOA", "BRCA2") for n in ["AR", "MBD2", "PATZ1"]
-    ]
+    stmt_filter_paths = [("BRCA1", "AR", "CHEK1", "BRCA2")]
 
     paths = {
         4: _get_path_list(
             str_paths=stmt_filter_paths, graph=unsigned_graph, large=False, signed=False
-        ),
-        5: _get_path_list(
-            str_paths=stmt_filter_paths5,
-            graph=unsigned_graph,
-            large=False,
-            signed=False,
         ),
     }
     expected_paths: PathResultData = PathResultData(
