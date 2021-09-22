@@ -6,7 +6,7 @@ todo:
  - Use constr(to_lower=True) in appropriate places to enforce lowercase:
     + node_blacklist
     + allowed_ns
-    + stmt_filter (excluded statement types)
+    + stmt_filter (allowed statement types)
  - Use constr(min_length=N) to enforce that str fields are not empty
  - Figure out how to use conlist and other con* enforcers for e.g.:
     + Enforce hashes to be int and/or str
@@ -26,7 +26,8 @@ from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
-from pydantic import BaseModel, validator, Extra, constr, conint, confloat, HttpUrl
+from pydantic import BaseModel, validator, Extra, constr, conint, confloat, \
+    HttpUrl, conlist
 
 from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
@@ -581,20 +582,7 @@ class MultiInteractorsRestQuery(BaseModel):
 class SubgraphRestQuery(BaseModel):
     """Subgraph query"""
 
-    nodes: List[Node]
-
-    @validator("nodes")
-    def node_check(cls, node_list: List[Node]):
-        """Validate there is at least one node in the list"""
-        if len(node_list) < 1:
-            raise ValueError("Must have at least one node in attribute " '"nodes"')
-        max_nodes = 4000
-        if len(node_list) > max_nodes:
-            raise ValueError(
-                f"Maximum allowed nodes is {max_nodes}, "
-                f"{len(node_list)} was provided."
-            )
-        return node_list
+    nodes: conlist(item_type=Node, min_items=1, max_items=4000)
 
 
 class SubgraphOptions(BaseModel):
