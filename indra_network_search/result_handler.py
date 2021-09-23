@@ -25,8 +25,7 @@ from typing import (
     Tuple,
 )
 
-from networkx import DiGraph
-
+from networkx import DiGraph, NetworkXNoPath
 from depmap_analysis.network_functions.famplex_functions import get_identifiers_url
 from indra.explanation.pathfinding import (
     shortest_simple_paths,
@@ -540,9 +539,15 @@ class PathResultManager(UIResultManager):
 
     def _get_results(self) -> PathResultData:
         """Returns the result for the associated algorithm"""
-        if len(self.paths) == 0:
-            self._build_paths()
-        return PathResultData(source=self.source, target=self.target, paths=self.paths)
+        try:
+            if len(self.paths) == 0:
+                self._build_paths()
+            return PathResultData(
+                source=self.source, target=self.target, paths=self.paths
+            )
+        except NetworkXNoPath as exc:
+            logger.warning(str(exc))
+            return PathResultData(paths={})
 
 
 class DijkstraResultManager(PathResultManager):
