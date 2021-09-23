@@ -551,18 +551,7 @@ export default {
         { label: "HP (Phenotypic Abnormality)", value: "hp" },
         { label: "EFO (Experimental factors)", value: "efo" },
       ],
-      // Follows indra_network_search.data_models::Results
-      results: {
-        query_hash: "",
-        time_limit: 30.0,
-        timed_out: false,
-        hashes: [],
-        path_results: {},
-        reverse_path_results: {},
-        ontology_results: {},
-        shared_target_results: {},
-        shared_regulators_results: {},
-      },
+      results: DefaultValues.EMPTY_RESULTS,
       submissionError: null,
       fillFormError: false, // Maybe make it an Array and store all errors
     };
@@ -711,6 +700,7 @@ export default {
         .catch((error) => {
           console.log(error);
           this.submissionError = error.toJSON();
+          this.results = DefaultValues.EMPTY_RESULTS;
         })
         .then(() => {
           this.isLoading = false;

@@ -6,6 +6,7 @@ const CONST_TK = 10;
 const USER_TIMEOUT = 30;
 const WEIGHTED = "unweighted";
 const EMPTY_RESULTS = {
+    // Follows indra_network_search.data_models::Results
     query_hash: "",
     time_limit: 30.0,
     timed_out: false,
