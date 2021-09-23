@@ -93,6 +93,22 @@ the *type* of identifier used to uniquely identify an entity from a specific
 knowledge source. For example, a chemical can be identified using a `CHEBI`
 identifier and would then be identified in the `CHEBI` namespace.
 
+Checkboxes
+~~~~~~~~~~
+The following options are available as checkboxes:
+
+- **Only Database Supported Sources:** Check this box to enforce that all
+  edges must be supported by at least one statement sourced from curated
+  databases like PathwayCommons and Signor
+- **Allow Ontological Edges**: Check this box to allow directed edges that go
+  from an entity to its ontological parent, e.g. from the NFKB1 sub-unit to
+  the NFkappaB complex.
+- **Include Reverse Search**: Check this box to also search for paths with
+  source and target swapped.
+- **Shared Regulators**: Check this box to include a search for common upstream
+  nodes of source and target (only available when source and target are both
+  specified)
+
 Open Search Options
 ~~~~~~~~~~~~~~~~~~~
 Options under the Open Search Options are only applied during open ended
