@@ -97,17 +97,29 @@ Checkboxes
 ~~~~~~~~~~
 The following options are available as checkboxes:
 
-- **Only Database Supported Sources:** Check this box to enforce that all
+- **Only Database Supported Sources**: Check this box to enforce that all
   edges must be supported by at least one statement sourced from curated
   databases like PathwayCommons and Signor
 - **Allow Ontological Edges**: Check this box to allow directed edges that go
   from an entity to its ontological parent, e.g. from the NFKB1 sub-unit to
   the NFkappaB complex.
 - **Include Reverse Search**: Check this box to also search for paths with
-  source and target swapped.
-- **Include Search for Shared Regulators of Source/Target**: Check this box to include a search for common upstream
-  nodes of source and target (only available when source and target are both
-  specified)
+  source and target swapped. With this option, the reverse search *from*
+  target *to* source is done as well as the original search from source to
+  target. If the timeout is reached (see below) before the reverse search can
+  start, the reverse search will not return any paths. If the timeout is
+  reached during the reverse search, fewer paths than for the original search
+  will be returned.
+- **Include Search for Shared Regulators of Source/Target**: Check this box
+  to include a search for common upstream nodes one edge away from both
+  source and target. This option is only available when both source and
+  target specified.
+
+Detailed Search Options - Context and Weighted Search Options
+-------------------------------------------------------------
+This section of the search options allows control over how to prioritize or
+*weight* edges in paths differently. The different ways of weighting the
+search are available in the dropdown menu "Weighted Search":
 
 Open Search Options
 ~~~~~~~~~~~~~~~~~~~
