@@ -118,8 +118,23 @@ The following options are available as checkboxes:
 Detailed Search Options - Context and Weighted Search Options
 -------------------------------------------------------------
 This section of the search options allows control over how to prioritize or
-*weight* edges in paths differently. The different ways of weighting the
-search are available in the dropdown menu "Weighted Search":
+*weight* edges in paths differently. During weighted search, the cost along
+every path encountered is calculated as the sum of the edge weights along the
+path. The paths are returned in ascending order of cost.
+
+The different ways of weighting the search are available in the dropdown menu
+"Weighted Search". *Note:* A weighted search is costly and usually takes
+longer than an unweighted search. It is common that a very heavy weighted
+search times out, especially for a *signed weighted* search, even with the
+highest allowed timeout of 120 seconds.
+
+The weighted search uses a slightly modified version of the Djikstra weighted
+search employed in Networkx.
+
+The code implemented for the weighted search is available on `github
+<https://github.com/sorgerlab/indra/blob/master/indra/explanation/pathfinding/pathfinding.py>`_
+in the functions `shortest_simple_paths()` and `open_dijkstra_search()` for
+closed and open paths, respectively.
 
 Open Search Options
 ~~~~~~~~~~~~~~~~~~~
