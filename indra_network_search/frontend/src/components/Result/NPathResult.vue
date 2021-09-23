@@ -6,13 +6,13 @@
           <!-- Header N-edge paths | Source -> {X_n} -> target | source badges | collapse toggle icon -->
           {{ edgeCount }}-edge paths;
           <template v-if="sourceExist"><NodeModal v-bind="source" /></template>
-          <template v-else>X0</template>
+          <template v-else>source</template>
           <i class="bi bi-arrow-right"></i>
           <template v-for="n in edgeCount - 1" :key="n">
             X{{ n }}<i class="bi bi-arrow-right"></i>
           </template>
           <template v-if="targetExist"><NodeModal v-bind="target" /></template>
-          <template v-else>X{{ pathNodeCountNum + 1 }}</template>
+          <template v-else>target</template>
           <span
             style="margin-left: 10px"
             class="badge rounded-pill bg-primary"
