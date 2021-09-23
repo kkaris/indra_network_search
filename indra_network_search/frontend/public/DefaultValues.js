@@ -5,6 +5,17 @@ const CONST_C = 1;
 const CONST_TK = 10;
 const USER_TIMEOUT = 30;
 const WEIGHTED = "unweighted";
+const EMPTY_RESULTS = {
+    query_hash: "",
+    time_limit: 30.0,
+    timed_out: false,
+    hashes: [],
+    path_results: {},
+    reverse_path_results: {},
+    ontology_results: {},
+    shared_target_results: {},
+    shared_regulators_results: {},
+}
 
 export default {
     DEPTH_LIMIT,
@@ -14,4 +25,5 @@ export default {
     CONST_TK,
     USER_TIMEOUT,
     WEIGHTED,
+    EMPTY_RESULTS,
 }
