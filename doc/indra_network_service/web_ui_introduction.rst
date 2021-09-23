@@ -145,16 +145,6 @@ Here, `refcount` is the number of references with the associated MeSH
 ID(s) that are supporting edge :math:`e` and `total` is the total number of
 references supporting edge :math:`e`.
 
-Edge Hash Blacklist
-~~~~~~~~~~~~~~~~~~~
-To ignore a specific statement supporting an edge, the statement hash for
-that statement can be added here.
-
-Include Shared Regulators
-~~~~~~~~~~~~~~~~~~~~~~~~~
-This checkbox adds results from a search of direct common shared regulators
-of source and target. A direct shared regulator is defined as any node that
-is exactly one edge upstream of *both* source and target.
 
 Include Reverse Search
 ~~~~~~~~~~~~~~~~~~~~~~
