@@ -105,7 +105,7 @@ The following options are available as checkboxes:
   the NFkappaB complex.
 - **Include Reverse Search**: Check this box to also search for paths with
   source and target swapped.
-- **Shared Regulators**: Check this box to include a search for common upstream
+- **Include Search for Shared Regulators of Source/Target**: Check this box to include a search for common upstream
   nodes of source and target (only available when source and target are both
   specified)
 
