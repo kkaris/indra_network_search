@@ -396,6 +396,9 @@
   </div>
   <RequestError v-if="submissionError" :axios-error="submissionError" />
   <ResultArea v-if="!emptyResult" v-bind="results" />
+  <template v-else-if="!isLoading && emptyResult">
+    <i>No results</i>
+  </template>
 </template>
 
 <script>
@@ -551,18 +554,7 @@ export default {
         { label: "HP (Phenotypic Abnormality)", value: "hp" },
         { label: "EFO (Experimental factors)", value: "efo" },
       ],
-      // Follows indra_network_search.data_models::Results
-      results: {
-        query_hash: "",
-        time_limit: 30.0,
-        timed_out: false,
-        hashes: [],
-        path_results: {},
-        reverse_path_results: {},
-        ontology_results: {},
-        shared_target_results: {},
-        shared_regulators_results: {},
-      },
+      results: DefaultValues.EMPTY_RESULTS,
       submissionError: null,
       fillFormError: false, // Maybe make it an Array and store all errors
     };
@@ -647,22 +639,27 @@ export default {
       );
     },
     emptyResult() {
-      const noPaths = sharedHelpers.isEmptyObject(this.results.path_results);
-      const noPathsRev = sharedHelpers.isEmptyObject(
-        this.results.reverse_path_results
-      );
-      const noOnt =
-        sharedHelpers.isEmptyObject(this.results.ontology_results) ||
-        !(
+      const noPaths = sharedHelpers.isEmptyObject(this.results.path_results) || (
+          this.results.path_results &&
+          sharedHelpers.isEmptyObject(this.results.path_results.paths)
+      )
+      const noPathsRev = sharedHelpers.isEmptyObject(this.results.reverse_path_results) || (
+          this.results.reverse_path_results &&
+          sharedHelpers.isEmptyObject(this.results.reverse_path_results.paths)
+      )
+      const noOnt = sharedHelpers.isEmptyObject(this.results.ontology_results) || !(
           this.results.ontology_results.parents &&
           this.results.ontology_results.parents.length
-        );
-      const shrdTarg = sharedHelpers.isEmptyObject(
-        this.results.shared_target_results
       );
-      const shrdReg = sharedHelpers.isEmptyObject(
-        this.results.shared_regulators_results
+      const shrdTarg = sharedHelpers.isEmptyObject(this.results.shared_target_results) || !(
+          this.results.shared_target_results.source_data &&
+          this.results.shared_target_results.source_data.length
       );
+      const shrdReg = sharedHelpers.isEmptyObject(this.results.shared_regulators_results) || !(
+          this.results.shared_regulators_results.source_data &&
+          this.results.shared_regulators_results.source_data.length
+      );
+      console.log(`noPaths(${noPaths}) && noPathsRev(${noPathsRev}) && noOnt(${noOnt}) && shrdTarg(${shrdTarg}) && shrdReg(${shrdReg})`)
       return noPaths && noPathsRev && noOnt && shrdTarg && shrdReg;
     },
     generalErrors() {
@@ -718,6 +715,7 @@ export default {
         .catch((error) => {
           console.log(error);
           this.submissionError = error.toJSON();
+          this.results = DefaultValues.EMPTY_RESULTS;
         })
         .then(() => {
           this.isLoading = false;
