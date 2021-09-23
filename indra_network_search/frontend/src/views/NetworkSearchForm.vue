@@ -647,22 +647,15 @@ export default {
       );
     },
     emptyResult() {
-      const noPaths = sharedHelpers.isEmptyObject(this.results.path_results);
-      const noPathsRev = sharedHelpers.isEmptyObject(
-        this.results.reverse_path_results
-      );
-      const noOnt =
-        sharedHelpers.isEmptyObject(this.results.ontology_results) ||
-        !(
-          this.results.ontology_results.parents &&
-          this.results.ontology_results.parents.length
-        );
-      const shrdTarg = sharedHelpers.isEmptyObject(
-        this.results.shared_target_results
-      );
-      const shrdReg = sharedHelpers.isEmptyObject(
-        this.results.shared_regulators_results
-      );
+      const noPaths = sharedHelpers.isEmptyObject(this.results.path_results) || (this.results.path_results && sharedHelpers.isEmptyObject(this.results.path_results.paths))
+      const noPathsRev = sharedHelpers.isEmptyObject(this.results.reverse_path_results) || (this.results.reverse_path_results && sharedHelpers.isEmptyObject(this.results.reverse_path_results.paths))
+      const noOnt = sharedHelpers.isEmptyObject(this.results.ontology_results) ||
+          !(
+              this.results.ontology_results.parents &&
+              this.results.ontology_results.parents.length
+          );
+      const shrdTarg = sharedHelpers.isEmptyObject(this.results.shared_target_results);
+      const shrdReg = sharedHelpers.isEmptyObject(this.results.shared_regulators_results);
       return noPaths && noPathsRev && noOnt && shrdTarg && shrdReg;
     },
     generalErrors() {
