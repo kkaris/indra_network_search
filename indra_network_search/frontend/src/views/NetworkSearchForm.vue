@@ -396,6 +396,9 @@
   </div>
   <RequestError v-if="submissionError" :axios-error="submissionError" />
   <ResultArea v-if="!emptyResult" v-bind="results" />
+  <template v-else-if="!isLoading && emptyResult">
+    <i>No results</i>
+  </template>
 </template>
 
 <script>
