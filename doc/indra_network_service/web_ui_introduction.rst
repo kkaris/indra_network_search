@@ -136,11 +136,10 @@ The code implemented for the weighted search is available on `github
 in the functions `shortest_simple_paths()` and `open_dijkstra_search()` for
 closed and open paths, respectively.
 
-Open Search Options
-~~~~~~~~~~~~~~~~~~~
-Options under the Open Search Options are only applied during open ended
-searches. In order to perform an open ended search, only a source or a
-target must be given.
+Unweighted
+~~~~~~~~~~
+This is the default option and imposes no weight on the edges and is
+equivalent to all edges having a unit weight.
 
 - **Terminal Namespaces:** Namespaces selected here restrict the search to
   only return paths that end (open search from source) or start (open
