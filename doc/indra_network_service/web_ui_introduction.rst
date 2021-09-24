@@ -235,10 +235,8 @@ smaller than or equal to 120 seconds.
 
 Result Categories
 -----------------
-If there are no results for the specific section, that section's card won't
-show up. By default, the result cards are collapsed and only the card header
-is shown with a summary count of the number of results. To expand the card
-body, click on the card header.
+*Note*: If there are no results for the specific category, that section will
+be hidden.
 
 Complexes and Families
 ~~~~~~~~~~~~~~~~~~~~~~
