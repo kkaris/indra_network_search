@@ -278,11 +278,6 @@ filtered in more detail than what is possible using the INDRA DataBase web
 interface, the statements shown can sometimes be slightly different than the
 edge data returned by the network search result.
 
-Download Results
-----------------
-You can download the search result json and the statement jsons from the *path
-search* by clicking the link provided after the search has resolved.
-
 The Graphs Used
 ---------------
 The two graphs used for the network search are assembled from a full
