@@ -246,19 +246,18 @@ Result Categories
 *Note*: If there are no results for the specific category, that section will
 be hidden.
 
-Complexes and Families
-~~~~~~~~~~~~~~~~~~~~~~
-This card shows the results of a search for common complexes and families
-between source and target. For example with `BRCA1` and `BRCA2` as source
-and target, respectively, the BRCA family would show up alongside the FANC
-family.
+Common Parents
+~~~~~~~~~~~~~~
+This section shows the result of a search for common ontological parents of
+source and target. For example with `BRCA1` and `BRCA2` as source and target,
+respectively, the BRCA family would show up alongside the FANC family.
 
 .. figure:: ../_static/images/famplex_search.png
   :align: center
   :figwidth: 100 %
 
   *The result of a search with `BRCA1` and `BRCA2` as source and target,
-  respectively, for Complexes and Families.*
+  respectively, for Common Parents.*
 
 
 Common Targets
