@@ -141,28 +141,39 @@ Unweighted
 This is the default option and imposes no weight on the edges and is
 equivalent to all edges having a unit weight.
 
-- **Terminal Namespaces:** Namespaces selected here restrict the search to
-  only return paths that end (open search from source) or start (open
-  search from target) on the given namespaces.
-- **Max per node:** The integer provided here gives a maximum for the number
-  of children to continue to open search from. This option is only applied
-  during *unweighted* searches.
-
-Context Options
+Belief Weighted
 ~~~~~~~~~~~~~~~
-The context based search allows a search to prioritize or only include
-connections that are relevant to the provided context. The context is
-given as MeSH terms.
+The belief weight of an edge is calculated as the negative log of the
+aggregated belief scores of all the statements supporting edge :math:`e`:
 
-- **MeSH IDs:** Enter a comma separated list of MeSH IDs that should be
-  prioritized in the search.
-- **Strict Filtering on MeSH IDs:** Tick this box to *only* allow edges with
-  associated with the provided MeSH IDs. If left unticked, the search is
+.. math::
+    w_e = -\log \left( 1 - \prod_i \left(1 - b_i \right) \right)
+
+where :math:`b_i` is the belief score of supporting statement :math:`i` of
+edge :math:`e`. Since the belief score is limited to the interval
+:math:`[0, 1]`, it can interpreted as a probability and the above weight can
+therefore be seen as the log of the *complement* to the probability that every
+supporting statement is *incorrect*.
+
+DepMap z-score weighted
+~~~~~~~~~~~~~~~~~~~~~~~
+text
+
+Mesh Context
+~~~~~~~~~~~~
+The context based search allows a search to prioritize or only include
+connections that are relevant to the provided context. The context is given
+as MeSH terms.
+
+- **MeSH IDs:** Enter the MeSH IDs, separated by comma, that should be
+  used in the search.
+- **Strict Filtering on MeSH IDs:** Check this box to *only* allow edges with
+  associated with the provided MeSH IDs. If left unchecked, the search is
   weighted.
 - **Constants** :math:`C` **and** :math:`T_k`: These two constant allow for
   changing the importance of the context in a weighted context based search.
-  For any edge :math:`e`, the weight :math:`w_e` for context based search is
-  calculated in the following way:
+  For any edge :math:`e`, the weight :math:`w_e` of the edge in the context
+  based search is calculated in the following way:
 
 .. math::
     w_e = -C \cdot \log\left(\frac{\text{refcount}}{\text{total} + T_k}\right)
