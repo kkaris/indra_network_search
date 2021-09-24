@@ -233,13 +233,13 @@ This option limits how deep, i.e. how many edges, the returned paths are
 allowed to be/have. This option is only available for *unweighted* searches.
 
 Timeout
-~~~~~~~
+-------
 Setting a timeout allows to set a larger (or smaller) timeout than the
 default 30 seconds timeout. The time since the path search was started is
-checked after each path has been checked during the search. If the time
-passed is larger than the allowed timeout, the search is interrupted and
-returns as fast as possible. The timeout provided has to be a decimal number
-smaller than or equal to 120 seconds.
+checked before each iteration of data assembly for a returned path during the
+search. If the time passed is larger than the allowed timeout, the search is
+stopped. The timeout provided has to be a decimal number smaller than or equal
+to 120 seconds.
 
 Result Categories
 -----------------
