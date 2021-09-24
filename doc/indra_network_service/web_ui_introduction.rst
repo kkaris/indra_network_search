@@ -206,46 +206,31 @@ ID(s) that are supporting edge :math:`e` and `total` is the total number of
 references supporting edge :math:`e`.
 
 
-Include Reverse Search
-~~~~~~~~~~~~~~~~~~~~~~
-With this option, the reverse search *from* target *to* source is done as
-well as the original search from source to target. If the timeout is reached
-(see below) before the reverse seach can start, the reverse search will
-not return any paths. If the timeout is reached during the reverse search,
-fewer paths than for the original search will be retured.
+Detailed Search Options - Open Search Options
+---------------------------------------------
+Options under the Open Search Options are only applied during open searches,
+i.e. when either of source or target is provided.
 
-Weighted Search
-~~~~~~~~~~~~~~~
-When performing a weighted search, the cost along every path encountered is
-calculated as the sum of the weights along the path. The paths are then
-returned in ascending order of cost. The weighted search uses a slightly
-modified version of the Djikstra weighted search employed in Networkx.
-*Note:* A weighted search is costly and usually takes longer than
-a normal search. It is common that a very heavy weighted search times out,
-especially for a *signed* weighted search.
+Terminal Namespaces
+~~~~~~~~~~~~~~~~~~~
+Namespaces selected here restrict the search to only return paths that *end*
+(open search from source) or *start* (open search from target) on the given
+namespaces and then not consider these nodes further. For example: if
+namespace A is selected, then a downstream path might look like this: X->Y->A,
+but not like this: X->Y->A->Z, where X, Y, Z are all namespaces other than A.
 
-The code implemented for the weighted search is available on `github
-<https://github.com/sorgerlab/indra/blob/master/indra/explanation/pathfinding/pathfinding.py>`_
-in the function `shortest_simple_paths()`.
+Max Children Per Node (Unweighted Search)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The integer provided here gives a maximum for the number of children to
+continue to open search from. For example: if N is set here, the first N
+nodes selected from the starting node are then considered for the next layer
+in the breadth first search. This option is only available for *unweighted*
+searches.
 
-Databases Only
-~~~~~~~~~~~~~~
-With this option, only statements that contain sources from curated
-databases like PathwayCommons and Signor are allowed to support edges in the
-returned paths.
-
-Include Famplex Families and Complexes in Path Search
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This option allows for edges to be between a gene and its family or
-betewen a gene and a complex formed by its encoded protein. For example: an
-edge between `BRCA1` and its family `BRCA` would be allowed.
-
-Expand search to FamPlex
-~~~~~~~~~~~~~~~~~~~~~~~~
-If a path search returns empty, this option will allow the path search to be
-retried with parents if the source and/or target entities. For example, if a
-search with `BRCA1` as source returns empty, the search would be retried
-with the `BRCA` family as source instead.
+Depth Limit (Unweighted Search)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This option limits how deep, i.e. how many edges, the returned paths are
+allowed to be/have. This option is only available for *unweighted* searches.
 
 Timeout
 ~~~~~~~
@@ -273,7 +258,7 @@ family.
   :figwidth: 100 %
 
   *The result of a search with `BRCA1` and `BRCA2` as source and target,
-  respectively for Complexes and Families.*
+  respectively, for Complexes and Families.*
 
 
 Common Targets
