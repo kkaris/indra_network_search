@@ -157,7 +157,30 @@ supporting statement is *incorrect*.
 
 DepMap z-score weighted
 ~~~~~~~~~~~~~~~~~~~~~~~
-text
+The z-score edge weight is focused around prioritizing edges between human
+genes that have been targeted in knockout screens performed at the Broad
+Institute's Dependency Map project. The z-score is obtained from first
+calculating the pearson correlation between all pairs of genes in the gene
+knockout screen. Then the log of the p-values of the correlations are
+calculated using the CDF of the beta distribution. Finally the strength of the
+z-scores are obtained from the p-values and the signs are recuperated from the
+original correlation matrix.
+
+The edge weight, assuming both nodes are human genes, is calculated by
+normalizing the difference between the z-score associated with a
+self-correlation and the strength of the z-score between the two nodes of
+the edge. In the case that one or both of the nodes of the edge are non-gene
+entities, the z-score weight is set to 1:
+
+.. math::
+    w_e =
+    \begin{cases}
+      1                      & \quad \text{if } z_e = z_0\\
+      \frac{ z_0 - \left| z_e \right| }{z_0}  & \quad \text{if } z_e \neq z_0
+    \end{cases}
+
+where :math:`z_0` is the z-score associated with self correlation and
+:math:`z_e` is the z-score of the edge.
 
 Mesh Context
 ~~~~~~~~~~~~
