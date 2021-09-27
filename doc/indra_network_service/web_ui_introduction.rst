@@ -260,22 +260,22 @@ respectively, the BRCA family would show up alongside the FANC family.
   respectively, for Common Parents.*
 
 
-Common Targets
+Shared Targets
 ~~~~~~~~~~~~~~
-This card shows the direct downstream targets that are common to both the
-chosen `source` and `target`.
+This section shows the direct downstream targets that are shared between
+`source` and `target`.
 
 Shared Regulators
 ~~~~~~~~~~~~~~~~~
-Shared regulators are only searched for if the corresponding tick-box is
-checked. The results shown are the direct upstream regulators that are
-common to both `source` and `target`.
+Shared regulators are only searched for if the corresponding checkbox is
+checked (see *Checkboxes* above). The results shown are the direct upstream
+regulators that are shared between `source` and `target`.
 
-N Edge Paths
+Path Results
 ~~~~~~~~~~~~
-These card are shown per path length so that all paths with one edge are
-assembled under one card, all paths with two edges in another card and so
-forth.
+This section show path results per path length, i.e. all paths with the same
+number of edges share a specific subsection. The division of paths per
+subsection is done regardless if the path search is weighted or not.
 
 Detailed Results
 ----------------
