@@ -243,7 +243,7 @@ to 120 seconds.
 
 Result Categories
 -----------------
-*Note*: If there are no results for the specific category, that section will
+*Note*: If there are no results for a specific category, that section will
 be hidden.
 
 Common Parents
