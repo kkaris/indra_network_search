@@ -279,11 +279,20 @@ subsection is done regardless if the path search is weighted or not.
 
 Detailed Results
 ----------------
-For each result card, the edges displayed link out to an INDRA DataBase query
-in order to further inspect the results. As the network search results are
-filtered in more detail than what is possible using the INDRA DataBase web
-interface, the statements shown can sometimes be slightly different than the
-edge data returned by the network search result.
+For each result section, excluding Common Parents, there are two levels of
+detail. Results for Common Parents only have one level of results: name,
+namespace, identifier and entity lookup. The first level shows path (for
+Path Results), target (for Shared Targets) or regulator (for Shared
+Regulators) together with weight (if the search is weighted) the edge, source
+counts and a link to the INDRA DB for that specific edge.
+
+The second level of results is collapsed by default, to expand it the circled
+"+" (<-- use the LaTeX symbol) need to be clicked. Once expanded, source counts and a link to more specific
+information in the INDRA DB per statement type are shown.
+
+As the network search results can be filtered in more detail than what is
+possible using the INDRA DB, the statements shown in the DB can sometimes be
+a superset of the statements shown in the second level of the results.
 
 The Graphs Used
 ---------------
