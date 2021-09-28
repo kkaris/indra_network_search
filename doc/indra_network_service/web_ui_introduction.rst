@@ -23,11 +23,33 @@ Autocompletion of source/target based on prefix and entity identifier are
 made automatically as an input is typed or pasted into the text boxes. The
 suggestions are picked from the nodes in the graph and the text box will
 mark the entered text as correct if it matches an existing node in the graph.
-ADD IMAGE WITH CORRECT NODE AND SUGGESTIONS
 
+.. figure:: ../_static/images/autocomplete_fill.png
+  :align: center
+  :figwidth: 100 %
+
+  *Autocompleting an entity. As an entity name is typed into the source or
+  target text boxes, suggestions from the graph nodes are provided.*
+
+.. figure:: ../_static/images/autocomplete_verified.png
+  :align: center
+  :figwidth: 100 %
+
+  *Verified entry. Entries are verified as they are being typed or pasted
+  into the text box. When the entered entity is verified to exist in the
+  graph, the text box border will switch to green and a checkmark will
+  appear.*
 
 Detailed Search Options - General Options
 -----------------------------------------
+The general detailed search options contain filters that apply to most
+searches, regardless of weighting or openness.
+
+.. figure:: ../_static/images/general_options.png
+  :align: center
+  :figwidth: 100 %
+
+  *The search interface with the general options section expanded.*
 
 Path Length
 ~~~~~~~~~~~
@@ -136,6 +158,13 @@ The code implemented for the weighted search is available on `github
 in the functions `shortest_simple_paths()` and `open_dijkstra_search()` for
 closed and open paths, respectively.
 
+.. figure:: ../_static/images/weight_options_w_options.png
+  :align: center
+  :figwidth: 100 %
+
+  *The search interface with the Context and Weighted search options section
+  expanded.*
+
 Unweighted
 ~~~~~~~~~~
 This is the default option and imposes no weight on the edges and is
@@ -211,6 +240,12 @@ Detailed Search Options - Open Search Options
 Options under the Open Search Options are only applied during open searches,
 i.e. when either of source or target is provided.
 
+.. figure:: ../_static/images/open_options.png
+  :align: center
+  :figwidth: 100 %
+
+  *The search interface with the Open search options section expanded.*
+
 Terminal Namespaces
 ~~~~~~~~~~~~~~~~~~~
 Namespaces selected here restrict the search to only return paths that *end*
@@ -249,16 +284,17 @@ be hidden.
 Common Parents
 ~~~~~~~~~~~~~~
 This section shows the result of a search for common ontological parents of
-source and target. For example with `BRCA1` and `BRCA2` as source and target,
-respectively, the BRCA family would show up alongside the FANC family.
+source and target. For example with `GP1BA` and `GP1BB` as source and target,
+respectively, the Platelet membrane glycoprotein complex shows up as a
+shared ontological parent.
 
 .. figure:: ../_static/images/famplex_search.png
   :align: center
   :figwidth: 100 %
 
-  *The result of a search with `BRCA1` and `BRCA2` as source and target,
-  respectively, for Common Parents.*
-
+  *The result of a search with `GP1BA` and `GP1BB` as source and target,
+  respectively, for Common Parents showing the Platelet membrane glycoprotein
+  complex as their shared protein complex.*
 
 Shared Targets
 ~~~~~~~~~~~~~~
@@ -277,6 +313,14 @@ This section show path results per path length, i.e. all paths with the same
 number of edges share a specific subsection. The division of paths per
 subsection is done regardless if the path search is weighted or not.
 
+.. figure:: ../_static/images/sik3_jun_results_paths_st_sr.png
+  :align: center
+  :figwidth: 100 %
+
+  *Search results with SIK3 as source and JUN as target with the Shared
+  Regulator section expanded.*
+
+
 Detailed Results
 ----------------
 For each result section, excluding Common Parents, there are two levels of
@@ -286,13 +330,21 @@ Path Results), target (for Shared Targets) or regulator (for Shared
 Regulators) together with weight (if the search is weighted) the edge, source
 counts and a link to the INDRA DB for that specific edge.
 
-The second level of results is collapsed by default, to expand it the circled
-"+" (<-- use the LaTeX symbol) need to be clicked. Once expanded, source counts and a link to more specific
-information in the INDRA DB per statement type are shown.
+The second level of results is collapsed by default. To expand it, the circled
+"+" (:math:`\oplus`) need to be clicked. Once expanded, source counts and a
+link to more specific information in the INDRA DB per statement type are
+shown.
 
 As the network search results can be filtered in more detail than what is
 possible using the INDRA DB, the statements shown in the DB can sometimes be
 a superset of the statements shown in the second level of the results.
+
+.. figure:: ../_static/images/detailed_path_res.png
+  :align: center
+  :figwidth: 100 %
+
+  *Path search results with one of the edges of a path expanded to more
+  detail.*
 
 The Graphs Used
 ---------------
@@ -313,4 +365,4 @@ up- or downreguations associated with them, which currently are
 The code assembling the graphs can be found in `net_functions.py
 <https://github.com/indralab/depmap_analysis/blob/master/depmap_analysis
 /network_functions/net_functions.py>`_ in the function
-`sif_dump_df_to_digraph()`.
+`sif_dump_df_to_digraph()` in the `depmap_analysis` repository.
