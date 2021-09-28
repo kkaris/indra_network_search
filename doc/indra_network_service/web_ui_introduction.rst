@@ -59,8 +59,8 @@ Node Blacklist
 ~~~~~~~~~~~~~~
 Node names entered here are skipped in the path search. This is a good way
 to avoid nodes of extremely high degree that overwhelms the results and
-effectively blocks out results that include nodes of lower degree. *See also
-Cull Highest Degree Node below.* <-- provide internal link
+effectively blocks out results that include nodes of lower degree. *See also*
+`Highest Degree Node Culling Frequency`_ *below.*
 
 Max Paths
 ~~~~~~~~~
@@ -83,7 +83,7 @@ Highest Degree Node Culling Frequency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Entering a positive integer here allows the path search to include the highest
 degree node for the first N returned paths, after which that node is added to
-the *Node Blacklist*. <-- internal link This is repeated for the second highest degree node for
+the `Node Blacklist`_. This is repeated for the second highest degree node for
 the following N paths, then for the third highest degree node and so forth.
 *Limitations:* This option is only applied to unweighted open search and
 source-target searches.
@@ -128,10 +128,10 @@ The following options are available as checkboxes:
 - **Include Reverse Search**: Check this box to also search for paths with
   source and target swapped. With this option, the reverse search *from*
   target *to* source is done as well as the original search from source to
-  target. If the timeout is reached (see below) before the reverse search can
-  start, the reverse search will not return any paths. If the timeout is
-  reached during the reverse search, fewer paths than for the original search
-  will be returned.
+  target. If the `timeout`_ is reached (see below) before the reverse search
+  can start, the reverse search will not return any paths. If the `timeout`_
+  is reached during the reverse search, fewer paths than for the original
+  search will be returned.
 - **Include Search for Shared Regulators of Source/Target**: Check this box
   to include a search for common upstream nodes one edge away from both
   source and target. This option is only available when both source and
@@ -148,7 +148,7 @@ The different ways of weighting the search are available in the dropdown menu
 "Weighted Search". *Note:* A weighted search is costly and usually takes
 longer than an unweighted search. It is common that a very heavy weighted
 search times out, especially for a *signed weighted* search, even with the
-highest allowed timeout of 120 seconds.
+highest allowed `timeout`_ of 120 seconds.
 
 The weighted search uses a slightly modified version of the Djikstra weighted
 search employed in Networkx.
@@ -292,7 +292,7 @@ shared ontological parent.
   :align: center
   :figwidth: 100 %
 
-  *The result of a search with `GP1BA` and `GP1BB` as source and target,
+  *The result of a search with GP1BA and GP1BB as source and target,
   respectively, for Common Parents showing the Platelet membrane glycoprotein
   complex as their shared protein complex.*
 
@@ -304,7 +304,7 @@ This section shows the direct downstream targets that are shared between
 Shared Regulators
 ~~~~~~~~~~~~~~~~~
 Shared regulators are only searched for if the corresponding checkbox is
-checked (see *Checkboxes* above). The results shown are the direct upstream
+checked (see `checkboxes`_ above). The results shown are the direct upstream
 regulators that are shared between `source` and `target`.
 
 Path Results
