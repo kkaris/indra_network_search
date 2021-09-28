@@ -15,7 +15,7 @@ The source and target are the nodes between which to find a path and at least
 one of source and target is needed to do a search. If only one of source or
 target is provided, an open ended breadth first search is done instead of a
 path search. Note that the source and target are not affected by the choice of
-*allowed namespaces* (see below) <-- provide internal link.
+*allowed namespaces* (see below at `Allowed Node Namespaces`_).
 
 Autocompleting source/target inputs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
