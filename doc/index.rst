@@ -16,7 +16,8 @@ more about INDRA, see `here <https://www.indra.bio/>`_,
    :maxdepth: 3
    :caption: Contents:
 
-   indra_network_service/index
+   ui_introduction.rst
+   modules/index
 
 Indices and tables
 ==================
