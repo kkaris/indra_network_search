@@ -7,7 +7,7 @@ def _get_dg():
     dfd = dict(
         agA_ns=["HGNC", "HGNC"],
         agA_id=["1100", "1101"],
-        agA_name=["BRCA1", "Brca2"],
+        agA_name=["BRCA1", "Brca2"],  # Deliberately add wrong case to check case match
         agB_ns=["HGNC", "HGNC"],
         agB_id=["3467", "11998"],
         agB_name=["ESR1", "TP53"],
