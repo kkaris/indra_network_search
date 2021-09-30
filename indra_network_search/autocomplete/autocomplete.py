@@ -30,7 +30,7 @@ class NodesTrie(SortedStringTrie):
         -------
         :
             An instance of a NodesTrie containing the node names of the
-            graph as keys and the corresponding (name, ns, id) tuple as values
+            graph as keys and the corresponding (name, ns, id, node degree) tuple as values
         """
         _is_str_nodes(graph)
         name_indexing = {}
@@ -39,7 +39,7 @@ class NodesTrie(SortedStringTrie):
             node_name = node.lower()
             if node_name in name_indexing:
                 ix = 1
-                node_name = node_name + f"_{ix}"
+                node_name += f"_{ix}"
                 # Increase index until no key is not present
                 while node_name in name_indexing:
                     ix += 1
@@ -55,6 +55,22 @@ class NodesTrie(SortedStringTrie):
 
     @classmethod
     def from_node_ns_id(cls, graph: DirGraph) -> "NodesTrie":
+        """Produce a NodesTrie instance from a graph with node ns:id as str
+
+        Parameters
+        ----------
+        graph:
+            Graph from which nodes should be searchable. It is assumed the
+            nodes have the attributes 'ns' and 'id' accessible via
+            g.nodes[node]['ns'] and g.nodes[node]['id']
+
+        Returns
+        -------
+        :
+            An instance of a NodesTrie containing ns:id of each node of the
+            graph as keys and the corresponding (name, ns, id, node degree)
+            tuple as values
+        """
         _is_str_nodes(graph)
         return cls(
             **{
