@@ -6,8 +6,14 @@
 Welcome to the INDRA Network Service documentation!
 ===================================================
 
+This documentation covers a tutorial and the modules of the INDRA Network
+Search and is part of a broader set of INDRA derived applications. To read
+more about INDRA, see `here <https://www.indra.bio/>`_,
+`here <https://indra.readthedocs.io/en/latest/>`_ and
+`here <https://github.com/sorgerlab/indra>`_.
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    indra_network_service/index
