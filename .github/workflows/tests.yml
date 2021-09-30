@@ -21,9 +21,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .[tests]
+        git clone https://github.com/indralab/depmap_analysis.git
     - name: Run unit tests
       run: |
         export NOSEATTR="!notravis"
+        export PYTHONPATH=$PYTHONPATH:depmap_analysis
         nosetests -v -a $NOSEATTR indra_network_search/tests
 
 
