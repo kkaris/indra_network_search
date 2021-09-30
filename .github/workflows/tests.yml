@@ -19,6 +19,8 @@ jobs:
         python-version: 3.7
     - name: Install dependencies
       run: |
+        sudo apt-get update
+        sudo apt-get install libstdc++6 graphviz python3-dev libgraphviz-dev pkg-config
         python -m pip install --upgrade pip
         pip install -e .[tests]
         git clone https://github.com/indralab/depmap_analysis.git
@@ -27,5 +29,3 @@ jobs:
         export NOSEATTR="!notravis"
         export PYTHONPATH=$PYTHONPATH:depmap_analysis
         nosetests -v -a $NOSEATTR indra_network_search/tests
-
-
