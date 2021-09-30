@@ -3,7 +3,7 @@ Network Search Web UI
 =====================
 This document introduces the web interface of the INDRA Network Search Service
 
-.. figure:: ../_static/images/indra_network_search_screenshot.png
+.. figure:: _static/images/indra_network_search_screenshot.png
   :align: center
   :figwidth: 100 %
 
@@ -24,14 +24,14 @@ made automatically as an input is typed or pasted into the text boxes. The
 suggestions are picked from the nodes in the graph and the text box will
 mark the entered text as correct if it matches an existing node in the graph.
 
-.. figure:: ../_static/images/autocomplete_fill.png
+.. figure:: _static/images/autocomplete_fill.png
   :align: center
   :figwidth: 100 %
 
   *Autocompleting an entity. As an entity name is typed into the source or
   target text boxes, suggestions from the graph nodes are provided.*
 
-.. figure:: ../_static/images/autocomplete_verified.png
+.. figure:: _static/images/autocomplete_verified.png
   :align: center
   :figwidth: 100 %
 
@@ -45,7 +45,7 @@ Detailed Search Options - General Options
 The general detailed search options contain filters that apply to most
 searches, regardless of weighting or openness.
 
-.. figure:: ../_static/images/general_options.png
+.. figure:: _static/images/general_options.png
   :align: center
   :figwidth: 100 %
 
@@ -158,7 +158,7 @@ The code implemented for the weighted search is available on `github
 in the functions `shortest_simple_paths()` and `open_dijkstra_search()` for
 closed and open paths, respectively.
 
-.. figure:: ../_static/images/weight_options_w_options.png
+.. figure:: _static/images/weight_options_w_options.png
   :align: center
   :figwidth: 100 %
 
@@ -240,7 +240,7 @@ Detailed Search Options - Open Search Options
 Options under the Open Search Options are only applied during open searches,
 i.e. when either of source or target is provided.
 
-.. figure:: ../_static/images/open_options.png
+.. figure:: _static/images/open_options.png
   :align: center
   :figwidth: 100 %
 
@@ -288,7 +288,7 @@ source and target. For example with `GP1BA` and `GP1BB` as source and target,
 respectively, the Platelet membrane glycoprotein complex shows up as a
 shared ontological parent.
 
-.. figure:: ../_static/images/famplex_search.png
+.. figure:: _static/images/famplex_search.png
   :align: center
   :figwidth: 100 %
 
@@ -313,7 +313,7 @@ This section show path results per path length, i.e. all paths with the same
 number of edges share a specific subsection. The division of paths per
 subsection is done regardless if the path search is weighted or not.
 
-.. figure:: ../_static/images/sik3_jun_results_paths_st_sr.png
+.. figure:: _static/images/sik3_jun_results_paths_st_sr.png
   :align: center
   :figwidth: 100 %
 
@@ -339,7 +339,7 @@ As the network search results can be filtered in more detail than what is
 possible using the INDRA DB, the statements shown in the DB can sometimes be
 a superset of the statements shown in the second level of the results.
 
-.. figure:: ../_static/images/detailed_path_res.png
+.. figure:: _static/images/detailed_path_res.png
   :align: center
   :figwidth: 100 %
 
