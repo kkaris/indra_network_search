@@ -1,6 +1,6 @@
 """
-This file contains the Query classes that maps to different algorithms used
-in the search api.
+This file contains the Query classes mapping incoming rest queries to
+different algorithms used in the search api.
 """
 import logging
 from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List, Type
