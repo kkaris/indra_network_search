@@ -1,28 +1,23 @@
-"""Utility functions for the INDRA Causal Network Search API in api.py"""
-import json
+"""Utility functions for the Network Search API and Rest API"""
 import inspect
+import json
 import logging
+from datetime import datetime
 from os import path
 from typing import Callable, Dict, Any, Set, List, Tuple, Optional, Union
-from datetime import datetime
 
-from botocore.exceptions import ClientError
 import networkx as nx
+from botocore.exceptions import ClientError
 from fnvhash import fnv1a_32
 
-from indra.util.aws import get_s3_client, get_s3_file_tree
-from indra_db.client.readonly.query import FromMeshIds
-from indra_db.util.s3_path import S3Path
-from indra_db.util.dump_sif import NS_LIST
-from indra.statements import (
-    get_all_descendants,
-    Activation,
-    Inhibition,
-    IncreaseAmount,
-    DecreaseAmount,
-    AddModification,
-    RemoveModification,
-    Complex,
+from depmap_analysis.scripts.dump_new_graphs import *
+from depmap_analysis.util.aws import (
+    dump_json_to_s3,
+    DUMPS_BUCKET,
+    NETS_PREFIX,
+    load_pickle_from_s3,
+    NET_BUCKET,
+    read_json_from_s3,
 )
 from depmap_analysis.util.io_functions import (
     file_opener,
@@ -33,15 +28,20 @@ from depmap_analysis.util.io_functions import (
     get_date_from_str,
     strip_out_date,
 )
-from depmap_analysis.util.aws import (
-    dump_json_to_s3,
-    DUMPS_BUCKET,
-    NETS_PREFIX,
-    load_pickle_from_s3,
-    NET_BUCKET,
-    read_json_from_s3,
+from indra.statements import (
+    get_all_descendants,
+    Activation,
+    Inhibition,
+    IncreaseAmount,
+    DecreaseAmount,
+    AddModification,
+    RemoveModification,
+    Complex,
 )
-from depmap_analysis.scripts.dump_new_graphs import *
+from indra.util.aws import get_s3_client, get_s3_file_tree
+from indra_db.client.readonly.query import FromMeshIds
+from indra_db.util.dump_sif import NS_LIST
+from indra_db.util.s3_path import S3Path
 
 __all__ = [
     "load_indra_graph",
@@ -261,6 +261,7 @@ def load_indra_graph(
             - unsigned multi graph
             - signed edge graphs
             - signed node graph
+
         If a graph was not chosen to be loaded or wasn't found, None will be
         returned in its place in the tuple.
     """
@@ -459,7 +460,7 @@ def get_default_args(func: Callable) -> Dict[str, Any]:
     """Returns the default args of a function as a dictionary
 
     Returns a dictionary of {arg: default} of the arguments that have
-    default values. Arguments without default values and **kwargs type
+    default values. Arguments without default values and `**kwargs` type
     arguments are excluded.
 
     Code copied from: https://stackoverflow.com/a/12627202/10478812
@@ -486,7 +487,7 @@ def get_mandatory_args(func: Callable) -> Set[str]:
     """Returns the mandatory args for a function as a set
 
     Returns the set of arguments names of a functions that are mandatory,
-    i.e. does not have a default value. **kwargs type arguments are ignored.
+    i.e. does not have a default value. `**kwargs` type arguments are ignored.
 
     Parameters
     ----------
