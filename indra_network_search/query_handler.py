@@ -103,11 +103,13 @@ class QueryHandler:
         return aux_queries
 
     def get_queries(self) -> Dict[str, UIQuery]:
-        """Returns a dict of {query name: UIQuery} for all eligible queries
+        """Returns a dict of all eligible queries
 
         Returns
         -------
-        List[Tuple[str, UIQuery]]
+        :
+            A dict containing the instances of the eligible Query classes
+            as {query name: Query instance}
         """
         if not self._query_dict:
             self._query_dict = self._get_queries()
