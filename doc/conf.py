@@ -32,6 +32,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
+    'sphinxcontrib.autodoc_pydantic',
 ]
 
 # The master toctree document.
