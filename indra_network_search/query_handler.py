@@ -2,7 +2,7 @@
 The QueryHandler's job is to act as a middle layer between the network
 search functionalities and the REST API that receives queries.
 """
-from typing import List, Tuple, Union, Dict, Set
+from typing import List, Union, Dict, Set
 
 from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
 from indra_network_search.query import (
