@@ -1,5 +1,5 @@
 """
-Pathfinding algorithms local to this repo
+Pathfinding algorithms local to this repository
 """
 import logging
 from itertools import islice, product
@@ -45,30 +45,32 @@ def shared_parents(
     is_a_part_of: Optional[Set[str]] = None,
     max_paths: int = 50,
 ) -> Iterator[Tuple[str, Any, Any, str]]:
-    """Get shared parents of (source ns, source id) and (target ns, target id)
+    """Get shared ontological parents of source and target
 
     Parameters
     ----------
-    source_ns : str
+    source_ns :
         Namespace of source
-    source_id : str
+    source_id :
         Identifier of source
-    target_ns
+    target_ns :
         Namespace of target
-    target_id
+    target_id :
         Identifier of target
-    immediate_only : bool
+    immediate_only :
         Determines if all or just the immediate parents should be returned.
         Default: False, i.e. all parents.
-    is_a_part_of : Set[str]
+    is_a_part_of :
         If provided, the parents must be in this set of ids. The set is
         assumed to be valid ontology labels (see ontology.label()).
-    max_paths : int
+    max_paths :
         Maximum number of results to return. Default: 50.
 
     Returns
     -------
-    List[Tuple[str, str, str, str]]
+    :
+        An iterator of parents to source and target, each parent being a
+        tuple of (name, namespace, id, lookup URL)
     """
     sp_set = common_parent(
         id1=source_id,
@@ -83,7 +85,7 @@ def shared_parents(
             [
                 (ns_id_to_name(n, i) or "", n, i, get_identifiers_url(n, i))
                 for n, i in sp_set
-                # sort on     name,  ns,  id
+                # sort on name, ns, id
             ],
             key=lambda t: (t[0], t[1], t[2]),
         ),
@@ -113,42 +115,43 @@ def shared_interactors(
 
     Parameters
     ----------
-    graph : DiGraph
+    graph :
         The graph to perform the search in
-    source : str
+    source :
         Node to look for common up- or downstream neighbors from with target
-    target : str
+    target :
         Node to look for common up- or downstream neighbors from with source
-    allowed_ns : Optional[List[str]]
+    allowed_ns :
         If provided, filter common nodes to these namespaces
-    stmt_types : Optional[List[str]]
+    stmt_types :
         If provided, filter the statements in the supporting edges to these
         statement types
-    source_filter : Optional[List[str]]
+    source_filter :
         If provided, filter the statements in the supporting edges to those
         with these sources
-    max_results : int
+    max_results :
         The maximum number of results to return
-    regulators : bool
+    regulators :
         If True, do shared regulator search (upstream), otherwise do shared
         target search (downstream). Default False.
-    sign : Optional[int]
+    sign :
         If provided, match edges to sign:
             - positive: edges must have same sign
             - negative: edges must have opposite sign
-    hash_blacklist : Optional[Set[int]]
+    hash_blacklist :
         A list of hashes to exclude from the edges
-    node_blacklist : Optional[List[str]]
+    node_blacklist :
         A list of node names to exclude
-    belief_cutoff : float
+    belief_cutoff :
         Exclude statements that are below the cutoff. Default: 0.0 (no cutoff)
-    curated_db_only : bool
+    curated_db_only :
         If True, exclude statements in edge support that only have readers
         in their sources. Default: False.
 
     Returns
     -------
-    Generator
+    :
+        An iterator of regulators or targets to source and target as edges
     """
 
     def _get_min_max_belief(node: StrNode):
@@ -237,7 +240,40 @@ def direct_multi_interactors(
     node_blacklist: Optional[List[str]] = None,
     belief_cutoff: float = 0.0,
     curated_db_only: bool = False,
-) -> Iterator:
+) -> Iterator[StrNode]:
+    """Find up- or downstream common nodes from a list of nodes
+
+    Parameters
+    ----------
+    graph :
+        The graph to look in
+    nodes :
+        The starting nodes
+    downstream :
+        If True, look for shared targets, otherwise look for shared regulators
+    allowed_ns :
+        A list of allowed node namespaces
+    stmt_types :
+        A list of allowed statemtent types
+    source_filter :
+        A list of valid sources
+    max_results :
+        The maximum number of results to return
+    hash_blacklist :
+        A list of hashes to blacklist
+    node_blacklist :
+        A list of node names to blacklist
+    belief_cutoff :
+        If set, an edge will not be allowed if all its supporting statements
+        have belief scores below this value
+    curated_db_only :
+        If True, only allow edge that have support from curated databases
+
+    Returns
+    -------
+    :
+        An Iterator of the resulting nodes
+    """
     # ToDo: how to fix checking if nodes are in graph?
     def _get_min_max_belief(neigh_node: StrNode, input_nodes: StrNodeSeq, rev: bool):
         # Collect the max belief of the edge statements for each edge,
@@ -550,14 +586,14 @@ def get_subgraph_edges(
 
     Parameters
     ----------
-    graph : DiGraph
+    graph :
         Graph to look for in and out edges in
-    nodes : List[Dict[str, str]]
+    nodes :
         List of dicts of Node instances to look for neighbors in
 
     Returns
     -------
-    Dict[str, Dict[str, List[Tuple[str, str]]]
+    :
         A dict keyed by each of the input node names that were present in
         the graph. For each node, two lists are provided for in-edges
         and out-edges respectively
