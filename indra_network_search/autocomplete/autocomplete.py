@@ -4,9 +4,9 @@ https://github.com/gsakkis/pytrie)
 """
 from itertools import islice
 from typing import Union, List, Optional, Tuple
+
 from networkx import DiGraph, MultiDiGraph
 from pytrie import SortedStringTrie
-
 
 # Derived types
 Prefixes = List[Tuple[str, str, str]]
@@ -16,9 +16,10 @@ __all__ = ["NodesTrie", "Prefixes"]
 
 
 class NodesTrie(SortedStringTrie):
+    """A Trie structure that has case insensitive search methods"""
     @classmethod
     def from_node_names(cls, graph: DirGraph) -> "NodesTrie":
-        """Produce a NodesTrie instance from a graph with str node names
+        """Produce a NodesTrie instance from a graph with node names as keys
 
         Parameters
         ----------
@@ -30,7 +31,8 @@ class NodesTrie(SortedStringTrie):
         -------
         :
             An instance of a NodesTrie containing the node names of the
-            graph as keys and the corresponding (name, ns, id, node degree) tuple as values
+            graph as keys and the corresponding (name, ns, id, node degree)
+            tuple as values
         """
         _is_str_nodes(graph)
         name_indexing = {}
@@ -55,7 +57,7 @@ class NodesTrie(SortedStringTrie):
 
     @classmethod
     def from_node_ns_id(cls, graph: DirGraph) -> "NodesTrie":
-        """Produce a NodesTrie instance from a graph with node ns:id as str
+        """Produce a NodesTrie instance from a graph using ns:id as key
 
         Parameters
         ----------
