@@ -1,11 +1,10 @@
 """Handles the aggregation of results from the IndraNetworkSearchAPI
 
 The result manager deals with things like:
-- Sorting paths
-- Calculating weights
-- Stopping path iteration when timeout is reached
-- Keeping count of number of paths returned
-- Filtering paths when it's not done in the algorithm
+
+    - Stopping path iteration when timeout is reached
+    - Keeping count of number of paths returned
+    - Filtering results when it's not done in the algorithm
 
 """
 # TodO: always filter out statement from the hash blacklist for all results
@@ -26,16 +25,18 @@ from typing import (
 )
 
 from networkx import DiGraph, NetworkXNoPath
-from depmap_analysis.network_functions.famplex_functions import get_identifiers_url
+from pydantic import ValidationError, BaseModel
+
+from depmap_analysis.network_functions.famplex_functions import \
+    get_identifiers_url
 from indra.explanation.pathfinding import (
     shortest_simple_paths,
     bfs_search,
     open_dijkstra_search,
 )
-from pydantic import ValidationError
-from indra_network_search.rest_util import StrNode
-from indra_network_search.pathfinding import *
 from indra_network_search.data_models import *
+from indra_network_search.pathfinding import *
+from indra_network_search.rest_util import StrNode
 
 __all__ = [
     "ResultManager",
@@ -62,8 +63,6 @@ DB_URL_EDGE = (
 
 
 class ResultManager:
-    """Applies post-search filtering and assembles edge data for paths"""
-
     # Todo: this class is just a parent class for results, we might also
     #  need a wrapper class that manages all the results, analogous to
     #  query vs query_handler
@@ -280,11 +279,15 @@ class ResultManager:
         # Main method for looping the path finding and results assembly
         raise NotImplementedError
 
-    def get_results(self):
-        """Loops out and builds results from the paths from the generator"""
+    def _time_results(self):
+        # This method executes and times the result assembly
         if self.start_time is None:
             self.start_time = datetime.utcnow()
         return self._get_results()
+
+    def get_results(self):
+        # Implement for each class
+        raise NotImplementedError
 
 
 class UIResultManager(ResultManager):
@@ -383,13 +386,15 @@ class UIResultManager(ResultManager):
     def _get_results(self):
         raise NotImplementedError
 
+    def get_results(self) -> BaseModel:
+        raise NotImplementedError
+
 
 class PathResultManager(UIResultManager):
-    """Parent class for path results
+    """Parent class for path result managers"""
 
-    The only thing needed in the children is defining _pass_node,
-    _pass_stmt, alg_name, _remove_used_filters and _check_source_target
-    """
+    # The only thing needed in the children is defining _pass_node,
+    # _pass_stmt, alg_name, _remove_used_filters and _check_source_target
 
     alg_name = NotImplemented
     filter_input_node = False
@@ -548,6 +553,16 @@ class PathResultManager(UIResultManager):
         except NetworkXNoPath as exc:
             logger.warning(str(exc))
             return PathResultData(paths={})
+
+    def get_results(self) -> PathResultData:
+        """Execute the result assembly with the loaded path generator
+
+        Returns
+        -------
+        :
+            Assembled paths with data as a BaseModel
+        """
+        return self._time_results()
 
 
 class DijkstraResultManager(PathResultManager):
@@ -783,6 +798,16 @@ class SharedInteractorsResultManager(UIResultManager):
             downstream=self._downstream,
         )
 
+    def get_results(self) -> SharedInteractorsResults:
+        """Execute the result assembly with the loaded generator
+
+        Returns
+        -------
+        :
+            Results for shared_interactors as a BaseModel
+        """
+        return self._time_results()
+
 
 class OntologyResultManager(UIResultManager):
     """Handles results from shared_parents"""
@@ -840,6 +865,15 @@ class OntologyResultManager(UIResultManager):
         return OntologyResults(
             source=self.source, target=self.target, parents=self._parents
         )
+
+    def get_results(self) -> BaseModel:
+        """Execute the result assembly with the loaded generator
+
+        Returns
+        -------
+        :
+            Results for shared_parents as a BaseModel
+        """
 
 
 def _get_cull_values(
@@ -1015,8 +1049,20 @@ class SubgraphResultManager(ResultManager):
             not_in_graph=self._not_in_graph,
         )
 
+    def get_results(self) -> SubgraphResults:
+        """Execute the result assembly with the loaded generator
+
+        Returns
+        -------
+        :
+            Results for get_subgraph_edges as a BaseModel
+        """
+        return self._time_results()
+
 
 class MultiInteractorsResultManager(ResultManager):
+    """Handles results from `pathfinding.direct_multi_interactors`"""
+
     alg_name: str = direct_multi_interactors.__name__
     filter_input_node: bool = False
 
@@ -1111,6 +1157,16 @@ class MultiInteractorsResultManager(ResultManager):
             regulators=self.regulators,
             edge_data=self.edge_data_list,
         )
+
+    def get_results(self) -> MultiInteractorsResults:
+        """Execute the result assembly with the loaded generator
+
+        Returns
+        -------
+        :
+            Results for direct_multi_interactors as a BaseModel
+        """
+        return self._time_results()
 
 
 # Map algorithm names to result classes
