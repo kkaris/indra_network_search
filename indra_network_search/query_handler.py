@@ -2,7 +2,7 @@
 The QueryHandler's job is to act as a middle layer between the network
 search functionalities and the REST API that receives queries.
 """
-from typing import List, Tuple, Union, Dict, Set
+from typing import List, Union, Dict, Set
 
 from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
 from indra_network_search.query import (
@@ -103,11 +103,13 @@ class QueryHandler:
         return aux_queries
 
     def get_queries(self) -> Dict[str, UIQuery]:
-        """Returns a dict of {query name: UIQuery} for all eligible queries
+        """Returns a dict of all eligible queries
 
         Returns
         -------
-        List[Tuple[str, UIQuery]]
+        :
+            A dict containing the instances of the eligible Query classes
+            as {query name: Query instance}
         """
         if not self._query_dict:
             self._query_dict = self._get_queries()

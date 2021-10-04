@@ -7,6 +7,8 @@ logger = logging.getLogger(__name__)
 
 
 class CurationCache:
+    """Gathers curations of wrong statements from the indra DB"""
+
     _correct_set = {"correct", "hypothesis", "activity_amount"}
 
     def __init__(self):

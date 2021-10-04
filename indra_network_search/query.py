@@ -1,13 +1,13 @@
 """
-This file contains the Query classes that maps to different algorithms used
-in the search api.
+This file contains the Query classes mapping incoming rest queries to
+different algorithms used in the search api.
 """
 import logging
+from itertools import product
 from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List, Type
 
 import networkx as nx
 from pydantic import BaseModel
-from itertools import product
 
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import (
@@ -17,9 +17,9 @@ from indra.explanation.pathfinding import (
     EdgeFilter,
 )
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
-from indra_network_search.rest_util import StrNode, StrEdge
 from indra_network_search.data_models import *
 from indra_network_search.pathfinding import *
+from indra_network_search.rest_util import StrNode, StrEdge
 from indra_network_search.util.curation_cache import CurationCache
 
 # Constants
@@ -71,6 +71,7 @@ class Query:
 
     The Query classes are helpers that make sure the methods of the
     IndraNetworkSearchAPI receive the data needed from a NetworkSearchQuery
+    or other Rest query.
     """
 
     alg_name: str = NotImplemented  # String with name of algorithm function
@@ -91,6 +92,11 @@ class Query:
 
         The options here impact decisions on which extra search algorithms
         to include and which graph to pick
+
+        Returns
+        -------
+        :
+            A dict of ApiOptions
         """
         return ApiOptions(
             sign=self.query.get_int_sign(),
@@ -184,7 +190,13 @@ class PathQuery(UIQuery):
         ).dict()
 
     def result_options(self) -> Dict:
-        """Provide args to corresponding result class in result_handler"""
+        """Provide args to corresponding result class in result_handler
+
+        Returns
+        -------
+        :
+            Options for the PathResult class
+        """
         if self.query.source and self.query.target:
             source, target = self._get_source_target()
             reverse = False
@@ -202,7 +214,7 @@ class PathQuery(UIQuery):
             res_options["reverse"] = reverse
         if self.alg_name != bfs_search.__name__:
             # hash_blacklist is considered in bfs_search
-            # dijkstra & shortest_simple_paths
+            # dijkstra & shortest_simple_paths checks it in the results
             res_options["hash_blacklist"] = self.hash_blacklist
 
         return res_options
@@ -237,7 +249,13 @@ class ShortestSimplePathsQuery(PathQuery):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
-        """Match arguments of shortest_simple_paths from query"""
+        """Match arguments of shortest_simple_paths from query
+
+        Returns
+        -------
+        :
+            A dict with arguments for shortest_simple_paths
+        """
         source, target = self._get_source_target()
         return {
             "source": source,
@@ -253,7 +271,8 @@ class ShortestSimplePathsQuery(PathQuery):
 
         Returns
         -------
-        Tuple[Set, Callable]
+        :
+            The mesh options for shortest_simple_paths
         """
         # If any mesh ids are provided:
         if self.query.mesh_ids and len(self.query.mesh_ids) > 0:
@@ -310,7 +329,13 @@ class BreadthFirstSearchQuery(PathQuery):
             return _edge_filter
 
     def alg_options(self) -> Dict[str, Any]:
-        """Match arguments of bfs_search from query"""
+        """Match arguments of bfs_search from query
+
+        Returns
+        -------
+        :
+            The argument to provide bfs_search
+        """
         start_node, reverse = self._get_source_node()
         # path_length == len([node1, node2, ...])
         # depth_limit == len([(node1, node2), (node2, node3), ...])
@@ -347,12 +372,23 @@ class BreadthFirstSearchQuery(PathQuery):
     def mesh_options(
         self, graph: Optional[nx.DiGraph] = None
     ) -> Dict[str, Union[Set, bool, Callable]]:
-        """Match input to bfs_search"""
+        """Get mesh options for bfs_search
+
+        Parameters
+        ----------
+        graph :
+            The graph
+
+        Returns
+        -------
+        :
+            The mesh option for bfs_search
+        """
         # If any mesh ids are provided:
         if self.query.mesh_ids and len(self.query.mesh_ids) > 0:
             if not isinstance(graph, nx.DiGraph):
                 raise InvalidParametersError(
-                    f"Must provide graph when doing {self.alg_name} with "
+                    f"Must provide graph when running {self.alg_name} with "
                     f"mesh options."
                 )
             hashes, _ = self._get_mesh_options(get_func=False)
@@ -383,7 +419,13 @@ class DijkstraQuery(PathQuery):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
-        """Match arguments of open_dijkstra_search from query"""
+        """Match arguments of open_dijkstra_search from query
+
+        Returns
+        -------
+        :
+            A dict with arguments for open_dijkstra_search
+        """
         start, reverse = self._get_source_node()
         return {
             "start": start,
@@ -401,7 +443,10 @@ class DijkstraQuery(PathQuery):
     ) -> Dict[str, Union[Set, bool, Callable]]:
         """Produces mesh arguments matching open_dijkstra_search from query
 
-        Parameters
+        Returns
+        -------
+        :
+            The mesh options for open_dijkstra_query
         """
         if self.query.mesh_ids and len(self.query.mesh_ids) > 0:
             hashes, ref_counts_func = self._get_mesh_options()
@@ -429,7 +474,13 @@ class SharedInteractorsQuery(UIQuery):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
-        """Match arguments of shared_interactors from query"""
+        """Match arguments of shared_interactors from query
+
+        Returns
+        -------
+        :
+            A dict with the arguments for shared_interactors
+        """
         source = get_open_signed_node(
             node=self.query.source, reverse=self.reverse, sign=self.query.get_int_sign()
         )
@@ -527,7 +578,13 @@ class OntologyQuery(UIQuery):
         }
 
     def alg_options(self) -> Dict[str, Any]:
-        """Match arguments of shared_parents from query"""
+        """Match arguments of shared_parents from query
+
+        Returns
+        -------
+        :
+            A dict with arguments for shared_parents
+        """
         return {
             "immediate_only": False,
             "is_a_part_of": None,
@@ -535,12 +592,30 @@ class OntologyQuery(UIQuery):
         }
 
     def run_options(self, graph: Optional[nx.DiGraph] = None) -> Dict[str, Any]:
-        """Check query options and return them"""
+        """Check query options and return them for shared_parents
+
+        Parameters
+        ----------
+        graph :
+            The graph used in the search. Must contains node attributes 'ns'
+            and 'id' for each node.
+
+        Returns
+        -------
+        :
+            The options for shared_parents
+        """
         ontology_options: Dict[str, str] = self._get_ontology_options(graph)
         return self.options(**ontology_options, **self.alg_options()).dict()
 
     def result_options(self) -> Dict:
-        """Provide args to OntologyResultManager in result_handler"""
+        """Provide args to OntologyResultManager in result_handler
+
+        Returns
+        -------
+        :
+            The arguments for the Ontology Result manger
+        """
         source, target = self._get_source_target()
         return {
             "filter_options": self.query.get_filter_options(),
@@ -609,13 +684,35 @@ class SubgraphQuery:
                 self._not_in_graph.append(node)
 
     def alg_options(self, graph: nx.DiGraph) -> Dict[str, List[Node]]:
-        """Match arguments of get_subgraph_edges"""
+        """Match arguments of get_subgraph_edges
+
+        Parameters
+        ----------
+        graph :
+            The graph the search will be performed with
+
+        Returns
+        -------
+        :
+            A dict with the arguments for get_subgraph_edges
+        """
         if not self._nodes_in_graph and not self._not_in_graph:
             self._check_nodes(graph=graph)
         return {"nodes": self._nodes_in_graph}
 
     def run_options(self, graph: nx.DiGraph) -> Dict[str, Any]:
-        """Return options needed for get_subgraph_edges"""
+        """Return options needed for get_subgraph_edges
+
+        Parameters
+        ----------
+        graph :
+            The graph the search will be performed with
+
+        Returns
+        -------
+        :
+            A dict with the arguments for get_subgraph_edges
+        """
         return self.options(**self.alg_options(graph)).dict()
 
     def result_options(self) -> Dict[str, Any]:
@@ -623,7 +720,8 @@ class SubgraphQuery:
 
         Returns
         -------
-        Dict[str, Any]
+        :
+            A dict with options for the SubgraphResultManager
         """
         return {
             "filter_options": FilterOptions(),
@@ -634,6 +732,8 @@ class SubgraphQuery:
 
 
 class MultiInteractorsQuery:
+    """Check queries that will use pathfinding.direct_multi_interactors"""
+
     alg_name: str = direct_multi_interactors.__name__
     options: Type[MultiInteractorsOptions] = MultiInteractorsOptions
 
@@ -649,10 +749,23 @@ class MultiInteractorsQuery:
         return query_dict
 
     def run_options(self) -> Dict[str, Any]:
-        """Return options needed for pathfinding.direct_multi_interactors"""
+        """Return options needed for direct_multi_interactors
+
+        Returns
+        -------
+        :
+            The options needed for direct_multi_interactors
+        """
         return self.options(**self._alg_options()).dict()
 
     def result_options(self) -> Dict[str, Any]:
+        """Return a dict with options for the MultiInteractorsResultManager
+
+        Returns
+        -------
+        :
+            A dict with the options for the MultiInteractorsResultManager
+        """
         return {
             "input_nodes": self.query.nodes,
             "filter_options": FilterOptions(),  # All filters are in results
@@ -676,18 +789,18 @@ def get_open_signed_node(
 
     Parameters
     ----------
-    node: str
+    node :
         Starting node
-    reverse: bool
+    reverse :
         Direction of search:
         reverse == False -> downstream search
         reverse == True -> upstream search
-    sign: Optional[int]
+    sign :
         The requested sign of the search
 
     Returns
     -------
-    Union[str, Tuple[str, int]]
+    :
         A node or signed node
     """
     if sign is None:
@@ -767,23 +880,24 @@ def pass_stmt(
 
     Parameters
     ----------
-    stmt_dict : Dict[str, Any]
+    stmt_dict :
         The statement dict to check
-    stmt_types : Optional[List[str]]
+    stmt_types :
         A list of statement types. If provided, specifies which types are
         allowed. If no list is provided or the list is empty, all types are
         allowed. Default: All statement types are allowed.
-    hash_blacklist : Optional[List[int]]
+    hash_blacklist :
         A list of hashes that are not allowed as supporting statements for
         an edge. Default: all statements are allowed.
-    check_curated : bool
+    check_curated :
         If True, check if the statement is curated
-    belief_cutoff : Optional[float]
+    belief_cutoff :
         The cutoff for belief scores
 
     Returns
     -------
-    bool
+    :
+        True if statement passes, False otherwise
     """
     # Pass if type is in allowed types
     if stmt_types and stmt_dict["stmt_type"].lower() not in stmt_types:

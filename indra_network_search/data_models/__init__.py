@@ -1,26 +1,25 @@
 """
 This file contains data models for queries, results and arguments to algorithm
 functions.
-
-todo:
- - Use constr(to_lower=True) in appropriate places to enforce lowercase:
-    + node_blacklist
-    + allowed_ns
-    + stmt_filter (allowed statement types)
- - Use constr(min_length=N) to enforce that str fields are not empty
- - Figure out how to use conlist and other con* enforcers for e.g.:
-    + Enforce hashes to be int and/or str
-    + Lowercase for string filters
- - Figure out how to do "at least one of" filters. See:
-   https://github.com/samuelcolvin/pydantic/issues/506
-   Related: Check if it's possible to apply a setting that can be set on
-   creation to allow different checks, e.g. allow either of:
-         1) source XOR target
-         2) source AND target
- - In FilterOptions, set overall weighted based on values of weighted
-   context weighted. See here for more info:
-   https://stackoverflow.com/q/54023782/10478812
 """
+# todo:
+#  - Use constr(to_lower=True) in appropriate places to enforce lowercase:
+#     + node_blacklist
+#     + allowed_ns
+#     + stmt_filter (allowed statement types)
+#  - Use constr(min_length=N) to enforce that str fields are not empty
+#  - Figure out how to use conlist and other con* enforcers for e.g.:
+#     + Enforce hashes to be int and/or str
+#     + Lowercase for string filters
+#  - Figure out how to do "at least one of" filters. See:
+#    https://github.com/samuelcolvin/pydantic/issues/506
+#    Related: Check if it's possible to apply a setting that can be set on
+#    creation to allow different checks, e.g. allow either of:
+#          1) source XOR target
+#          2) source AND target
+#  - In FilterOptions, set overall weighted based on values of weighted
+#    context weighted. See here for more info:
+#    https://stackoverflow.com/q/54023782/10478812
 import logging
 from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
