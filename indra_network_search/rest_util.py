@@ -107,38 +107,53 @@ def list_chunk_gen(lst, size=1000):
     return (lst[k : k + n] for k in range(0, len(lst), n))
 
 
-def sorted_json_string(json_thing):
-    """Produce a string that is unique to a json's contents."""
-    if isinstance(json_thing, str):
-        return json_thing
-    elif isinstance(json_thing, (tuple, list)):
-        return "[%s]" % (",".join(sorted(sorted_json_string(s) for s in json_thing)))
-    elif isinstance(json_thing, dict):
+def sorted_json_string(jsonable_dict: Dict) -> str:
+    """Produce a string that is unique to a json's contents
+
+    Parameters
+    ----------
+    jsonable_dict :
+        A dict representation of a JSON to create a sorted string out of
+
+    Returns
+    -------
+    :
+        The sorted string representation of the JSON
+    """
+    if isinstance(jsonable_dict, str):
+        return jsonable_dict
+    elif isinstance(jsonable_dict, (tuple, list)):
+        return "[%s]" % (",".join(sorted(sorted_json_string(s) for s in jsonable_dict)))
+    elif isinstance(jsonable_dict, dict):
         return "{%s}" % (
-            ",".join(sorted(k + sorted_json_string(v) for k, v in json_thing.items()))
+            ",".join(
+                sorted(k + sorted_json_string(v) for k, v in jsonable_dict.items())
+            )
         )
-    elif isinstance(json_thing, (int, float)):
-        return str(json_thing)
-    elif json_thing is None:
-        return json.dumps(json_thing)
+    elif isinstance(jsonable_dict, (int, float)):
+        return str(jsonable_dict)
+    elif jsonable_dict is None:
+        return json.dumps(jsonable_dict)
     else:
-        raise TypeError("Invalid type: %s" % type(json_thing))
+        raise TypeError("Invalid type: %s" % type(jsonable_dict))
 
 
-def get_query_hash(query_json, ignore_keys=None):
+def get_query_hash(
+    query_json: Dict, ignore_keys: Optional[Union[Set, List]] = None
+) -> int:
     """Create an FNV-1a 32-bit hash from the query json
 
     Parameters
     ----------
-    query_json : dict
+    query_json :
         A json compatible query dict
-    ignore_keys : set|list
+    ignore_keys :
         A list or set of keys to ignore in the query_json. By default,
         no keys are ignored. Default: None.
 
     Returns
     -------
-    int
+    :
         An FNV-1a 32-bit hash of the query json ignoring the keys in
         ignore_keys
     """
@@ -204,7 +219,8 @@ def get_latest_graphs() -> Dict[str, str]:
 
     Returns
     -------
-    Dict[str, str]
+    :
+        A dict of the S3 keys of the latest unsigned and signed graphs
     """
     s3 = get_s3_client(unsigned=False)
     tree = get_s3_file_tree(s3=s3, bucket=NET_BUCKET, prefix=NETS_PREFIX, with_dt=True)
@@ -242,15 +258,15 @@ def load_indra_graph(
 
     Parameters
     ----------
-    unsigned_graph : bool
+    unsigned_graph :
         Load the latest unsigned graph. Default: True.
-    unsigned_multi_graph : bool
+    unsigned_multi_graph :
         Load the latest unsigned multi graph. Default: False.
-    sign_node_graph : bool
+    sign_node_graph :
         Load the latest signed node graph. Default: True.
-    sign_edge_graph : bool
+    sign_edge_graph :
         Load the latest signed edge graph. Default: False.
-    use_cache : bool
+    use_cache :
         If True, try to load files from the designated local cache
 
     Returns
@@ -259,7 +275,7 @@ def load_indra_graph(
         Returns, as a tuple:
             - unsigned graph
             - unsigned multi graph
-            - signed edge graphs
+            - signed edge graph
             - signed node graph
 
         If a graph was not chosen to be loaded or wasn't found, None will be
@@ -338,7 +354,7 @@ def load_indra_graph(
 
 def dump_query_json_to_s3(
     query_hash: Union[str, int], json_obj: Dict, get_url: bool = False
-):
+) -> Optional[str]:
     """Dump a query json to S3
 
     Parameters
@@ -415,7 +431,19 @@ def find_related_hashes(mesh_ids):
     return result.json().get("results", [])
 
 
-def check_existence_and_date_s3(query_hash):
+def check_existence_and_date_s3(query_hash: Union[int, str]) -> Dict[str, str]:
+    """Check if a query hash has corresponding result and query json on S3
+
+    Parameters
+    ----------
+    query_hash :
+        The query hash to check
+
+    Returns
+    -------
+    :
+        Dict with S3 key for query and corresponding result, if they exist
+    """
     s3 = get_s3_client(unsigned=False)
     key_prefix = "indra_network_search/%s" % query_hash
     query_json_key = key_prefix + "_query.json"
@@ -467,12 +495,12 @@ def get_default_args(func: Callable) -> Dict[str, Any]:
 
     Parameters
     ----------
-    func : Callable
+    func :
         Function to find default arguments for
 
     Returns
     -------
-    Dict[str, Any]
+    :
         A dictionary with the default values keyed by argument name
     """
     signature = inspect.signature(func)
@@ -491,12 +519,12 @@ def get_mandatory_args(func: Callable) -> Set[str]:
 
     Parameters
     ----------
-    func : Callable
+    func :
         Function to find mandatory arguments for
 
     Returns
     -------
-    Set[str]
+    :
         The of mandatory arguments
     """
     signature = inspect.signature(func)
@@ -512,14 +540,14 @@ def is_context_weighted(mesh_id_list: List[str], strict_filtering: bool) -> bool
 
     Parameters
     ----------
-    mesh_id_list : List[str]
+    mesh_id_list :
         A list of mesh ids
-    strict_filtering : bool
+    strict_filtering :
         whether to run strict context filtering or not
 
     Returns
     -------
-    bool
+    :
         True for the combination of mesh ids being present and unstrict
         filtering, otherwise False
     """
@@ -535,16 +563,16 @@ def is_weighted(
 
     Parameters
     ----------
-    weighted : bool
+    weighted :
         If a query is weighted or not
-    mesh_ids : List[str]
+    mesh_ids :
         A list of mesh ids
     strict_mesh_filtering : bool
         whether to run strict context filtering or not
 
     Returns
     -------
-    bool
+    :
         True if the combination is either weighted or context weighted
     """
     if mesh_ids:
