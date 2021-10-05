@@ -80,6 +80,7 @@ CACHE = path.join(API_PATH, "_cache")
 STATIC = path.join(API_PATH, "static")
 JSON_CACHE = path.join(API_PATH, "_json_res")
 
+INDRA_MDG = INDRA_DG = INDRA_SNG = INDRA_SEG = INDRA_PBSNG = INDRA_PBSEG = ''
 TEST_MDG_CACHE = path.join(CACHE, "test_mdg_network.pkl")
 INDRA_MDG_CACHE = path.join(CACHE, INDRA_MDG)
 TEST_DG_CACHE = path.join(CACHE, "test_dir_network.pkl")
