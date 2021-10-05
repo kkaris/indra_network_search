@@ -10,30 +10,17 @@ from botocore.exceptions import ClientError
 from fnvhash import fnv1a_32
 
 from depmap_analysis.scripts.dump_new_graphs import *
-from indra_db.util.dump_sif import NS_LIST
-from indra.statements import (
-    get_all_descendants,
-    Activation,
-    Inhibition,
-    IncreaseAmount,
-    DecreaseAmount,
-    AddModification,
-    RemoveModification,
-    Complex,
-)
-from depmap_analysis.util.io_functions import (
-    file_opener,
-)
 from depmap_analysis.util.aws import (
     dump_json_to_s3,
     DUMPS_BUCKET,
     NETS_PREFIX,
     NET_BUCKET,
+    get_s3_client,
+    get_s3_file_tree,
 )
-from depmap_analysis.scripts.dump_new_graphs import *
-from indra.util.aws import get_s3_client, get_s3_file_tree
-from indra_db.client.readonly.query import FromMeshIds
-from indra_db.util.dump_sif import NS_LIST
+from depmap_analysis.util.io_functions import (
+    file_opener,
+)
 from indra_db.util.s3_path import S3Path
 
 __all__ = [
@@ -43,8 +30,6 @@ __all__ = [
     "dump_query_json_to_s3",
     "get_query_hash",
     "dump_query_result_to_s3",
-    "NS_LIST",
-    "get_queryable_stmt_types",
     "get_s3_client",
     "CACHE",
     "INDRA_DG",
@@ -53,21 +38,19 @@ __all__ = [
     "INDRA_DG_CACHE",
     "INDRA_SEG_CACHE",
     "INDRA_SNG_CACHE",
-    "TEST_DG_CACHE",
     "get_default_args",
     "get_mandatory_args",
     "is_weighted",
     "is_context_weighted",
     "StrNode",
     "StrEdge",
+    "StrNodeSeq",
 ]
 
 logger = logging.getLogger(__name__)
 
 API_PATH = path.dirname(path.abspath(__file__))
 CACHE = path.join(API_PATH, "_cache")
-TEST_MDG_CACHE = path.join(CACHE, "test_mdg_network.pkl")
-TEST_DG_CACHE = path.join(CACHE, "test_dir_network.pkl")
 INDRA_MDG_CACHE = path.join(CACHE, INDRA_MDG)
 INDRA_DG_CACHE = path.join(CACHE, INDRA_DG)
 INDRA_SNG_CACHE = path.join(CACHE, INDRA_SNG)
@@ -77,18 +60,6 @@ INDRA_SEG_CACHE = path.join(CACHE, INDRA_SEG)
 StrNode = Union[str, Tuple[str, int]]
 StrEdge = Tuple[StrNode, StrNode]
 StrNodeSeq = Union[List[StrNode], Set[StrEdge]]
-
-
-def get_query_resp_fstr(query_hash):
-    qf = path.join(JSON_CACHE, "query_%s.json" % query_hash)
-    rf = path.join(JSON_CACHE, "result_%s.json" % query_hash)
-    return qf, rf
-
-
-def list_chunk_gen(lst, size=1000):
-    """Given list, generate chunks <= size"""
-    n = max(1, size)
-    return (lst[k : k + n] for k in range(0, len(lst), n))
 
 
 def sorted_json_string(jsonable_dict: Dict) -> str:
@@ -150,24 +121,6 @@ def get_query_hash(
             )
         query_json = {k: v for k, v in query_json.items() if k not in ignore_keys}
     return fnv1a_32(sorted_json_string(query_json).encode("utf-8"))
-
-
-# Copied from emmaa_service/api.py
-def get_queryable_stmt_types():
-    """Return Statement class names that can be used for querying."""
-
-    def _get_sorted_descendants(cls):
-        return sorted(_get_names(get_all_descendants(cls)))
-
-    def _get_names(classes):
-        return [s.__name__ for s in classes]
-
-    stmt_types = (
-        _get_names([Activation, Inhibition, IncreaseAmount, DecreaseAmount, Complex])
-        + _get_sorted_descendants(AddModification)
-        + _get_sorted_descendants(RemoveModification)
-    )
-    return stmt_types
 
 
 def get_latest_graphs() -> Dict[str, str]:
