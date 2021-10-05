@@ -5,3 +5,7 @@ sphinx_autodoc_typehints
 autodoc_pydantic
 requests
 networkx>=2.1
+pytrie
+indra
+fastapi
+botocore
