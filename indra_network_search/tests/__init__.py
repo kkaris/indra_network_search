@@ -4,13 +4,13 @@ Todo:
     - Create standalone test files for subgraph queries
 """
 from copy import deepcopy
+
 from depmap_analysis.network_functions.net_functions import (
     _weight_from_belief,
     z_sc_weight,
 )
 from indra.databases import get_identifiers_url
 from indra_network_search.data_models import Node
-
 
 __all__ = [
     "nodes",
@@ -355,6 +355,30 @@ edge_data = {
                 "curated": True,
                 "position": None,
                 "english": "FPLX:BRCA is an ontological parent of HGNC:1101",
+                "z_score": 0,
+                "corr_weight": 1,
+            }
+        ],
+    },
+    ("BRCA1", "BRCA"): {
+        "belief": 1,
+        "weight": wm(1),
+        "z_score": self_corr,
+        "corr_weight": _zw(self_corr, self_corr),
+        "statements": [
+            {
+                "stmt_hash": "https://identifiers.org/fplx:BRCA",
+                "stmt_type": "fplx",
+                "evidence_count": 1,
+                "belief": 1,
+                "source_counts": {"fplx": 1},
+                "residue": None,
+                "weight": wm(1),
+                "curated": True,
+                "position": None,
+                "english": "FPLX:BRCA is an ontological parent of HGNC:1100",
+                "z_score": 0,
+                "corr_weight": 1,
             }
         ],
     },
