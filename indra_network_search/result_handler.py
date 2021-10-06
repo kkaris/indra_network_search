@@ -196,9 +196,13 @@ class ResultManager:
             return None
 
         try:
-            url = DB_URL_HASH.format(stmt_hash=stmt_dict["stmt_hash"])
-            if ev_limit is not None:
-                url += f"&ev_limit={ev_limit}"
+            if stmt_dict["stmt_type"] == "fplx":
+                # stmt_hash == identifiers.org lookup for ontological edges
+                url = stmt_dict["stmt_hash"]
+            else:
+                url = DB_URL_HASH.format(stmt_hash=stmt_dict["stmt_hash"])
+                if ev_limit is not None:
+                    url += f"&ev_limit={ev_limit}"
             return StmtData(db_url_hash=url, **stmt_dict)
         except ValidationError as err:
             logger.warning(
