@@ -2,15 +2,18 @@
 Test helpers and functions related to the query module
 """
 from inspect import signature
-import networkx as nx
 from typing import Set, Callable
-from indra_network_search.rest_util import get_mandatory_args
+
+import networkx as nx
+from nose.plugins.attrib import attr
+
 from indra_network_search.data_models import NetworkSearchQuery
-from indra_network_search.query import SharedTargetsQuery,\
-    SharedRegulatorsQuery, ShortestSimplePathsQuery, BreadthFirstSearchQuery,\
+from indra_network_search.query import SharedTargetsQuery, \
+    SharedRegulatorsQuery, ShortestSimplePathsQuery, BreadthFirstSearchQuery, \
     DijkstraQuery, OntologyQuery, MissingParametersError, \
     InvalidParametersError, alg_func_mapping, pass_stmt, \
     _get_edge_filter_func, EdgeFilter
+from indra_network_search.rest_util import get_mandatory_args
 from indra_network_search.tests.util import unsigned_graph
 
 
@@ -94,7 +97,9 @@ def test_breadth_first_search_query():
     options = set(bfsq.run_options().keys())
     _match_args(run_options=options, alg_fun=alg_func_mapping[bfsq.alg_name])
 
-    # Test strict context BFS
+
+@attr('nonpublic')
+def test_strict_context_bfs_query():
     graph = nx.DiGraph()
     graph.add_nodes_from([('A', {'ns': 'HGNC', 'id': '0'}),
                           ('B', {'ns': 'HGNC', 'id': '1'})])
@@ -107,14 +112,15 @@ def test_breadth_first_search_query():
     _match_args(run_options=options, alg_fun=alg_func_mapping[bfsq.alg_name])
 
 
-def test_dijkstra_query():
-    # Test belief weight
+def test_dijkstra_belief_weight_query():
     query = NetworkSearchQuery(source='A', weighted='belief')
     dijq = DijkstraQuery(query)
     options = set(dijq.run_options().keys())
     _match_args(run_options=options, alg_fun=alg_func_mapping[dijq.alg_name])
 
-    # Test context weight
+
+@attr('nonpublic')
+def test_dijkstra_context_weight_query():
     query = NetworkSearchQuery(source='A', mesh_ids=['D000544'],
                                strict_mesh_id_filtering=False)
     dijq = DijkstraQuery(query)
