@@ -7,9 +7,16 @@
           class="badge badge-source">|</span>
       <span v-for="src in src_group"
             :key="src">
-        <span :class="`${badgeClass} source-${src}`"
-              v-if="showSrc(src)"
-              :title="src">
+        <template v-if="src === 'fplx' && showSrc(src)">
+          <span title="ontological edge">
+            <i class="bi bi-diagram-2"></i>
+          </span>
+        </template>
+        <template v-else>
+        <span
+            :class="`${badgeClass} source-${src}`"
+            v-if="showSrc(src)"
+            :title="src">
           <span v-if="source_counts">
             {{ source_counts[src] }}
           </span>
@@ -17,6 +24,7 @@
             {{ src }}
           </span>
         </span>
+        </template>
       </span>
     </span>
   </span>
@@ -46,6 +54,7 @@
       return {
         sources: {
           'databases': [
+              'fplx',
               'psp',
               'cbn',
               'pc',
@@ -63,7 +72,7 @@
               'omnipath',
               'conib',
               'crog',
-              'dgi'
+              'dgi',
           ],
           'reading': [
               'rlimsp',
