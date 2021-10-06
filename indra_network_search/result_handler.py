@@ -866,7 +866,7 @@ class OntologyResultManager(UIResultManager):
             source=self.source, target=self.target, parents=self._parents
         )
 
-    def get_results(self) -> BaseModel:
+    def get_results(self) -> OntologyResults:
         """Execute the result assembly with the loaded generator
 
         Returns
@@ -874,6 +874,7 @@ class OntologyResultManager(UIResultManager):
         :
             Results for shared_parents as a BaseModel
         """
+        return self._time_results()
 
 
 def _get_cull_values(
