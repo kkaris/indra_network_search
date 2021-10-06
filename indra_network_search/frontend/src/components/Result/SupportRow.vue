@@ -5,7 +5,7 @@ TodO for future:
    https://getbootstrap.com/docs/5.0/components/card/#navigation
    The main tab could summarize the individual statements (at this level
    they are of the same type and are only distinguished by hash)
- - The other tabs are per statement hash and loads a INDRA DB like view of
+ - The other tabs are per statement hash and loads an INDRA DB like view of
    the statement
   -->
   <!-- Parent table has:
@@ -15,12 +15,17 @@ TodO for future:
     <th scope="col">Link to DB</th>
   </tr>
  -->
-  <td>{{ stmtType }}</td>
+  <td>{{ stmtType === 'fplx' ? 'Ontological' : stmtType }}</td>
   <td style="text-align: end">
     <SourceDisplay :source_counts="stmtTypeSupport.source_counts" />
   </td>
   <td>
-    <a :href="linkToDB"><i class="bi bi-box-arrow-up-right"></i></a>
+    <template v-if="linkToDB">
+      <a :href="linkToDB"><i class="bi bi-box-arrow-up-right"></i></a>
+    </template>
+    <template v-else>
+      <span title="Link is not available"><i class="bi bi-box-arrow-up-right"></i></span>
+    </template>
   </td>
 </template>
 <script>
@@ -64,6 +69,19 @@ export default {
       return this.stmtTypeSupport.statements.length;
     },
     linkToDB() {
+      if (this.stmtType === 'fplx') {
+        // get either URL or hash, both should equal the identifiers.org lookup
+        let sd = this.stmtTypeSupport.statements[0]
+        let url;
+        if (sd.stmt_hash && sd.stmt_hash.startsWith('http')) {
+          url = sd.stmt_hash
+        } else if (sd.db_url_hash) {
+          url = sd.db_url_hash
+        } else {
+          url = ''
+        }
+        return url
+      }
       return (
         "https://db.indra.bio/statements/from_agents?" +
         `subject=${this.subjNode.name}&object=${this.objNode.name}` +
