@@ -9,16 +9,14 @@
     Current status: <span class="badge" :class="badgeClass">{{ status }}</span>
   </p>
   <p class="text-center">
-    Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and read
-    the
-    <a href="https://indra-network-search.readthedocs.io/en/latest/"
-      >General Docs</a
-    >
+    Read the <a href="https://network.indra.bio/api/docs">API Docs</a> and read
+    the <a href="https://indra-network-search.readthedocs.io/en/latest/">General Docs</a>
   </p>
 </template>
 
 <script>
 import AxiosMethods from "../../services/AxiosMethods";
+
 export default {
   name: "HeaderInfo.vue",
   props: {
