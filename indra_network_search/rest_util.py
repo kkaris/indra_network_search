@@ -2,7 +2,6 @@
 import inspect
 import json
 import logging
-from datetime import datetime
 from os import path
 from typing import Callable, Dict, Any, Set, List, Tuple, Optional, Union
 
@@ -15,47 +14,22 @@ from depmap_analysis.util.aws import (
     dump_json_to_s3,
     DUMPS_BUCKET,
     NETS_PREFIX,
-    load_pickle_from_s3,
     NET_BUCKET,
-    read_json_from_s3,
+    get_s3_client,
+    get_s3_file_tree,
 )
 from depmap_analysis.util.io_functions import (
     file_opener,
-    DT_YmdHMS,
-    RE_YmdHMS_,
-    RE_YYYYMMDD,
-    get_earliest_date,
-    get_date_from_str,
-    strip_out_date,
 )
-from indra.statements import (
-    get_all_descendants,
-    Activation,
-    Inhibition,
-    IncreaseAmount,
-    DecreaseAmount,
-    AddModification,
-    RemoveModification,
-    Complex,
-)
-from indra.util.aws import get_s3_client, get_s3_file_tree
-from indra_db.client.readonly.query import FromMeshIds
-from indra_db.util.dump_sif import NS_LIST
 from indra_db.util.s3_path import S3Path
 
 __all__ = [
     "load_indra_graph",
-    "list_chunk_gen",
-    "read_query_json_from_s3",
     "check_existence_and_date_s3",
     "dump_result_json_to_s3",
     "dump_query_json_to_s3",
     "get_query_hash",
     "dump_query_result_to_s3",
-    "NS_LIST",
-    "get_queryable_stmt_types",
-    "load_pickled_net_from_s3",
-    "get_earliest_date",
     "get_s3_client",
     "CACHE",
     "INDRA_DG",
@@ -64,47 +38,28 @@ __all__ = [
     "INDRA_DG_CACHE",
     "INDRA_SEG_CACHE",
     "INDRA_SNG_CACHE",
-    "TEST_DG_CACHE",
     "get_default_args",
     "get_mandatory_args",
     "is_weighted",
     "is_context_weighted",
     "StrNode",
     "StrEdge",
+    "StrNodeSeq",
 ]
 
 logger = logging.getLogger(__name__)
 
 API_PATH = path.dirname(path.abspath(__file__))
 CACHE = path.join(API_PATH, "_cache")
-STATIC = path.join(API_PATH, "static")
-JSON_CACHE = path.join(API_PATH, "_json_res")
-
-TEST_MDG_CACHE = path.join(CACHE, "test_mdg_network.pkl")
 INDRA_MDG_CACHE = path.join(CACHE, INDRA_MDG)
-TEST_DG_CACHE = path.join(CACHE, "test_dir_network.pkl")
 INDRA_DG_CACHE = path.join(CACHE, INDRA_DG)
 INDRA_SNG_CACHE = path.join(CACHE, INDRA_SNG)
 INDRA_SEG_CACHE = path.join(CACHE, INDRA_SEG)
-INDRA_PBSNG_CACHE = path.join(CACHE, INDRA_PBSNG)
-INDRA_PBSEG_CACHE = path.join(CACHE, INDRA_PBSEG)
 
 # Derived type hints
 StrNode = Union[str, Tuple[str, int]]
 StrEdge = Tuple[StrNode, StrNode]
 StrNodeSeq = Union[List[StrNode], Set[StrEdge]]
-
-
-def get_query_resp_fstr(query_hash):
-    qf = path.join(JSON_CACHE, "query_%s.json" % query_hash)
-    rf = path.join(JSON_CACHE, "result_%s.json" % query_hash)
-    return qf, rf
-
-
-def list_chunk_gen(lst, size=1000):
-    """Given list, generate chunks <= size"""
-    n = max(1, size)
-    return (lst[k : k + n] for k in range(0, len(lst), n))
 
 
 def sorted_json_string(jsonable_dict: Dict) -> str:
@@ -166,52 +121,6 @@ def get_query_hash(
             )
         query_json = {k: v for k, v in query_json.items() if k not in ignore_keys}
     return fnv1a_32(sorted_json_string(query_json).encode("utf-8"))
-
-
-def check_existence_and_date(indranet_date, fname, in_name=True):
-    """With in_name True, look for a datestring in the file name, otherwise
-    use the file creation date/last modification date.
-
-    This function should return True if the file exists and is (seemingly)
-    younger than the network that is currently in cache
-    """
-    if not path.isfile(fname):
-        return False
-    else:
-        if in_name:
-            try:
-                # Try YYYYmmdd
-                fdate = get_date_from_str(strip_out_date(fname, RE_YYYYMMDD), DT_YmdHMS)
-            except ValueError:
-                # Try YYYY-mm-dd-HH-MM-SS
-                fdate = get_date_from_str(strip_out_date(fname, RE_YmdHMS_), DT_YmdHMS)
-        else:
-            fdate = datetime.fromtimestamp(get_earliest_date(fname))
-
-        # If fdate is younger than indranet, we're fine
-        return indranet_date < fdate
-
-
-def _todays_date():
-    return datetime.now().strftime("%Y%m%d")
-
-
-# Copied from emmaa_service/api.py
-def get_queryable_stmt_types():
-    """Return Statement class names that can be used for querying."""
-
-    def _get_sorted_descendants(cls):
-        return sorted(_get_names(get_all_descendants(cls)))
-
-    def _get_names(classes):
-        return [s.__name__ for s in classes]
-
-    stmt_types = (
-        _get_names([Activation, Inhibition, IncreaseAmount, DecreaseAmount, Complex])
-        + _get_sorted_descendants(AddModification)
-        + _get_sorted_descendants(RemoveModification)
-    )
-    return stmt_types
 
 
 def get_latest_graphs() -> Dict[str, str]:
@@ -425,12 +334,6 @@ def dump_query_result_to_s3(
     return None
 
 
-def find_related_hashes(mesh_ids):
-    q = FromMeshIds(mesh_ids)
-    result = q.get_hashes()
-    return result.json().get("results", [])
-
-
 def check_existence_and_date_s3(query_hash: Union[int, str]) -> Dict[str, str]:
     """Check if a query hash has corresponding result and query json on S3
 
@@ -470,18 +373,6 @@ def check_existence_and_date_s3(query_hash: Union[int, str]) -> Dict[str, str]:
             DUMPS_BUCKET, result_json_key
         ).to_string()
     return exists_dict
-
-
-def load_pickled_net_from_s3(name):
-    s3_cli = get_s3_client(False)
-    key = NETS_PREFIX + name
-    return load_pickle_from_s3(s3_cli, key=key, bucket=NET_BUCKET)
-
-
-def read_query_json_from_s3(s3_key):
-    s3 = get_s3_client(unsigned=False)
-    bucket = DUMPS_BUCKET
-    return read_json_from_s3(s3=s3, key=s3_key, bucket=bucket)
 
 
 def get_default_args(func: Callable) -> Dict[str, Any]:

@@ -6,7 +6,7 @@
       <Edge v-bind="sourceEdgeData" :show-weight="false" />
     </div>
   </div>
-  <!-- Edge with source -->
+  <!-- Edge with target -->
   <div class="row align-items-center">
     <div class="col-2">Target edge:</div>
     <div class="col">

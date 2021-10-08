@@ -9,15 +9,11 @@ from typing import List, Optional
 from fastapi import FastAPI, Query as RestQuery, BackgroundTasks
 from pydantic import ValidationError
 
+from depmap_analysis.network_functions.net_functions import bio_ontology, \
+    MIN_WEIGHT
 from depmap_analysis.util.io_functions import file_opener
 from indra.databases import get_identifiers_url
-from indra_network_search.data_models.rest_models import Health, ServerStatus
-from indra_network_search.rest_util import (
-    load_indra_graph,
-    check_existence_and_date_s3,
-    dump_result_json_to_s3,
-    dump_query_json_to_s3,
-)
+from indra_network_search.autocomplete import NodesTrie, Prefixes
 from indra_network_search.data_models import (
     Results,
     NetworkSearchQuery,
@@ -27,12 +23,16 @@ from indra_network_search.data_models import (
     MultiInteractorsRestQuery,
     MultiInteractorsResults,
 )
-from indra_network_search.autocomplete import NodesTrie, Prefixes
+from indra_network_search.data_models.rest_models import Health, ServerStatus
+from indra_network_search.rest_util import (
+    load_indra_graph,
+    check_existence_and_date_s3,
+    dump_result_json_to_s3,
+    dump_query_json_to_s3,
+)
 from indra_network_search.search_api import IndraNetworkSearchAPI
-from depmap_analysis.network_functions.net_functions import bio_ontology
 
-
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 logger = logging.getLogger(__name__)
 
@@ -301,6 +301,26 @@ async def startup_event():
             use_cache=USE_CACHE,
         )
 
+        try:
+            assert all(
+                data["weight"] >= MIN_WEIGHT
+                for _, _, data in dir_graph.edges(data=True)
+            )
+            logger.info("Edge belief weights OK")
+        except AssertionError:
+            logger.warning(
+                f"Edge weights below {MIN_WEIGHT} detected, resetting to {MIN_WEIGHT}"
+            )
+            # Reset unsigned graph edge weights
+            for _, _, data in dir_graph.edges(data=True):
+                if data["weight"] < MIN_WEIGHT:
+                    data["weight"] = MIN_WEIGHT
+
+            # Reset signed node graph edge weights
+            for _, _, data in sign_node_graph.edges(data=True):
+                if data["weight"] < MIN_WEIGHT:
+                    data["weight"] = MIN_WEIGHT
+
         bio_ontology.initialize()
 
     # Get a Trie for autocomplete
@@ -317,7 +337,7 @@ async def startup_event():
     STATUS.graph_date = date.fromisoformat(dt) if dt else None
 
     # Setup search API
-    logger.info("Setting up IndraNetworkSearchAPI with signed and unsigned " "graphs")
+    logger.info("Setting up IndraNetworkSearchAPI with signed and unsigned graphs")
     network_search_api = IndraNetworkSearchAPI(
         unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
     )

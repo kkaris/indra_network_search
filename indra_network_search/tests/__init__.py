@@ -4,13 +4,13 @@ Todo:
     - Create standalone test files for subgraph queries
 """
 from copy import deepcopy
+
 from depmap_analysis.network_functions.net_functions import (
     _weight_from_belief,
     z_sc_weight,
 )
 from indra.databases import get_identifiers_url
 from indra_network_search.data_models import Node
-
 
 __all__ = [
     "nodes",
@@ -355,6 +355,30 @@ edge_data = {
                 "curated": True,
                 "position": None,
                 "english": "FPLX:BRCA is an ontological parent of HGNC:1101",
+                "z_score": 0,
+                "corr_weight": 1,
+            }
+        ],
+    },
+    ("BRCA1", "BRCA"): {
+        "belief": 1,
+        "weight": wm(1),
+        "z_score": self_corr,
+        "corr_weight": _zw(self_corr, self_corr),
+        "statements": [
+            {
+                "stmt_hash": "https://identifiers.org/fplx:BRCA",
+                "stmt_type": "fplx",
+                "evidence_count": 1,
+                "belief": 1,
+                "source_counts": {"fplx": 1},
+                "residue": None,
+                "weight": wm(1),
+                "curated": True,
+                "position": None,
+                "english": "FPLX:BRCA is an ontological parent of HGNC:1100",
+                "z_score": 0,
+                "corr_weight": 1,
             }
         ],
     },
@@ -362,9 +386,9 @@ edge_data = {
 
 more_edge_data = {}
 for edge, v in edge_data.items():
-    # Add parallel edges for BRCA1 and CHEK1
+    # Add parallel edges for BRCA1 and CHEK1, excluding BRCA fplx edges
     more_edge_data[edge] = v
-    if "BRCA1" == edge[0]:
+    if "BRCA1" == edge[0] and edge[1] != "BRCA":
         parallel_edge = ("HDAC3", edge[1])
         vc = deepcopy(v)
         vc["statements"][0]["english"] = v["statements"][0]["english"].replace(
@@ -372,7 +396,7 @@ for edge, v in edge_data.items():
         )
         more_edge_data[parallel_edge] = v
 
-    if "CHEK1" == edge[1]:
+    if "CHEK1" == edge[1] and edge[0] != "BRCA":
         parallel_edge = (edge[0], "H2AZ1")
         vc = deepcopy(v)
         vc["statements"][0]["english"] = v["statements"][0]["english"].replace(

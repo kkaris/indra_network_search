@@ -21,9 +21,12 @@ blocked from non-hms and non-AWS IP addresses, unless explicitly added.
 """
 from itertools import product
 from typing import Type, Union
+
 from networkx import DiGraph
 from pydantic import BaseModel
-from depmap_analysis.network_functions.famplex_functions import get_identifiers_url
+
+from depmap_analysis.network_functions.famplex_functions import \
+    get_identifiers_url
 from indra_network_search.data_models import *
 from indra_network_search.query import (
     SharedTargetsQuery,
@@ -43,6 +46,7 @@ from indra_network_search.result_handler import (
     alg_manager_mapping,
     MultiInteractorsResultManager,
 )
+from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2, _get_node
 from indra_network_search.tests.test_curation_cache import MockCurationCache
 from indra_network_search.tests.util import (
     _match_args,
@@ -58,7 +62,6 @@ from indra_network_search.tests.util import (
     signed_node_graph,
     _get_edge_hash,
 )
-from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2, _get_node
 
 
 def _check_path_queries(
@@ -879,7 +882,7 @@ def test_dijkstra_belief():
     rest_query = NetworkSearchQuery(
         filter_curated=False, source=brca1.name, weighted="belief"
     )
-    interm = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    interm = ["BRCA", "AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
 
     str_paths2 = [("BRCA1", n) for n in interm]
     str_paths3 = [("BRCA1", "AR", "CHEK1")]
@@ -905,7 +908,7 @@ def test_dijkstra_z_score():
     rest_query = NetworkSearchQuery(
         filter_curated=False, source=brca1.name, weighted="z_score"
     )
-    interm = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    interm = ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1", "BRCA"]
 
     str_paths2 = [("BRCA1", n) for n in interm]
     str_paths3 = [("BRCA1", "AR", "CHEK1")]
@@ -940,9 +943,7 @@ def test_bfs_default():
         lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
     )
     rest_query = NetworkSearchQuery(filter_curated=False, source="BRCA1")
-    str_paths2 = [
-        ("BRCA1", n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
-    ]
+    str_paths2 = [("BRCA1", n) for n in ["BRCA", "AR", "testosterone", "NR2C2", "MBD2"]]
     str_paths3 = [("BRCA1", "AR", "CHEK1")]
     paths = {
         2: _get_path_list(
@@ -995,9 +996,7 @@ def test_bfs_depth_limit():
     )
     # Test depth limit = 4 (i.e. max number of edges = 4)
     rest_query = NetworkSearchQuery(filter_curated=False, source="BRCA1", depth_limit=4)
-    str_paths2 = [
-        ("BRCA1", n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
-    ]
+    str_paths2 = [("BRCA1", n) for n in ["BRCA", "AR", "testosterone", "NR2C2", "MBD2"]]
     str_paths3 = [("BRCA1", "AR", "CHEK1")]
     str_paths4 = [("BRCA1", "AR", "CHEK1", "BRCA2"), ("BRCA1", "AR", "CHEK1", "NCOA")]
     paths = {
@@ -1028,7 +1027,7 @@ def test_bfs_k_shortest():
         lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
     )
     rest_query = NetworkSearchQuery(filter_curated=False, source="BRCA1", k_shortest=3)
-    str_paths2 = [("BRCA1", n) for n in ["AR", "testosterone", "NR2C2"]]
+    str_paths2 = [("BRCA1", n) for n in ["BRCA", "AR", "testosterone"]]
     paths = {
         2: _get_path_list(
             str_paths=str_paths2, graph=unsigned_graph, large=False, signed=False
@@ -1168,7 +1167,9 @@ def test_bfs_hash_blacklist():
         lookup=get_identifiers_url(db_name="HGNC", db_id="1100"),
     )
     stmt_filter_query = NetworkSearchQuery(source=brca1.name, filter_curated=True)
-    str_paths2 = [("BRCA1", n) for n in ["testosterone", "NR2C2", "MBD2", "PATZ1"]]
+    str_paths2 = [
+        ("BRCA1", n) for n in ["BRCA", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
     str_paths3 = [("BRCA1", "testosterone", "CHEK1")]
     paths = {
         2: _get_path_list(
@@ -1259,9 +1260,7 @@ def test_bfs_node_blacklist():
     stmt_filter_query = NetworkSearchQuery(
         filter_curated=False, source=brca1.name, node_blacklist=["CHEK1"]
     )
-    str_paths2 = [
-        ("BRCA1", n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
-    ]
+    str_paths2 = [("BRCA1", n) for n in ["BRCA", "AR", "testosterone", "NR2C2", "MBD2"]]
     paths = {
         2: _get_path_list(
             str_paths=str_paths2, graph=unsigned_graph, large=False, signed=False
@@ -1287,9 +1286,7 @@ def test_bfs_belief_cutoff():
     stmt_filter_query = NetworkSearchQuery(
         filter_curated=False, source=brca1.name, belief_cutoff=0.8, depth_limit=5
     )
-    str_paths2 = [
-        ("BRCA1", n) for n in ["AR", "testosterone", "NR2C2", "MBD2", "PATZ1"]
-    ]
+    str_paths2 = [("BRCA1", n) for n in ["BRCA", "AR", "testosterone", "NR2C2", "MBD2"]]
     str_paths3 = [("BRCA1", "AR", "CHEK1")]
     paths = {
         2: _get_path_list(
@@ -1319,7 +1316,7 @@ def test_bfs_curated():
     stmt_filter_query = NetworkSearchQuery(
         filter_curated=False, source=brca1.name, curated_db_only=True
     )
-    str_paths2 = [("BRCA1", n) for n in ["AR", "testosterone", "NR2C2"]]
+    str_paths2 = [("BRCA1", n) for n in ["BRCA", "AR", "testosterone", "NR2C2"]]
     str_paths3 = [("BRCA1", "AR", "CHEK1")]
     paths = {
         2: _get_path_list(
@@ -1340,6 +1337,7 @@ def test_bfs_curated():
 
 
 # Todo for BFS:
+# max_per_node
 # signed
 # strict context <-- currently not available
 # cull_best_node  <-- previously untested

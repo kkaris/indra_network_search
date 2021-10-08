@@ -1,0 +1,32 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install libstdc++6 graphviz python3-dev libgraphviz-dev pkg-config
+        python -m pip install --upgrade pip
+        pip install -e .[tests]
+        pip install termcolor cachetools
+        git clone https://github.com/indralab/depmap_analysis.git
+    - name: Run unit tests
+      run: |
+        export NOSEATTR="!notravis"
+        export PYTHONPATH=$PYTHONPATH:depmap_analysis
+        nosetests -v -a $NOSEATTR indra_network_search/tests

@@ -1,10 +1,11 @@
 from itertools import zip_longest
+
 from indra.explanation.pathfinding import bfs_search
 from indra_network_search.data_models import Node, NetworkSearchQuery
-from indra_network_search.query import _get_edge_filter_func, BreadthFirstSearchQuery
-from indra_network_search.tests.util import _get_edge_hash, _get_graph
-
+from indra_network_search.query import _get_edge_filter_func, \
+    BreadthFirstSearchQuery
 from indra_network_search.tests import hash_bl_edge1, hash_bl_edge2
+from indra_network_search.tests.util import _get_edge_hash, _get_graph
 
 
 def test_allowed_edges():
@@ -43,7 +44,9 @@ def test_bfs_search_w_blacklist():
     hash_blacklist = list(hash_set1.union(hash_set2))
     edge_filter_func = _get_edge_filter_func(hash_blacklist=hash_blacklist)
     hash_bl_query = NetworkSearchQuery(source=brca1.name, filter_curated=True)
-    str_paths2 = [("BRCA1", n) for n in ["testosterone", "NR2C2", "MBD2", "PATZ1"]]
+    str_paths2 = [
+        ("BRCA1", n) for n in ["BRCA", "testosterone", "NR2C2", "MBD2", "PATZ1"]
+    ]
     str_paths3 = [("BRCA1", "testosterone", "CHEK1")]
     combined_paths = str_paths2 + str_paths3
 
@@ -62,8 +65,9 @@ def test_bfs_search_w_blacklist():
     )
     bfs_gen_query = bfs_search(g=graph, **run_options)
 
-    for p1, p2, pe in zip_longest(bfs_gen_manual, bfs_gen_query,
-                                  combined_paths, fillvalue=None):
+    for p1, p2, pe in zip_longest(
+        bfs_gen_manual, bfs_gen_query, combined_paths, fillvalue=None
+    ):
         assert all(n1 is not None for n1 in p1)
         assert all(n2 is not None for n2 in p2)
         assert all((n1 == n2 and n2 == ne) for n1, n2, ne in zip(p1, p2, pe))

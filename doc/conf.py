@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from unittest.mock import MagicMock
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -58,3 +59,21 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+mock_modules = ['depmap_analysis', 'depmap_analysis.network_functions',
+                'depmap_analysis.network_functions.famplex_functions',
+                'depmap_analysis.network_functions.net_functions',
+                'depmap_analysis.util', 'depmap_analysis.util.io_functions',
+                'depmap_analysis.util.aws',
+                'depmap_analysis.scripts',
+                'depmap_analysis.scripts.dump_new_graphs',
+                'indra_db', 'indra_db.util', 'indra_db.client',
+                'indra_db.util.s3_path',
+                'indra_db.client.readonly', 'indra_db.client.principal',
+                'indra_db.client.principal.curation',
+                'indra_db.client.readonly.query',
+                'indra_db.client.readonly.mesh_ref_counts',
+                'indra_db.util.dump_sif']
+
+for mod in mock_modules:
+    sys.modules[mod] = MagicMock()

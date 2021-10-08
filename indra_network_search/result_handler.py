@@ -48,6 +48,8 @@ __all__ = [
     "SubgraphResultManager",
     "MultiInteractorsResultManager",
     "alg_manager_mapping",
+    "DB_URL_HASH",
+    "DB_URL_EDGE",
 ]
 
 
@@ -194,9 +196,13 @@ class ResultManager:
             return None
 
         try:
-            url = DB_URL_HASH.format(stmt_hash=stmt_dict["stmt_hash"])
-            if ev_limit is not None:
-                url += f"&ev_limit={ev_limit}"
+            if stmt_dict["stmt_type"] == "fplx":
+                # stmt_hash == identifiers.org lookup for ontological edges
+                url = stmt_dict["stmt_hash"]
+            else:
+                url = DB_URL_HASH.format(stmt_hash=stmt_dict["stmt_hash"])
+                if ev_limit is not None:
+                    url += f"&ev_limit={ev_limit}"
             return StmtData(db_url_hash=url, **stmt_dict)
         except ValidationError as err:
             logger.warning(
@@ -866,7 +872,7 @@ class OntologyResultManager(UIResultManager):
             source=self.source, target=self.target, parents=self._parents
         )
 
-    def get_results(self) -> BaseModel:
+    def get_results(self) -> OntologyResults:
         """Execute the result assembly with the loaded generator
 
         Returns
@@ -874,6 +880,7 @@ class OntologyResultManager(UIResultManager):
         :
             Results for shared_parents as a BaseModel
         """
+        return self._time_results()
 
 
 def _get_cull_values(

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = "https://network.indra.bio/dev";
+const baseUrl = "https://network.indra.bio/api";
 
 const apiClient = axios.create({
   baseURL: baseUrl,
