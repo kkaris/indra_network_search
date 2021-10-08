@@ -77,7 +77,7 @@ def test_belief_weighted_ssp_query():
     _match_args(set(options.keys()), alg_func_mapping[sspq_w.alg_name])
 
 
-@attr('nonpublic')
+@attr('notravis')
 def test_context_weighted_ssp_query():
     query = NetworkSearchQuery(source='A', target='B', mesh_ids=['D000544'],
                                strict_mesh_id_filtering=False)
@@ -86,7 +86,7 @@ def test_context_weighted_ssp_query():
     _match_args(set(options.keys()), alg_func_mapping[sspq_cw.alg_name])
 
 
-@attr('nonpublic')
+@attr('notravis')
 def test_strict_context_ssp_query():
     query = NetworkSearchQuery(source='A', target='B', mesh_ids=['D000544'],
                                strict_mesh_id_filtering=True)
@@ -103,7 +103,7 @@ def test_breadth_first_search_query():
     _match_args(run_options=options, alg_fun=alg_func_mapping[bfsq.alg_name])
 
 
-@attr('nonpublic')
+@attr('notravis')
 def test_strict_context_bfs_query():
     graph = nx.DiGraph()
     graph.add_nodes_from([('A', {'ns': 'HGNC', 'id': '0'}),
@@ -124,7 +124,7 @@ def test_dijkstra_belief_weight_query():
     _match_args(run_options=options, alg_fun=alg_func_mapping[dijq.alg_name])
 
 
-@attr('nonpublic')
+@attr('notravis')
 def test_dijkstra_context_weight_query():
     query = NetworkSearchQuery(source='A', mesh_ids=['D000544'],
                                strict_mesh_id_filtering=False)
