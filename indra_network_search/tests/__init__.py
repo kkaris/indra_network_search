@@ -386,9 +386,9 @@ edge_data = {
 
 more_edge_data = {}
 for edge, v in edge_data.items():
-    # Add parallel edges for BRCA1 and CHEK1
+    # Add parallel edges for BRCA1 and CHEK1, excluding BRCA fplx edges
     more_edge_data[edge] = v
-    if "BRCA1" == edge[0]:
+    if "BRCA1" == edge[0] and edge[1] != "BRCA":
         parallel_edge = ("HDAC3", edge[1])
         vc = deepcopy(v)
         vc["statements"][0]["english"] = v["statements"][0]["english"].replace(
@@ -396,7 +396,7 @@ for edge, v in edge_data.items():
         )
         more_edge_data[parallel_edge] = v
 
-    if "CHEK1" == edge[1]:
+    if "CHEK1" == edge[1] and edge[0] != "BRCA":
         parallel_edge = (edge[0], "H2AZ1")
         vc = deepcopy(v)
         vc["statements"][0]["english"] = v["statements"][0]["english"].replace(
