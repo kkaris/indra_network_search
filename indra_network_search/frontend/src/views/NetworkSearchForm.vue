@@ -415,13 +415,7 @@ import Multiselect from "@vueform/multiselect";
 import sharedHelpers from "@/helpers/sharedHelpers";
 import DefaultValues from "../../public/DefaultValues"
 import useVuelidate from "@vuelidate/core";
-import {
-  requiredIf,
-  minLength,
-  between,
-  minValue,
-  helpers,
-} from "@vuelidate/validators";
+import {between, helpers, minLength, minValue, requiredIf,} from "@vuelidate/validators";
 
 const cullFreq = (val) => !helpers.req(val) || val > 0;
 
@@ -659,7 +653,7 @@ export default {
           this.results.shared_regulators_results.source_data &&
           this.results.shared_regulators_results.source_data.length
       );
-      console.log(`noPaths(${noPaths}) && noPathsRev(${noPathsRev}) && noOnt(${noOnt}) && shrdTarg(${shrdTarg}) && shrdReg(${shrdReg})`)
+      // console.log(`noPaths(${noPaths}) && noPathsRev(${noPathsRev}) && noOnt(${noOnt}) && shrdTarg(${shrdTarg}) && shrdReg(${shrdReg})`)
       return noPaths && noPathsRev && noOnt && shrdTarg && shrdReg;
     },
     generalErrors() {
