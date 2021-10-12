@@ -9,5 +9,6 @@ knowledge in INDRA for network path searches. The service is available at
 
 Read the 
 [documentation](https://indra_network_search.readthedocs.io/en/latest/)
-for more information about how to use the different POST endpoints and the
-web ui.
+for more information about how to use the web ui and read the 
+[API documentation](https://network.indra.bio/api/docs) for more information 
+on the rest API.
