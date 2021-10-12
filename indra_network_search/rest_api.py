@@ -13,6 +13,7 @@ from depmap_analysis.network_functions.net_functions import bio_ontology, \
     MIN_WEIGHT
 from depmap_analysis.util.io_functions import file_opener
 from indra.databases import get_identifiers_url
+from indra_network_search import NAME, VERSION
 from indra_network_search.autocomplete import NodesTrie, Prefixes
 from indra_network_search.data_models import (
     Results,
@@ -32,7 +33,11 @@ from indra_network_search.rest_util import (
 )
 from indra_network_search.search_api import IndraNetworkSearchAPI
 
-app = FastAPI(root_path="/api")
+app = FastAPI(
+    title=NAME,
+    root_path="/api",
+    version=VERSION,
+)
 
 logger = logging.getLogger(__name__)
 
