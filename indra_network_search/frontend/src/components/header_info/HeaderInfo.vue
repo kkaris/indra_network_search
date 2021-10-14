@@ -6,7 +6,7 @@
       {{ unsigned_edges }} edges.<br></template
     >
     <template v-if="graph_date">Last updated: {{ graph_date }}.</template>
-    Current status: <span class="badge" :class="badgeClass">{{ status }}</span>
+    Server Status: <span class="badge" :class="badgeClass">{{ status }}</span>
   </p>
   <p class="text-center">
     Read the <a href="https://network.indra.bio/api/docs">API Docs</a> and read
