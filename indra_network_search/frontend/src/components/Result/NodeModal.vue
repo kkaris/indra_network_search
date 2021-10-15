@@ -37,9 +37,9 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Namespace</th>
+                <th>Prefix</th>
                 <th>Identifier</th>
-                <th>Lookup</th>
+                <th>Resolve</th>
               </tr>
             </thead>
             <tbody>
@@ -50,7 +50,7 @@
                 <td>{{ triple[0] }}</td>
                 <td>{{ triple[1] }}</td>
                 <td>
-                  <a :href="triple[2]">
+                  <a :href="triple[2]" target="_blank">
                     <i class="bi bi-box-arrow-up-right"></i>
                   </a>
                 </td>

@@ -26,9 +26,9 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Namespace</th>
+              <th>Prefix</th>
               <th>Identifier</th>
-              <th>Lookup</th>
+              <th>Resolve</th>
             </tr>
           </thead>
           <tbody>
@@ -38,7 +38,7 @@
                 <td>{{ pnode.namespace }}</td>
                 <td>{{ pnode.identifier }}</td>
                 <td class="col">
-                  <a :href="pnode.lookup"
+                  <a :href="pnode.lookup" target="_blank"
                     ><i class="bi bi-box-arrow-up-right"></i
                   ></a>
                 </td>
