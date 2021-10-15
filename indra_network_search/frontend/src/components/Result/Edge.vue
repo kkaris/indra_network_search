@@ -30,7 +30,7 @@
     </div>
     <div class="col">
       <span>
-        <a :href="db_url_edge">
+        <a :href="db_url_edge" target="_blank">
           <i class="bi bi-box-arrow-up-right"></i>
         </a>
       </span>
@@ -51,6 +51,7 @@ import EdgeSupport from "@/components/Result/EdgeSupport";
 import sharedHelpers from "@/helpers/sharedHelpers";
 import UniqueID from "@/helpers/BasicHelpers";
 import SourceDisplay from "@/components/Result/SourceDisplay";
+
 export default {
   inject: ["GStore"],
   components: { SourceDisplay, EdgeSupport, NodeModal },

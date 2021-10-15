@@ -21,7 +21,7 @@ TodO for future:
   </td>
   <td>
     <template v-if="linkToDB">
-      <a :href="linkToDB"><i class="bi bi-box-arrow-up-right"></i></a>
+      <a :href="linkToDB" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
     </template>
     <template v-else>
       <span title="Link is not available"><i class="bi bi-box-arrow-up-right"></i></span>

@@ -10,7 +10,7 @@
     <p class="d-inline-flex p-2 bd-highlight border rounded-sm">
       <span>Evidence: {{ evidence_count }}| </span>
       <span> Curated: {{ curated }}| </span>
-      <span> <a :href="db_url_hash">View in INDRA DB</a></span>
+      <span><a :href="db_url_hash" target="_blank">View in INDRA DB</a></span>
     </p>
   </div>
 </template>
