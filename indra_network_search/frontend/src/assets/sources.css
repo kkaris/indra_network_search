@@ -1,3 +1,8 @@
+.source-pc {
+    background-color: #b3de69;
+    color: black;
+}
+
 .source-psp {
     background-color: #bc80bd;
     color: black;
@@ -5,11 +10,6 @@
 
 .source-cbn {
     background-color: #d9d9d9;
-    color: black;
-}
-
-.source-pc {
-    background-color: #b3de69;
     color: black;
 }
 
@@ -43,8 +43,8 @@
     color: black;
 }
 
-.source-ctd {
-    background-color: #ffed6f;
+.source-pe {
+    background-color: #ffe8f4;
     color: black;
 }
 
@@ -53,8 +53,8 @@
     color: black;
 }
 
-.source-pe {
-    background-color: #ffe8f4;
+.source-ctd {
+    background-color: #ffed6f;
     color: black;
 }
 
@@ -68,8 +68,13 @@
     color: black;
 }
 
-.source-conib {
-    background-color: #999999;
+.source-minerva {
+    background-color: #dd99ff;
+    color: black;
+}
+
+.source-dgi {
+    background-color: #00e8ff;
     color: black;
 }
 
@@ -78,28 +83,18 @@
     color: black;
 }
 
-.source-dgi {
-    background-color: #bebada;
+.source-conib {
+    background-color: #999999;
     color: black;
 }
 
-.source-geneways {
-    background-color: #d9d9d9;
-    color: white;
+.source-creeds {
+    background-color: #f68ee1;
+    color: black;
 }
 
-.source-tees {
-    background-color: #8dd3c7;
-    color: white;
-}
-
-.source-gnbr {
-    background-color: #ffed6f;
-    color: white;
-}
-
-.source-isi {
-    background-color: #fb8072;
+.source-eidos {
+    background-color: #bc80bd;
     color: white;
 }
 
@@ -108,18 +103,8 @@
     color: white;
 }
 
-.source-rlimsp {
-    background-color: #fccde5;
-    color: white;
-}
-
-.source-medscan {
-    background-color: #b3de69;
-    color: white;
-}
-
-.source-eidos {
-    background-color: #bc80bd;
+.source-reach {
+    background-color: #bebada;
     color: white;
 }
 
@@ -128,8 +113,33 @@
     color: white;
 }
 
-.source-reach {
-    background-color: #bebada;
+.source-tees {
+    background-color: #8dd3c7;
+    color: white;
+}
+
+.source-medscan {
+    background-color: #b3de69;
+    color: white;
+}
+
+.source-rlimsp {
+    background-color: #fccde5;
+    color: white;
+}
+
+.source-isi {
+    background-color: #fb8072;
+    color: white;
+}
+
+.source-geneways {
+    background-color: #d9d9d9;
+    color: white;
+}
+
+.source-gnbr {
+    background-color: #ffed6f;
     color: white;
 }
 
