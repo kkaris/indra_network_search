@@ -26,9 +26,9 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Prefix</th>
+              <th>Namespace</th>
               <th>Identifier</th>
-              <th>Resolve</th>
+              <th>Lookup</th>
             </tr>
           </thead>
           <tbody>

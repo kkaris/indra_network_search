@@ -37,9 +37,9 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Prefix</th>
+                <th>Namespace</th>
                 <th>Identifier</th>
-                <th>Resolve</th>
+                <th>Lookup</th>
               </tr>
             </thead>
             <tbody>
