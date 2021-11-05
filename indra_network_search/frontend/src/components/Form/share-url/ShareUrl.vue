@@ -149,7 +149,6 @@ export default {
       const queryStr = this.getQueryString(this.GStore.currentQuery) // Generate from currentQuery
       const hash = window.location.href.includes('#') ? '#/' : ''
       let fullUrl = `${origin}${path}${hash}?${queryStr}`
-      console.log(fullUrl)
       return fullUrl
     },
     strUUID() {
