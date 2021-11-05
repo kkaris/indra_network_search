@@ -2,7 +2,7 @@
   <div class="about">
     <h1>The INDRA Network Search</h1>
     <p>
-      The INDRA Network Search makes paths in causal graph representations of the
+      The INDRA Network Search makes paths in a causal graph representations of the
       INDRA Database searchable through a user interface and REST API.
     </p>
     <p class="text-center">
