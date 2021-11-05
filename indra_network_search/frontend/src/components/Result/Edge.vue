@@ -94,7 +94,8 @@ export default {
       type: [Number, String],
       default: "N/A",
       validator: (cw) => {
-        return cw === "N/A" || sharedHelpers.isPosNum(cw);
+        // Because String is allowed, the number will be remain String from json
+        return cw === "N/A" || sharedHelpers.isPosNum(cw, true);
       },
     },
     z_score: {
