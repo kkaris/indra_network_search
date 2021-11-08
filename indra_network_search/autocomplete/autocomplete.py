@@ -99,11 +99,11 @@ class NodesTrie(SortedStringTrie):
 
         Returns
         -------
-        List[str]
+        :
             Return a list of this trie's keys
         """
-        res = [(w, deg) for _, (w, _, _, deg) in self.items(prefix.lower())]
-        return [w for (w, _) in islice(sorted(res, key=lambda t: (t[1], t[0]), reverse=True), top_n)]
+        res = [(name, node_degree) for _, (name, _, _, node_degree) in self.items(prefix.lower())]
+        return [name for (name, _) in islice(sorted(res, key=lambda t: (t[1], t[0]), reverse=True), top_n)]
 
     def case_items(self, prefix: Optional[str] = None, top_n: int = 100) -> Prefixes:
         """Case insensitive wrapper around NodeTrie.items()
@@ -118,8 +118,8 @@ class NodesTrie(SortedStringTrie):
         :
             Return a list of (name, namespace, id) tuples
         """
-        res = [t for _, t in self.items(prefix.lower())]
-        return [(w, ns, _id) for w, ns, _id, _ in islice(sorted(res, key=lambda t: (t[3], t[0]), reverse=True), top_n)]
+        res = [tup for _, tup in self.items(prefix.lower())]
+        return [(name, namespace, identifier) for name, namespace, identifier, _ in islice(sorted(res, key=lambda t: (t[3], t[0]), reverse=True), top_n)]
 
 
 def _is_str_nodes(g: DirGraph):
