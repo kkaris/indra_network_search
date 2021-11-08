@@ -7,7 +7,6 @@ The result manager deals with things like:
     - Filtering results when it's not done in the algorithm
 
 """
-# TodO: always filter out statement from the hash blacklist for all results
 import logging
 from datetime import datetime, timedelta
 from itertools import product
