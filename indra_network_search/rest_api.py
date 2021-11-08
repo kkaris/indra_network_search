@@ -266,7 +266,7 @@ def sub_graph(search_query: SubgraphRestQuery):
 
 
 @app.on_event("startup")
-async def startup_event():
+def startup_event():
     global network_search_api, nsid_trie, nodes_trie
     # Todo: figure out how to do all the loading async so the server is
     #  available to respond to health checks while it's loading
@@ -282,6 +282,7 @@ async def startup_event():
         dir_graph = _setup_graph()
         sign_node_graph = _setup_signed_node_graph(False)
     else:
+        # ToDo The file IO has to be done awaited to make this function async
         dir_graph, _, _, sign_node_graph = load_indra_graph(
             unsigned_graph=True,
             unsigned_multi_graph=False,
