@@ -119,7 +119,10 @@ class NodesTrie(SortedStringTrie):
             Return a list of (name, namespace, id) tuples
         """
         res = [tup for _, tup in self.items(prefix.lower())]
-        return [(name, namespace, identifier) for name, namespace, identifier, _ in islice(sorted(res, key=lambda t: (t[3], t[0]), reverse=True), top_n)]
+        return [
+            (name, namespace, identifier)
+            for name, namespace, identifier, _ in islice(sorted(res, key=lambda t: (t[3], t[0]), reverse=True), top_n)
+        ]
 
 
 def _is_str_nodes(g: DirGraph):
