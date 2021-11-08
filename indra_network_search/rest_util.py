@@ -32,9 +32,6 @@ __all__ = [
     "INDRA_DG",
     "INDRA_SEG",
     "INDRA_SNG",
-    "INDRA_DG_CACHE",
-    "INDRA_SEG_CACHE",
-    "INDRA_SNG_CACHE",
     "get_default_args",
     "get_mandatory_args",
     "is_weighted",
@@ -48,10 +45,6 @@ logger = logging.getLogger(__name__)
 
 API_PATH = path.dirname(path.abspath(__file__))
 CACHE = path.join(API_PATH, "_cache")
-INDRA_MDG_CACHE = path.join(CACHE, INDRA_MDG)
-INDRA_DG_CACHE = path.join(CACHE, INDRA_DG)
-INDRA_SNG_CACHE = path.join(CACHE, INDRA_SNG)
-INDRA_SEG_CACHE = path.join(CACHE, INDRA_SEG)
 
 # Derived type hints
 StrNode = Union[str, Tuple[str, int]]
@@ -183,33 +176,38 @@ def load_indra_graph(
     indra_signed_node_graph = None
 
     if use_cache:
+        indra_mdg_cache = path.join(CACHE, INDRA_MDG)
+        indra_dg_cache = path.join(CACHE, INDRA_DG)
+        indra_sng_cache = path.join(CACHE, INDRA_SNG)
+        indra_seg_cache = path.join(CACHE, INDRA_SEG)
+
         # Load unsigned
         if unsigned_graph:
-            if path.isfile(INDRA_DG_CACHE):
-                indra_dir_graph = file_opener(INDRA_DG_CACHE)
+            if path.isfile(indra_dg_cache):
+                indra_dir_graph = file_opener(indra_dg_cache)
             else:
-                logger.warning(f"File {INDRA_DG_CACHE} does not exist")
+                logger.warning(f"File {indra_dg_cache} does not exist")
 
         # Load multi digraph
         if unsigned_multi_graph:
-            if path.isfile(INDRA_MDG_CACHE):
-                indra_multi_di_graph = file_opener(INDRA_MDG_CACHE)
+            if path.isfile(indra_mdg_cache):
+                indra_multi_di_graph = file_opener(indra_mdg_cache)
             else:
-                logger.warning(f"File {INDRA_MDG_CACHE} does not exist")
+                logger.warning(f"File {indra_mdg_cache} does not exist")
 
         # Load signed node
         if sign_node_graph:
-            if path.isfile(INDRA_SNG_CACHE):
-                indra_signed_node_graph = file_opener(INDRA_SNG_CACHE)
+            if path.isfile(indra_sng_cache):
+                indra_signed_node_graph = file_opener(indra_sng_cache)
             else:
-                logger.warning(f"File {INDRA_SNG_CACHE} does not exist")
+                logger.warning(f"File {indra_sng_cache} does not exist")
 
         # Load signed edge
         if sign_edge_graph:
-            if path.isfile(INDRA_SEG_CACHE):
-                indra_signed_edge_graph = file_opener(INDRA_SEG_CACHE)
+            if path.isfile(indra_seg_cache):
+                indra_signed_edge_graph = file_opener(indra_seg_cache)
             else:
-                logger.warning(f"File {INDRA_SEG_CACHE} does not exist")
+                logger.warning(f"File {indra_seg_cache} does not exist")
 
     else:
         # Load from S3
