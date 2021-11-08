@@ -1,9 +1,10 @@
 """
 Contains return models from the rest api
 """
-from pydantic import BaseModel
-from typing import Optional
 from datetime import date
+from typing import Optional
+
+from pydantic import BaseModel
 
 try:
     from typing import Literal

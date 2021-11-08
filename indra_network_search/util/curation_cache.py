@@ -1,6 +1,7 @@
 import logging
-from typing import Set, Optional
 from collections import defaultdict
+from typing import Optional, Set
+
 from indra_db.client.principal.curation import get_curations
 
 logger = logging.getLogger(__name__)
@@ -23,9 +24,7 @@ class CurationCache:
                 curs_by_hash[cur["pa_hash"]].add(cur["tag"])
 
             self._curation_cache = {
-                stmt_hash
-                for stmt_hash, tags in curs_by_hash.items()
-                if not tags & self._correct_set
+                stmt_hash for stmt_hash, tags in curs_by_hash.items() if not tags & self._correct_set
             }
             logger.info(f"Got {len(self._curation_cache)} curations")
         except Exception as exc:

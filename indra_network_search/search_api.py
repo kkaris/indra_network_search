@@ -6,17 +6,16 @@ This class represents an API that executes search queries
 Queries for specific searches are found in indra_network_search.query
 """
 import logging
-from typing import Union, Dict, Optional
+from typing import Dict, Optional, Union
 
-from networkx import DiGraph
-
-from depmap_analysis.network_functions.famplex_functions import \
-    get_identifiers_url
+from depmap_analysis.network_functions.famplex_functions import get_identifiers_url
 from indra.explanation.pathfinding import (
-    shortest_simple_paths,
     bfs_search,
     open_dijkstra_search,
+    shortest_simple_paths,
 )
+from networkx import DiGraph
+
 from .data_models import *
 from .pathfinding import *
 from .query import *
@@ -72,14 +71,10 @@ class IndraNetworkSearchAPI:
 
         # Get result manager for path query
         result_managers: Dict[str, ResultManager] = {}
-        path_result_manager = self.path_query(
-            eligible_queries["path_query"], is_signed=query_handler.signed
-        )
+        path_result_manager = self.path_query(eligible_queries["path_query"], is_signed=query_handler.signed)
         # Get result manager for reverse path query if requested
         if "reverse_path_query" in eligible_queries:
-            rev_path_res_mngr = self.path_query(
-                eligible_queries["reverse_path_query"], is_signed=query_handler.signed
-            )
+            rev_path_res_mngr = self.path_query(eligible_queries["reverse_path_query"], is_signed=query_handler.signed)
         else:
             rev_path_res_mngr = None
 
@@ -89,13 +84,9 @@ class IndraNetworkSearchAPI:
 
             # Other results
             if isinstance(query, SharedTargetsQuery):
-                result_managers[alg_name] = self.shared_targets(
-                    query, is_signed=query_handler.signed
-                )
+                result_managers[alg_name] = self.shared_targets(query, is_signed=query_handler.signed)
             elif isinstance(query, SharedRegulatorsQuery):
-                result_managers[alg_name] = self.shared_regulators(
-                    query, is_signed=query_handler.signed
-                )
+                result_managers[alg_name] = self.shared_regulators(query, is_signed=query_handler.signed)
             elif isinstance(query, OntologyQuery):
                 result_managers[alg_name] = self.shared_parents(query)
 
@@ -105,9 +96,7 @@ class IndraNetworkSearchAPI:
             try:
                 assert isinstance(res_man, ResultManager)
             except AssertionError:
-                logger.warning(
-                    f"Object {type(res_man)} is not a " f"ResultManager, skipping..."
-                )
+                logger.warning(f"Object {type(res_man)} is not a " f"ResultManager, skipping...")
                 continue
 
             if alg_name == "shared_targets":
@@ -156,9 +145,7 @@ class IndraNetworkSearchAPI:
             return None
         lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ""
         if lookup:
-            return Node(
-                name=node_name, namespace=db_ns, identifier=db_id, lookup=lookup
-            )
+            return Node(name=node_name, namespace=db_ns, identifier=db_id, lookup=lookup)
         else:
             return Node(name=node_name, namespace=db_ns, identifier=db_id)
 
@@ -174,9 +161,7 @@ class IndraNetworkSearchAPI:
         else:
             return None
 
-    def path_query(
-        self, path_query: Union[Query, PathQuery], is_signed: bool
-    ) -> ResultManager:
+    def path_query(self, path_query: Union[Query, PathQuery], is_signed: bool) -> ResultManager:
         """Wrapper for the mutually exclusive path queries
 
         Parameters
@@ -224,9 +209,7 @@ class IndraNetworkSearchAPI:
         graph = self.get_graph(signed=is_signed)
         path_gen = shortest_simple_paths(G=graph, **sspq.run_options(graph=graph))
 
-        return ShortestSimplePathsResultManager(
-            path_generator=path_gen, graph=graph, **sspq.result_options()
-        )
+        return ShortestSimplePathsResultManager(path_generator=path_gen, graph=graph, **sspq.result_options())
 
     def breadth_first_search(
         self, breadth_first_search_query: BreadthFirstSearchQuery, is_signed: bool
@@ -249,13 +232,9 @@ class IndraNetworkSearchAPI:
         bfsq = breadth_first_search_query
         graph = self.get_graph(signed=is_signed)
         path_gen = bfs_search(g=graph, **bfsq.run_options(graph=graph))
-        return BreadthFirstSearchResultManager(
-            path_generator=path_gen, graph=graph, **bfsq.result_options()
-        )
+        return BreadthFirstSearchResultManager(path_generator=path_gen, graph=graph, **bfsq.result_options())
 
-    def dijkstra(
-        self, dijkstra_query: DijkstraQuery, is_signed: bool
-    ) -> DijkstraResultManager:
+    def dijkstra(self, dijkstra_query: DijkstraQuery, is_signed: bool) -> DijkstraResultManager:
         """Get results from running open_dijkstra_search
 
         Parameters
@@ -276,9 +255,7 @@ class IndraNetworkSearchAPI:
         dq = dijkstra_query
         path_gen = open_dijkstra_search(g=self.get_graph(), **dq.run_options())
         graph = self.get_graph(signed=is_signed)
-        return DijkstraResultManager(
-            path_generator=path_gen, graph=graph, **dq.result_options()
-        )
+        return DijkstraResultManager(path_generator=path_gen, graph=graph, **dq.result_options())
 
     def shared_targets(
         self, shared_targets_query: SharedTargetsQuery, is_signed: bool
@@ -301,9 +278,7 @@ class IndraNetworkSearchAPI:
         stq = shared_targets_query
         graph = self.get_graph(signed=is_signed)
         path_gen = shared_interactors(graph=graph, **stq.run_options())
-        return SharedInteractorsResultManager(
-            path_generator=path_gen, graph=graph, **stq.result_options()
-        )
+        return SharedInteractorsResultManager(path_generator=path_gen, graph=graph, **stq.result_options())
 
     def shared_regulators(
         self, shared_regulators_query: SharedRegulatorsQuery, is_signed: bool
@@ -326,9 +301,7 @@ class IndraNetworkSearchAPI:
         srq = shared_regulators_query
         graph = self.get_graph(signed=is_signed)
         path_gen = shared_interactors(graph=graph, **srq.run_options())
-        return SharedInteractorsResultManager(
-            path_generator=path_gen, graph=graph, **srq.result_options()
-        )
+        return SharedInteractorsResultManager(path_generator=path_gen, graph=graph, **srq.result_options())
 
     def shared_parents(self, ontology_query: OntologyQuery) -> OntologyResultManager:
         """Get results from running shared_parents
@@ -347,13 +320,9 @@ class IndraNetworkSearchAPI:
         oq = ontology_query
         graph = self.get_graph()
         path_gen = shared_parents(**oq.run_options(graph=graph))
-        return OntologyResultManager(
-            path_generator=path_gen, graph=graph, **oq.result_options()
-        )
+        return OntologyResultManager(path_generator=path_gen, graph=graph, **oq.result_options())
 
-    def handle_subgraph_query(
-        self, subgraph_rest_query: SubgraphRestQuery
-    ) -> SubgraphResults:
+    def handle_subgraph_query(self, subgraph_rest_query: SubgraphRestQuery) -> SubgraphResults:
         """Interface for handling queries to get_subgraph_edges
 
         Parameters
@@ -387,9 +356,7 @@ class IndraNetworkSearchAPI:
         """
         graph = self.get_graph(signed=False)
         edge_iter = get_subgraph_edges(graph=graph, **query.run_options(graph=graph))
-        return SubgraphResultManager(
-            path_generator=edge_iter, graph=graph, **query.result_options()
-        )
+        return SubgraphResultManager(path_generator=edge_iter, graph=graph, **query.result_options())
 
     def handle_multi_interactors_query(
         self, multi_interactors_rest_query: MultiInteractorsRestQuery
@@ -410,9 +377,7 @@ class IndraNetworkSearchAPI:
         res_mngr = self.multi_interactors_query(query=mi_query)
         return res_mngr.get_results()
 
-    def multi_interactors_query(
-        self, query: MultiInteractorsQuery
-    ) -> MultiInteractorsResultManager:
+    def multi_interactors_query(self, query: MultiInteractorsQuery) -> MultiInteractorsResultManager:
         """Run direct_multi_interactors and return the result manager
 
         Parameters
@@ -431,6 +396,4 @@ class IndraNetworkSearchAPI:
         run_options = query.run_options()
         res_gen = direct_multi_interactors(graph=graph, **run_options)
         res_options = query.result_options()
-        return MultiInteractorsResultManager(
-            path_generator=res_gen, graph=graph, **res_options
-        )
+        return MultiInteractorsResultManager(path_generator=res_gen, graph=graph, **res_options)

@@ -1,48 +1,47 @@
 from inspect import signature
-from typing import Dict, Set, Callable, Optional, List, Tuple, Any
-
-from networkx import DiGraph, MultiDiGraph
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from indra.assemblers.indranet.net import default_sign_dict
 from indra.explanation.model_checker.model_checker import signed_edges_to_signed_nodes
-from indra.explanation.pathfinding.util import signed_nodes_to_signed_edge
 from indra.explanation.pathfinding import (
     bfs_search,
-    shortest_simple_paths,
     open_dijkstra_search,
+    shortest_simple_paths,
 )
+from indra.explanation.pathfinding.util import signed_nodes_to_signed_edge
+from networkx import DiGraph, MultiDiGraph
 
 from indra_network_search.data_models import (
-    Node,
     EdgeData,
-    StmtData,
+    Node,
     Path,
-    basemodels_equal,
+    StmtData,
     StmtTypeSupport,
+    basemodels_equal,
 )
 from indra_network_search.pathfinding import (
-    shared_parents,
-    shared_interactors,
-    get_subgraph_edges,
     direct_multi_interactors,
+    get_subgraph_edges,
+    shared_interactors,
+    shared_parents,
 )
 from indra_network_search.query import (
-    MissingParametersError,
-    InvalidParametersError,
-    Query,
     BreadthFirstSearchQuery,
-    ShortestSimplePathsQuery,
     DijkstraQuery,
-    OntologyQuery,
-    SharedTargetsQuery,
-    SharedRegulatorsQuery,
-    SubgraphQuery,
+    InvalidParametersError,
+    MissingParametersError,
     MultiInteractorsQuery,
+    OntologyQuery,
+    Query,
+    SharedRegulatorsQuery,
+    SharedTargetsQuery,
+    ShortestSimplePathsQuery,
+    SubgraphQuery,
 )
-from indra_network_search.result_handler import ResultManager, DB_URL_HASH, DB_URL_EDGE
+from indra_network_search.rest_util import StrEdge, StrNode, get_mandatory_args
+from indra_network_search.result_handler import DB_URL_EDGE, DB_URL_HASH, ResultManager
 from indra_network_search.search_api import IndraNetworkSearchAPI
 from indra_network_search.tests import nodes
-from indra_network_search.rest_util import get_mandatory_args, StrNode, StrEdge
 
 
 def _setup_graph() -> DiGraph:
@@ -94,9 +93,7 @@ def _setup_signed_node_graph(large: bool) -> DiGraph:
         # If not signed type
         else:
             continue
-    return signed_edges_to_signed_nodes(
-        graph=seg, copy_edge_data=True, prune_nodes=True
-    )
+    return signed_edges_to_signed_nodes(graph=seg, copy_edge_data=True, prune_nodes=True)
 
 
 def _setup_api(large: bool) -> IndraNetworkSearchAPI:
@@ -154,8 +151,7 @@ def _match_args(run_options: Set[str], alg_fun: Callable) -> bool:
     invalid = run_options.difference(all_args)
     if len(invalid):
         raise InvalidParametersError(
-            f"Invalid args provided for algorithm {alg_fun.__name__}: "
-            f'"{", ".join(invalid)}"'
+            f"Invalid args provided for algorithm {alg_fun.__name__}: " f'"{", ".join(invalid)}"'
         )
 
     return True
@@ -171,18 +167,13 @@ def _node_equals(node: Node, other_node: Node) -> bool:
 
 def _edge_data_equals(edge_model: EdgeData, other_edge_model: EdgeData) -> bool:
     # Check nodes of edge
-    assert all(
-        _node_equals(n1, n2) for n1, n2 in zip(edge_model.edge, other_edge_model.edge)
-    )
+    assert all(_node_equals(n1, n2) for n1, n2 in zip(edge_model.edge, other_edge_model.edge))
     assert edge_model.db_url_edge == other_edge_model.db_url_edge
     assert edge_model.sign == other_edge_model.sign
     assert edge_model.belief == other_edge_model.belief
     assert edge_model.context_weight == other_edge_model.context_weight
     assert edge_model.weight == other_edge_model.weight
-    assert all(
-        other_edge_model.source_counts[k] == v
-        for k, v in edge_model.source_counts.items()
-    )
+    assert all(other_edge_model.source_counts[k] == v for k, v in edge_model.source_counts.items())
     assert all(
         basemodels_equal(
             basemodel=st_type_sup,
@@ -274,9 +265,7 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
         raise ValueError(f"Unrecognized Query class {type(query)}")
 
 
-def _get_edge_data_list(
-    edge_list: List[StrEdge], graph: DiGraph, large: bool, signed: bool
-) -> List[EdgeData]:
+def _get_edge_data_list(edge_list: List[StrEdge], graph: DiGraph, large: bool, signed: bool) -> List[EdgeData]:
     edges: List[EdgeData] = []
     for a, b in edge_list:
         edata = _get_edge_data(edge=(a, b), graph=graph, large=large, signed=signed)
@@ -284,9 +273,7 @@ def _get_edge_data_list(
     return edges
 
 
-def _get_edge_data(
-    edge: StrEdge, graph: DiGraph, large: bool, signed: bool
-) -> EdgeData:
+def _get_edge_data(edge: StrEdge, graph: DiGraph, large: bool, signed: bool) -> EdgeData:
     edge_data = _get_edge_data_dict(large=large, signed=signed)
     ed = edge_data[edge]
     stmt_dict: Dict[str, StmtTypeSupport] = {}
@@ -297,9 +284,7 @@ def _get_edge_data(
         try:
             stmt_dict[stmt_data.stmt_type].statements.append(stmt_data)
         except KeyError:
-            stmt_dict[stmt_data.stmt_type] = StmtTypeSupport(
-                stmt_type=stmt_data.stmt_type, statements=[stmt_data]
-            )
+            stmt_dict[stmt_data.stmt_type] = StmtTypeSupport(stmt_type=stmt_data.stmt_type, statements=[stmt_data])
 
     # Set source counts
     for sts in stmt_dict.values():
@@ -315,9 +300,7 @@ def _get_edge_data(
     )
 
     if signed:
-        assert isinstance(
-            edge[0], tuple
-        ), "expected signed node when requesting signed edge data"
+        assert isinstance(edge[0], tuple), "expected signed node when requesting signed edge data"
         _, _, sign = signed_nodes_to_signed_edge(*edge)
     else:
         sign = None
@@ -334,9 +317,7 @@ def _get_edge_data(
     return edge_data
 
 
-def _get_path_list(
-    str_paths: List[Tuple[StrNode, ...]], graph: DiGraph, large: bool, signed: bool
-) -> List[Path]:
+def _get_path_list(str_paths: List[Tuple[StrNode, ...]], graph: DiGraph, large: bool, signed: bool) -> List[Path]:
     paths: List[Path] = []
     for spath in str_paths:
         path: List[Node] = []

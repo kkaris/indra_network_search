@@ -3,24 +3,21 @@ import inspect
 import json
 import logging
 from os import path
-from typing import Callable, Dict, Any, Set, List, Tuple, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import networkx as nx
 from botocore.exceptions import ClientError
-from fnvhash import fnv1a_32
-
 from depmap_analysis.scripts.dump_new_graphs import *
 from depmap_analysis.util.aws import (
-    dump_json_to_s3,
     DUMPS_BUCKET,
-    NETS_PREFIX,
     NET_BUCKET,
+    NETS_PREFIX,
+    dump_json_to_s3,
     get_s3_client,
     get_s3_file_tree,
 )
-from depmap_analysis.util.io_functions import (
-    file_opener,
-)
+from depmap_analysis.util.io_functions import file_opener
+from fnvhash import fnv1a_32
 from indra_db.util.s3_path import S3Path
 
 __all__ = [
@@ -80,11 +77,7 @@ def sorted_json_string(jsonable_dict: Dict) -> str:
     elif isinstance(jsonable_dict, (tuple, list)):
         return "[%s]" % (",".join(sorted(sorted_json_string(s) for s in jsonable_dict)))
     elif isinstance(jsonable_dict, dict):
-        return "{%s}" % (
-            ",".join(
-                sorted(k + sorted_json_string(v) for k, v in jsonable_dict.items())
-            )
-        )
+        return "{%s}" % (",".join(sorted(k + sorted_json_string(v) for k, v in jsonable_dict.items())))
     elif isinstance(jsonable_dict, (int, float)):
         return str(jsonable_dict)
     elif jsonable_dict is None:
@@ -93,9 +86,7 @@ def sorted_json_string(jsonable_dict: Dict) -> str:
         raise TypeError("Invalid type: %s" % type(jsonable_dict))
 
 
-def get_query_hash(
-    query_json: Dict, ignore_keys: Optional[Union[Set, List]] = None
-) -> int:
+def get_query_hash(query_json: Dict, ignore_keys: Optional[Union[Set, List]] = None) -> int:
     """Create an FNV-1a 32-bit hash from the query json
 
     Parameters
@@ -157,12 +148,7 @@ def load_indra_graph(
     sign_edge_graph: bool = False,
     sign_node_graph: bool = True,
     use_cache: bool = False,
-) -> Tuple[
-    Optional[nx.DiGraph],
-    Optional[nx.MultiDiGraph],
-    Optional[nx.DiGraph],
-    Optional[nx.MultiDiGraph],
-]:
+) -> Tuple[Optional[nx.DiGraph], Optional[nx.MultiDiGraph], Optional[nx.DiGraph], Optional[nx.MultiDiGraph],]:
     """Return a tuple of graphs to be used in the network search API
 
     Parameters
@@ -261,9 +247,7 @@ def load_indra_graph(
     )
 
 
-def dump_query_json_to_s3(
-    query_hash: Union[str, int], json_obj: Dict, get_url: bool = False
-) -> Optional[str]:
+def dump_query_json_to_s3(query_hash: Union[str, int], json_obj: Dict, get_url: bool = False) -> Optional[str]:
     """Dump a query json to S3
 
     Parameters
@@ -284,9 +268,7 @@ def dump_query_json_to_s3(
     return dump_query_result_to_s3(filename, json_obj, get_url)
 
 
-def dump_result_json_to_s3(
-    query_hash: Union[str, int], json_obj: Dict, get_url: bool = False
-) -> Optional[str]:
+def dump_result_json_to_s3(query_hash: Union[str, int], json_obj: Dict, get_url: bool = False) -> Optional[str]:
     """Dump a result json to S3
 
     Parameters
@@ -307,9 +289,7 @@ def dump_result_json_to_s3(
     return dump_query_result_to_s3(filename, json_obj, get_url)
 
 
-def dump_query_result_to_s3(
-    filename: str, json_obj: Dict, get_url: bool = False
-) -> Optional[str]:
+def dump_query_result_to_s3(filename: str, json_obj: Dict, get_url: bool = False) -> Optional[str]:
     """Dump a result or query json from the network search to S3
 
     Parameters
@@ -326,9 +306,7 @@ def dump_query_result_to_s3(
     :
         Optionally return the S3 url of the json file
     """
-    download_link = dump_json_to_s3(
-        name=filename, json_obj=json_obj, public=True, get_url=get_url
-    )
+    download_link = dump_json_to_s3(name=filename, json_obj=json_obj, public=True, get_url=get_url)
     if get_url:
         return download_link.split("?")[0]
     return None
@@ -359,9 +337,7 @@ def check_existence_and_date_s3(query_hash: Union[int, str]) -> Dict[str, str]:
     except ClientError:
         query_json = ""
     if query_json:
-        exists_dict["query_json_key"] = S3Path.from_key_parts(
-            DUMPS_BUCKET, query_json_key
-        ).to_string()
+        exists_dict["query_json_key"] = S3Path.from_key_parts(DUMPS_BUCKET, query_json_key).to_string()
 
     # Get result json
     try:
@@ -369,9 +345,7 @@ def check_existence_and_date_s3(query_hash: Union[int, str]) -> Dict[str, str]:
     except ClientError:
         result_json = ""
     if result_json:
-        exists_dict["result_json_key"] = S3Path.from_key_parts(
-            DUMPS_BUCKET, result_json_key
-        ).to_string()
+        exists_dict["result_json_key"] = S3Path.from_key_parts(DUMPS_BUCKET, result_json_key).to_string()
     return exists_dict
 
 
@@ -395,11 +369,7 @@ def get_default_args(func: Callable) -> Dict[str, Any]:
         A dictionary with the default values keyed by argument name
     """
     signature = inspect.signature(func)
-    return {
-        k: v.default
-        for k, v in signature.parameters.items()
-        if v.default is not inspect.Parameter.empty
-    }
+    return {k: v.default for k, v in signature.parameters.items() if v.default is not inspect.Parameter.empty}
 
 
 def get_mandatory_args(func: Callable) -> Set[str]:
@@ -419,11 +389,7 @@ def get_mandatory_args(func: Callable) -> Set[str]:
         The of mandatory arguments
     """
     signature = inspect.signature(func)
-    return {
-        k
-        for k, v in signature.parameters.items()
-        if v.default is inspect.Parameter.empty
-    }
+    return {k for k, v in signature.parameters.items() if v.default is inspect.Parameter.empty}
 
 
 def is_context_weighted(mesh_id_list: List[str], strict_filtering: bool) -> bool:
@@ -447,9 +413,7 @@ def is_context_weighted(mesh_id_list: List[str], strict_filtering: bool) -> bool
     return False
 
 
-def is_weighted(
-    weighted: bool, mesh_ids: List[str], strict_mesh_filtering: bool
-) -> bool:
+def is_weighted(weighted: bool, mesh_ids: List[str], strict_mesh_filtering: bool) -> bool:
     """Return True if the combination is either weighted or context weighted
 
     Parameters
@@ -467,9 +431,7 @@ def is_weighted(
         True if the combination is either weighted or context weighted
     """
     if mesh_ids:
-        ctx_w = is_context_weighted(
-            mesh_id_list=mesh_ids, strict_filtering=strict_mesh_filtering
-        )
+        ctx_w = is_context_weighted(mesh_id_list=mesh_ids, strict_filtering=strict_mesh_filtering)
         return weighted or ctx_w
     else:
         return weighted

@@ -3,7 +3,7 @@ An API wrapping SortedStringTrie from pytrie (see
 https://github.com/gsakkis/pytrie)
 """
 from itertools import islice
-from typing import Union, List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 from networkx import DiGraph, MultiDiGraph
 from pytrie import SortedStringTrie
@@ -17,6 +17,7 @@ __all__ = ["NodesTrie", "Prefixes"]
 
 class NodesTrie(SortedStringTrie):
     """A Trie structure that has case insensitive search methods"""
+
     @classmethod
     def from_node_names(cls, graph: DirGraph) -> "NodesTrie":
         """Produce a NodesTrie instance from a graph with node names as keys
@@ -86,9 +87,7 @@ class NodesTrie(SortedStringTrie):
             }
         )
 
-    def case_keys(
-        self, prefix: Optional[str] = None, top_n: Optional[int] = 100
-    ) -> List[str]:
+    def case_keys(self, prefix: Optional[str] = None, top_n: Optional[int] = 100) -> List[str]:
         """Case insensitive wrapper around NodeTrie.keys()
 
         Parameters
@@ -104,12 +103,7 @@ class NodesTrie(SortedStringTrie):
             Return a list of this trie's keys
         """
         res = [(w, deg) for _, (w, _, _, deg) in self.items(prefix.lower())]
-        return [
-            w
-            for (w, _) in islice(
-                sorted(res, key=lambda t: (t[1], t[0]), reverse=True), top_n
-            )
-        ]
+        return [w for (w, _) in islice(sorted(res, key=lambda t: (t[1], t[0]), reverse=True), top_n)]
 
     def case_items(self, prefix: Optional[str] = None, top_n: int = 100) -> Prefixes:
         """Case insensitive wrapper around NodeTrie.items()
@@ -125,12 +119,7 @@ class NodesTrie(SortedStringTrie):
             Return a list of (name, namespace, id) tuples
         """
         res = [t for _, t in self.items(prefix.lower())]
-        return [
-            (w, ns, _id)
-            for w, ns, _id, _ in islice(
-                sorted(res, key=lambda t: (t[3], t[0]), reverse=True), top_n
-            )
-        ]
+        return [(w, ns, _id) for w, ns, _id, _ in islice(sorted(res, key=lambda t: (t[3], t[0]), reverse=True), top_n)]
 
 
 def _is_str_nodes(g: DirGraph):

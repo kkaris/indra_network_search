@@ -11,28 +11,27 @@ import logging
 from datetime import datetime, timedelta
 from itertools import product
 from typing import (
+    Any,
+    Dict,
     Generator,
-    Union,
+    Iterable,
+    Iterator,
     List,
     Optional,
-    Iterator,
-    Iterable,
-    Dict,
-    Any,
     Set,
     Tuple,
+    Union,
 )
 
-from networkx import DiGraph, NetworkXNoPath
-from pydantic import ValidationError, BaseModel
-
-from depmap_analysis.network_functions.famplex_functions import \
-    get_identifiers_url
+from depmap_analysis.network_functions.famplex_functions import get_identifiers_url
 from indra.explanation.pathfinding import (
-    shortest_simple_paths,
     bfs_search,
     open_dijkstra_search,
+    shortest_simple_paths,
 )
+from networkx import DiGraph, NetworkXNoPath
+from pydantic import BaseModel, ValidationError
+
 from indra_network_search.data_models import *
 from indra_network_search.pathfinding import *
 from indra_network_search.rest_util import StrNode
@@ -93,9 +92,7 @@ class ResultManager:
         """Pass an individual node based on node data"""
         raise NotImplementedError
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
+    def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]) -> bool:
         """Pass an individual statement based statement dict content"""
         # Check:
         # - stmt_type
@@ -112,16 +109,10 @@ class ResultManager:
         ):
             return False
 
-        if (
-            self.filter_options.stmt_filter
-            and stmt_dict["stmt_type"].lower() not in self.filter_options.stmt_filter
-        ):
+        if self.filter_options.stmt_filter and stmt_dict["stmt_type"].lower() not in self.filter_options.stmt_filter:
             return False
 
-        if (
-            self.filter_options.belief_cutoff > 0.0
-            and self.filter_options.belief_cutoff > stmt_dict["belief"]
-        ):
+        if self.filter_options.belief_cutoff > 0.0 and self.filter_options.belief_cutoff > stmt_dict["belief"]:
             return False
 
         if self.filter_options.curated_db_only and not stmt_dict["curated"]:
@@ -134,9 +125,7 @@ class ResultManager:
         """Remove filters already applied in algorithm"""
         raise NotImplementedError
 
-    def _get_node(
-        self, node_name: StrNode, apply_filter: bool = True
-    ) -> Optional[Node]:
+    def _get_node(self, node_name: StrNode, apply_filter: bool = True) -> Optional[Node]:
         # Check if node is signed
         if isinstance(node_name, tuple):
             name, sign = node_name
@@ -212,9 +201,7 @@ class ResultManager:
             logger.exception(err)
             return None
 
-    def _get_edge_data(
-        self, a: Union[StrNode, Node], b: Union[StrNode, Node]
-    ) -> Union[EdgeData, None]:
+    def _get_edge_data(self, a: Union[StrNode, Node], b: Union[StrNode, Node]) -> Union[EdgeData, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
         if a_node is None or b_node is None:
@@ -323,9 +310,7 @@ class UIResultManager(ResultManager):
         self._check_source_target()
         self._hash_blacklist: Set[int] = hash_blacklist or set()
 
-    def _set_source_target(
-        self, source: Union[Node, StrNode], target: Union[Node, StrNode]
-    ):
+    def _set_source_target(self, source: Union[Node, StrNode], target: Union[Node, StrNode]):
         self.source = None
         self.target = None
 
@@ -333,20 +318,12 @@ class UIResultManager(ResultManager):
         if not source and not target:
             raise ValueError("Must provide at least source or target for UI results")
         if source:
-            sn: Node = (
-                source
-                if isinstance(source, Node)
-                else self._get_node(source, apply_filter=False)
-            )
+            sn: Node = source if isinstance(source, Node) else self._get_node(source, apply_filter=False)
             self.source = sn
             self.input_nodes.append(sn)
 
         if target:
-            tn: Node = (
-                target
-                if isinstance(target, Node)
-                else self._get_node(target, apply_filter=False)
-            )
+            tn: Node = target if isinstance(target, Node) else self._get_node(target, apply_filter=False)
             self.target = tn
             self.input_nodes.append(tn)
 
@@ -356,16 +333,11 @@ class UIResultManager(ResultManager):
             assert isinstance(self.source, Node) or self.source is None
             assert isinstance(self.target, Node) or self.target is None
         except AssertionError as err:
-            raise ValueError(
-                f"Source and target must be None or instance of "
-                f"Node for {self.alg_name}"
-            ) from err
+            raise ValueError(f"Source and target must be None or instance of " f"Node for {self.alg_name}") from err
 
         # Only one of source and target allowed
         if not (bool(self.source is not None) ^ bool(self.target is not None)):
-            raise ValueError(
-                f"Only one of source and target allowed for {self.alg_name}"
-            )
+            raise ValueError(f"Only one of source and target allowed for {self.alg_name}")
 
     def _check_source_and_target(self):
         try:
@@ -373,8 +345,7 @@ class UIResultManager(ResultManager):
             assert isinstance(self.target, Node)
         except AssertionError as err:
             raise ValueError(
-                f"Both source and target must be provided and be "
-                f"instance of Node for {self.alg_name}"
+                f"Both source and target must be provided and be " f"instance of Node for {self.alg_name}"
             ) from err
 
     def _check_source_target(self):
@@ -452,12 +423,8 @@ class PathResultManager(UIResultManager):
             weight = self.filter_options.weighted
 
         while True:
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
-                seconds=self.timeout
-            ):
-                logger.info(
-                    f"Timeout reached ({self.timeout} seconds), breaking results loop"
-                )
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+                logger.info(f"Timeout reached ({self.timeout} seconds), breaking results loop")
                 self.timed_out = True
                 break
             if paths_built >= self.filter_options.max_paths:
@@ -465,10 +432,7 @@ class PathResultManager(UIResultManager):
                 break
 
             try:
-                if (
-                    self.filter_options.cull_best_node is not None
-                    and prev_path is not None
-                ):
+                if self.filter_options.cull_best_node is not None and prev_path is not None:
                     send_values = _get_cull_values(
                         culled_nodes=culled_nodes,
                         cull_best_node=self.filter_options.cull_best_node,
@@ -491,17 +455,11 @@ class PathResultManager(UIResultManager):
                 logger.info("Reached StopIteration in PathResultsManager, breaking.")
                 break
 
-            if (
-                self.filter_options.path_length
-                and not self.filter_options.overall_weighted
-            ):
+            if self.filter_options.path_length and not self.filter_options.overall_weighted:
                 if len(path) < self.filter_options.path_length:
                     continue
                 elif len(path) > self.filter_options.path_length:
-                    logger.info(
-                        f"Found all paths of length "
-                        f"{self.filter_options.path_length}"
-                    )
+                    logger.info(f"Found all paths of length " f"{self.filter_options.path_length}")
                     break
                 else:
                     pass
@@ -552,9 +510,7 @@ class PathResultManager(UIResultManager):
         try:
             if len(self.paths) == 0:
                 self._build_paths()
-            return PathResultData(
-                source=self.source, target=self.target, paths=self.paths
-            )
+            return PathResultData(source=self.source, target=self.target, paths=self.paths)
         except NetworkXNoPath as exc:
             logger.warning(str(exc))
             return PathResultData(paths={})
@@ -606,11 +562,7 @@ class DijkstraResultManager(PathResultManager):
         # node_blacklist
         # terminal_ns <- Not part of FilterOptions currently
         # cull best nodes <- Not applicable
-        return FilterOptions(
-            **filter_options.dict(
-                exclude={"node_blacklist", "cull_best_node"}, exclude_defaults=True
-            )
-        )
+        return FilterOptions(**filter_options.dict(exclude={"node_blacklist", "cull_best_node"}, exclude_defaults=True))
 
     def _pass_node(self, node: Node) -> bool:
         # open_dijkstra_search already checks:
@@ -715,9 +667,7 @@ class ShortestSimplePathsResultManager(PathResultManager):
         # Filters already done in algorithm:
         #
         #
-        return FilterOptions(
-            **filter_options.dict(exclude={"node_blacklist"}, exclude_defaults=True)
-        )
+        return FilterOptions(**filter_options.dict(exclude={"node_blacklist"}, exclude_defaults=True))
 
     def _pass_node(self, node: Node) -> bool:
         # Check:
@@ -782,13 +732,8 @@ class SharedInteractorsResultManager(UIResultManager):
         source_edges: List[EdgeData] = []
         target_edges: List[EdgeData] = []
         for (s1, s2), (t1, t2) in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
-                seconds=self.timeout
-            ):
-                logger.info(
-                    f"Timeout reached ({self.timeout} seconds), "
-                    f"breaking results loop"
-                )
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+                logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
             source_edge = self._get_edge_data(a=s1, b=s2)
@@ -852,13 +797,8 @@ class OntologyResultManager(UIResultManager):
 
     def _get_parents(self):
         for name, ns, _id, id_url in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
-                seconds=self.timeout
-            ):
-                logger.info(
-                    f"Timeout reached ({self.timeout} seconds), "
-                    f"breaking results loop"
-                )
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+                logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
             node = Node(name=name, namespace=ns, identifier=_id, lookup=id_url)
@@ -867,9 +807,7 @@ class OntologyResultManager(UIResultManager):
     def _get_results(self) -> OntologyResults:
         """Get results for shared_parents"""
         self._get_parents()
-        return OntologyResults(
-            source=self.source, target=self.target, parents=self._parents
-        )
+        return OntologyResults(source=self.source, target=self.target, parents=self._parents)
 
     def get_results(self) -> OntologyResults:
         """Execute the result assembly with the loaded generator
@@ -936,9 +874,7 @@ class SubgraphResultManager(ResultManager):
         # No filters implemented yet
         return True
 
-    def _pass_stmt(
-        self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]
-    ) -> bool:
+    def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float, Dict[str, int]]]) -> bool:
         # Overwrite _pass_stmt() from parent to be able to filter out fplx
         # edges
         if stmt_dict["stmt_type"].lower() == "fplx":
@@ -952,9 +888,7 @@ class SubgraphResultManager(ResultManager):
         # _pass_stmt to remove edges with it
         return FilterOptions(stmt_filter=["fplx"])
 
-    def _get_edge_data_by_hash(
-        self, a: Union[str, Node], b: Union[str, Node]
-    ) -> Union[EdgeDataByHash, None]:
+    def _get_edge_data_by_hash(self, a: Union[str, Node], b: Union[str, Node]) -> Union[EdgeDataByHash, None]:
         # Get node, return if unidentifiable
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
@@ -1008,28 +942,15 @@ class SubgraphResultManager(ResultManager):
 
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
-        logger.info(
-            f"Generating output data for subgraph with "
-            f"{len(self._available_nodes)} eligible nodes"
-        )
+        logger.info(f"Generating output data for subgraph with " f"{len(self._available_nodes)} eligible nodes")
         # Loop edges
         for a, b in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
-                seconds=self.timeout
-            ):
-                logger.info(
-                    f"Timeout reached ({self.timeout} seconds), "
-                    f"breaking results loop"
-                )
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+                logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
-                seconds=self.timeout
-            ):
-                logger.info(
-                    f"Timeout reached ({self.timeout} seconds), "
-                    f"breaking results loop"
-                )
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+                logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
             edge: Tuple[str, str] = (a, b)
@@ -1091,17 +1012,11 @@ class MultiInteractorsResultManager(ResultManager):
         self.downstream = downstream
         self.edge_data_list: Optional[List[EdgeData]] = []
         if self.downstream:
-            self.regulators: List[Node] = [
-                self._get_node(node_name=name, apply_filter=False)
-                for name in input_nodes
-            ]
+            self.regulators: List[Node] = [self._get_node(node_name=name, apply_filter=False) for name in input_nodes]
             self.targets: List[Node] = []
         else:
             self.regulators: List[Node] = []
-            self.targets: List[Node] = [
-                self._get_node(node_name=name, apply_filter=False)
-                for name in input_nodes
-            ]
+            self.targets: List[Node] = [self._get_node(node_name=name, apply_filter=False) for name in input_nodes]
 
     def _pass_node(self, node: Node) -> bool:
         # Node blacklist and allowed ns are checked in direct_multi_interactors
@@ -1125,23 +1040,14 @@ class MultiInteractorsResultManager(ResultManager):
         """Return all edges as (StrNode, StrNode)"""
         # If downstream, regulators == input nodes
         input_nodes = self.regulators if self.downstream else self.targets
-        neighbors = [
-            self._get_node(node_name=name, apply_filter=False) for name in self.path_gen
-        ]
-        prod_args = (
-            (input_nodes, neighbors) if self.downstream else (neighbors, input_nodes)
-        )
+        neighbors = [self._get_node(node_name=name, apply_filter=False) for name in self.path_gen]
+        prod_args = (input_nodes, neighbors) if self.downstream else (neighbors, input_nodes)
         return ((s, o) for s, o in product(*prod_args))
 
     def _loop_edges(self):
         for s, t in self._get_edge_iter():
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(
-                seconds=self.timeout
-            ):
-                logger.info(
-                    f"Timeout reached ({self.timeout} seconds), "
-                    f"breaking results loop"
-                )
+            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+                logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
 
@@ -1151,9 +1057,7 @@ class MultiInteractorsResultManager(ResultManager):
         if self.edge_data_list:
             logger.info(f"Added data for {len(self.edge_data_list)} edges")
         else:
-            logger.info(
-                f"No common {'targets' if self.downstream else 'regulators'} was found for multi interactors"
-            )
+            logger.info(f"No common {'targets' if self.downstream else 'regulators'} was found for multi interactors")
 
     def _get_results(self) -> MultiInteractorsResults:
         if not self.edge_data_list:

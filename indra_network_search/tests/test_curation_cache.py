@@ -1,4 +1,5 @@
 from typing import List
+
 from indra_network_search.util.curation_cache import CurationCache
 
 

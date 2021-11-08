@@ -4,25 +4,25 @@ Pathfinding algorithms local to this repository
 import logging
 from itertools import islice, product
 from typing import (
+    Any,
+    Callable,
+    Dict,
     Generator,
+    Iterator,
     List,
-    Union,
     Optional,
     Set,
-    Iterator,
     Tuple,
-    Any,
-    Dict,
-    Callable,
+    Union,
 )
-
-from networkx import DiGraph
 
 from depmap_analysis.network_functions.famplex_functions import (
     common_parent,
     get_identifiers_url,
     ns_id_to_name,
 )
+from networkx import DiGraph
+
 from indra_network_search.rest_util import StrNode, StrNodeSeq
 
 logger = logging.getLogger(__name__)
@@ -172,9 +172,7 @@ def shared_interactors(
     # shared targets and upregulates source & target in the case of shared
     # regulators.
     if sign is not None:
-        s_neigh, t_neigh = _sign_filter(
-            source, s_neigh, target, t_neigh, sign, regulators
-        )
+        s_neigh, t_neigh = _sign_filter(source, s_neigh, target, t_neigh, sign, regulators)
 
     # Filter nodes
     if node_blacklist:
@@ -279,12 +277,8 @@ def direct_multi_interactors(
         # Collect the max belief of the edge statements for each edge,
         # then pick the lowest of the beliefs in that list, i.e. the node
         # with the best "worst" performance gets ranked highest
-        edges = [
-            (neigh_node, inp_n) if rev else (inp_n, neigh_node) for inp_n in input_nodes
-        ]
-        max_beliefs = [
-            max(sd["belief"] for sd in graph.edges[e]["statements"]) for e in edges
-        ]
+        edges = [(neigh_node, inp_n) if rev else (inp_n, neigh_node) for inp_n in input_nodes]
+        max_beliefs = [max(sd["belief"] for sd in graph.edges[e]["statements"]) for e in edges]
         return min(max_beliefs)
 
     reverse = not downstream
@@ -304,9 +298,7 @@ def direct_multi_interactors(
 
     # Apply node filters
     if allowed_ns and neighbors:
-        neighbors = list(
-            _namespace_filter(graph=graph, nodes=neighbors, allowed_ns=allowed_ns)
-        )
+        neighbors = list(_namespace_filter(graph=graph, nodes=neighbors, allowed_ns=allowed_ns))
     if node_blacklist and neighbors:
         neighbors = [n for n in neighbors if n not in node_blacklist]
 
@@ -318,29 +310,19 @@ def direct_multi_interactors(
         reverse,
     )
     if stmt_types and neighbors:
-        neighbors = _run_edge_filter(
-            *filter_args, filter_func=_stmt_types_filter, filter_option=stmt_types
-        )
+        neighbors = _run_edge_filter(*filter_args, filter_func=_stmt_types_filter, filter_option=stmt_types)
 
     if source_filter and neighbors:
-        neighbors = _run_edge_filter(
-            *filter_args, filter_func=_source_filter, filter_option=source_filter
-        )
+        neighbors = _run_edge_filter(*filter_args, filter_func=_source_filter, filter_option=source_filter)
 
     if hash_blacklist and neighbors:
-        neighbors = _run_edge_filter(
-            *filter_args, filter_func=_hash_filter, filter_option=hash_blacklist
-        )
+        neighbors = _run_edge_filter(*filter_args, filter_func=_hash_filter, filter_option=hash_blacklist)
 
     if belief_cutoff > 0 and neighbors:
-        neighbors = _run_edge_filter(
-            *filter_args, filter_func=_belief_filter, filter_option=belief_cutoff
-        )
+        neighbors = _run_edge_filter(*filter_args, filter_func=_belief_filter, filter_option=belief_cutoff)
 
     if curated_db_only and neighbors:
-        neighbors = _run_edge_filter(
-            *filter_args, filter_func=_filter_curated, filter_option=None
-        )
+        neighbors = _run_edge_filter(*filter_args, filter_func=_filter_curated, filter_option=None)
 
     # Sort by min of the max of the edge beliefs, then by node degree
     if neighbors:
@@ -397,9 +379,7 @@ def _sign_filter(
     return s_neigh, t_neigh
 
 
-def _namespace_filter(
-    nodes: StrNodeSeq, graph: DiGraph, allowed_ns: List[str]
-) -> Set[StrNode]:
+def _namespace_filter(nodes: StrNodeSeq, graph: DiGraph, allowed_ns: List[str]) -> Set[StrNode]:
     return {x for x in nodes if graph.nodes[x]["ns"].lower() in allowed_ns}
 
 
@@ -416,11 +396,7 @@ def _stmt_types_filter(
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = (
-        product(node_list, [start_node])
-        if reverse
-        else product([start_node], node_list)
-    )
+    edge_iter = product(node_list, [start_node]) if reverse else product([start_node], node_list)
 
     # Check which edges have the allowed stmt types
     filtered_neighbors: Set[StrNode] = set()
@@ -444,19 +420,13 @@ def _source_filter(
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = (
-        product(node_list, [start_node])
-        if reverse
-        else product([start_node], node_list)
-    )
+    edge_iter = product(node_list, [start_node]) if reverse else product([start_node], node_list)
 
     # Check which edges have the allowed sources
     filtered_neighbors: Set[StrNode] = set()
     for n, edge in zip(node_list, edge_iter):
         for sd in graph.edges[edge]["statements"]:
-            if isinstance(sd["source_counts"], dict) and any(
-                [s.lower() in sources for s in sd["source_counts"]]
-            ):
+            if isinstance(sd["source_counts"], dict) and any([s.lower() in sources for s in sd["source_counts"]]):
                 filtered_neighbors.add(n)
                 break
     return filtered_neighbors
@@ -475,11 +445,7 @@ def _filter_curated(
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = (
-        product(node_list, [start_node])
-        if reverse
-        else product([start_node], node_list)
-    )
+    edge_iter = product(node_list, [start_node]) if reverse else product([start_node], node_list)
 
     # Filter out edges without support from databases
     filtered_neighbors = set()
@@ -504,11 +470,7 @@ def _hash_filter(
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = (
-        product(node_list, [start_node])
-        if reverse
-        else product([start_node], node_list)
-    )
+    edge_iter = product(node_list, [start_node]) if reverse else product([start_node], node_list)
 
     # Filter out edges without support from databases
     filtered_neighbors = set()
@@ -537,11 +499,7 @@ def _belief_filter(
     else:
         node_list = sorted(neighbor_nodes)
 
-    edge_iter = (
-        product(node_list, [start_node])
-        if reverse
-        else product([start_node], node_list)
-    )
+    edge_iter = product(node_list, [start_node]) if reverse else product([start_node], node_list)
 
     # Filter out edges with belief below the cutoff
     filtered_neighbors = set()
@@ -562,9 +520,7 @@ def _run_edge_filter(
     g: DiGraph,
     rev: bool,
     filter_option: FilterOption,
-    filter_func: Callable[
-        [StrNode, Set[StrNode], DiGraph, bool, Optional[FilterOption]], Set[StrNode]
-    ],
+    filter_func: Callable[[StrNode, Set[StrNode], DiGraph, bool, Optional[FilterOption]], Set[StrNode]],
 ):
     for start_node in start_nodes:
         if not neighbor_nodes:
@@ -572,16 +528,12 @@ def _run_edge_filter(
         if filter_option is None:
             neighbor_nodes = filter_func(start_node, neighbor_nodes, g, rev)
         else:
-            neighbor_nodes = filter_func(
-                start_node, neighbor_nodes, g, rev, filter_option
-            )
+            neighbor_nodes = filter_func(start_node, neighbor_nodes, g, rev, filter_option)
 
     return neighbor_nodes
 
 
-def get_subgraph_edges(
-    graph: DiGraph, nodes: List[Dict[str, str]]
-) -> Iterator[Tuple[str, str]]:
+def get_subgraph_edges(graph: DiGraph, nodes: List[Dict[str, str]]) -> Iterator[Tuple[str, str]]:
     """Get the subgraph connecting the provided nodes
 
     Parameters

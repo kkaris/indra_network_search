@@ -4,22 +4,22 @@ different algorithms used in the search api.
 """
 import logging
 from itertools import product
-from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List, Type
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
 import networkx as nx
-from pydantic import BaseModel
-
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import (
-    shortest_simple_paths,
+    EdgeFilter,
     bfs_search,
     open_dijkstra_search,
-    EdgeFilter,
+    shortest_simple_paths,
 )
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
+from pydantic import BaseModel
+
 from indra_network_search.data_models import *
 from indra_network_search.pathfinding import *
-from indra_network_search.rest_util import StrNode, StrEdge
+from indra_network_search.rest_util import StrEdge, StrNode
 from indra_network_search.util.curation_cache import CurationCache
 
 # Constants
@@ -53,7 +53,7 @@ class MissingParametersError(Exception):
 
 
 class InvalidParametersError(Exception):
-    """Raise when conflicting or otherwise invalid parameters """
+    """Raise when conflicting or otherwise invalid parameters"""
 
 
 alg_func_mapping = {
@@ -134,9 +134,7 @@ class UIQuery(Query):
     def result_options(self) -> Dict:
         raise NotImplementedError
 
-    def __init__(
-        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
-    ):
+    def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None):
         super().__init__(query=query)
         self.hash_blacklist = hash_blacklist or set()
 
@@ -169,12 +167,8 @@ class PathQuery(UIQuery):
         elif not self.query.source and self.query.target:
             start_node, reverse = self.query.target, True
         else:
-            raise InvalidParametersError(
-                f"Cannot use {self.alg_name} with both source and target set."
-            )
-        signed_node = get_open_signed_node(
-            node=start_node, reverse=reverse, sign=self.query.get_int_sign()
-        )
+            raise InvalidParametersError(f"Cannot use {self.alg_name} with both source and target set.")
+        signed_node = get_open_signed_node(node=start_node, reverse=reverse, sign=self.query.get_int_sign())
         return signed_node, reverse
 
     def alg_options(self) -> Dict[str, Any]:
@@ -187,9 +181,7 @@ class PathQuery(UIQuery):
 
     def run_options(self, graph: Optional[nx.DiGraph] = None) -> Dict[str, Any]:
         """Combines all options to one dict that can be sent to algorithm"""
-        return self.options(
-            **self.alg_options(), **self.mesh_options(graph=graph)
-        ).dict()
+        return self.options(**self.alg_options(), **self.mesh_options(graph=graph)).dict()
 
     def result_options(self) -> Dict:
         """Provide args to corresponding result class in result_handler
@@ -222,20 +214,13 @@ class PathQuery(UIQuery):
         return res_options
 
     # This method is specific for PathQuery classes
-    def _get_mesh_options(
-        self, get_func: bool = True
-    ) -> Tuple[Set, Union[Callable, None]]:
+    def _get_mesh_options(self, get_func: bool = True) -> Tuple[Set, Union[Callable, None]]:
         """Get the necessary mesh options"""
         if self.query.mesh_ids is None or len(self.query.mesh_ids) == 0:
-            raise InvalidParametersError(
-                "No mesh ids provided, but method "
-                "for getting mesh options was called"
-            )
+            raise InvalidParametersError("No mesh ids provided, but method " "for getting mesh options was called")
         hash_mesh_dict: Dict[Any, Dict] = get_mesh_ref_counts(self.query.mesh_ids)
         related_hashes: Set = set(hash_mesh_dict.keys())
-        ref_counts_from_hashes = (
-            _get_ref_counts_func(hash_mesh_dict) if get_func else None
-        )
+        ref_counts_from_hashes = _get_ref_counts_func(hash_mesh_dict) if get_func else None
         return related_hashes, ref_counts_from_hashes
 
 
@@ -245,9 +230,7 @@ class ShortestSimplePathsQuery(PathQuery):
     alg_name: str = shortest_simple_paths.__name__
     options: ShortestSimplePathOptions = ShortestSimplePathOptions
 
-    def __init__(
-        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
-    ):
+    def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
@@ -266,9 +249,7 @@ class ShortestSimplePathsQuery(PathQuery):
             "weight": self._weight_map.get(self.query.weighted),
         }
 
-    def mesh_options(
-        self, graph: Optional[nx.DiGraph] = None
-    ) -> Dict[str, Union[Set, int, bool, Callable]]:
+    def mesh_options(self, graph: Optional[nx.DiGraph] = None) -> Dict[str, Union[Set, int, bool, Callable]]:
         """Match input to shortest_simple_paths
 
         Returns
@@ -296,9 +277,7 @@ class BreadthFirstSearchQuery(PathQuery):
     alg_name: str = bfs_search.__name__
     options: BaseModel = BreadthFirstSearchOptions
 
-    def __init__(
-        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
-    ):
+    def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
     def _get_edge_filter(self) -> Optional[EdgeFilter]:
@@ -314,12 +293,7 @@ class BreadthFirstSearchQuery(PathQuery):
         check_curated = self.query.curated_db_only
 
         # Simplify function if no filters are applied
-        if (
-            belief_cutoff == 0
-            and not stmt_types
-            and not hash_blacklist
-            and not check_curated
-        ):
+        if belief_cutoff == 0 and not stmt_types and not hash_blacklist and not check_curated:
             return None
         else:
             _edge_filter = _get_edge_filter_func(
@@ -342,10 +316,7 @@ class BreadthFirstSearchQuery(PathQuery):
         # path_length == len([node1, node2, ...])
         # depth_limit == len([(node1, node2), (node2, node3), ...])
         # ==> path_length == depth_limit + 1
-        if (
-            self.query.path_length
-            and self.query.path_length > self.query.depth_limit + 1
-        ):
+        if self.query.path_length and self.query.path_length > self.query.depth_limit + 1:
             logger.warning(
                 f"Resetting depth_limit from "
                 f"{self.query.depth_limit} to match requested "
@@ -371,9 +342,7 @@ class BreadthFirstSearchQuery(PathQuery):
             "edge_filter": edge_filter_func,
         }
 
-    def mesh_options(
-        self, graph: Optional[nx.DiGraph] = None
-    ) -> Dict[str, Union[Set, bool, Callable]]:
+    def mesh_options(self, graph: Optional[nx.DiGraph] = None) -> Dict[str, Union[Set, bool, Callable]]:
         """Get mesh options for bfs_search
 
         Parameters
@@ -389,16 +358,9 @@ class BreadthFirstSearchQuery(PathQuery):
         # If any mesh ids are provided:
         if self.query.mesh_ids and len(self.query.mesh_ids) > 0:
             if not isinstance(graph, nx.DiGraph):
-                raise InvalidParametersError(
-                    f"Must provide graph when running {self.alg_name} with "
-                    f"mesh options."
-                )
+                raise InvalidParametersError(f"Must provide graph when running {self.alg_name} with " f"mesh options.")
             hashes, _ = self._get_mesh_options(get_func=False)
-            allowed_edges = {
-                graph.graph["edge_by_hash"][h]
-                for h in hashes
-                if h in graph.graph["edge_by_hash"]
-            }
+            allowed_edges = {graph.graph["edge_by_hash"][h] for h in hashes if h in graph.graph["edge_by_hash"]}
             _allow_edge_func = _get_allowed_edges_func(allowed_edges)
         else:
             hashes, _allow_edge_func = None, lambda u, v: True
@@ -415,9 +377,7 @@ class DijkstraQuery(PathQuery):
     alg_name: str = open_dijkstra_search.__name__
     options: DijkstraOptions = DijkstraOptions
 
-    def __init__(
-        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
-    ):
+    def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
@@ -440,9 +400,7 @@ class DijkstraQuery(PathQuery):
             "weight": self._weight_map.get(self.query.weighted),
         }
 
-    def mesh_options(
-        self, graph: Optional[nx.DiGraph] = None
-    ) -> Dict[str, Union[Set, bool, Callable]]:
+    def mesh_options(self, graph: Optional[nx.DiGraph] = None) -> Dict[str, Union[Set, bool, Callable]]:
         """Produces mesh arguments matching open_dijkstra_search from query
 
         Returns
@@ -470,9 +428,7 @@ class SharedInteractorsQuery(UIQuery):
     options: SharedInteractorsOptions = SharedInteractorsOptions
     reverse: bool = NotImplemented
 
-    def __init__(
-        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
-    ):
+    def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None):
         super().__init__(query, hash_blacklist=hash_blacklist)
 
     def alg_options(self) -> Dict[str, Any]:
@@ -483,12 +439,8 @@ class SharedInteractorsQuery(UIQuery):
         :
             A dict with the arguments for shared_interactors
         """
-        source = get_open_signed_node(
-            node=self.query.source, reverse=self.reverse, sign=self.query.get_int_sign()
-        )
-        target = get_open_signed_node(
-            node=self.query.target, reverse=self.reverse, sign=self.query.get_int_sign()
-        )
+        source = get_open_signed_node(node=self.query.source, reverse=self.reverse, sign=self.query.get_int_sign())
+        target = get_open_signed_node(node=self.query.target, reverse=self.reverse, sign=self.query.get_int_sign())
         return {
             "source": source,
             "target": target,
@@ -510,12 +462,8 @@ class SharedInteractorsQuery(UIQuery):
 
     def result_options(self) -> Dict:
         """Provide args to SharedInteractorsResultManager in result_handler"""
-        source = get_open_signed_node(
-            node=self.query.source, reverse=self.reverse, sign=self.query.get_int_sign()
-        )
-        target = get_open_signed_node(
-            node=self.query.target, reverse=self.reverse, sign=self.query.get_int_sign()
-        )
+        source = get_open_signed_node(node=self.query.source, reverse=self.reverse, sign=self.query.get_int_sign())
+        target = get_open_signed_node(node=self.query.target, reverse=self.reverse, sign=self.query.get_int_sign())
         return {
             "filter_options": self.query.get_filter_options(),
             "is_targets_query": not self.reverse,
@@ -530,17 +478,13 @@ class SharedRegulatorsQuery(SharedInteractorsQuery):
     alg_name = "shared_regulators"
     reverse = True
 
-    def __init__(
-        self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None
-    ):
+    def __init__(self, query: NetworkSearchQuery, hash_blacklist: Optional[Set[int]] = None):
         # bool(shared_regulators) == bool(reverse)
         if query.shared_regulators != self.reverse:
             # shared regulators must not be requested if
             # query.shared_regulators == False
             raise InvalidParametersError(
-                "Request for shared regulators in "
-                "query does not match class "
-                "attribute reverse"
+                "Request for shared regulators in " "query does not match class " "attribute reverse"
             )
 
         super().__init__(query=query, hash_blacklist=hash_blacklist)
@@ -666,10 +610,7 @@ class SubgraphQuery:
             # See if node name, if provided, is among nodes
             elif node.name and node.name in graph.nodes:
                 # Check if ns/id are proper
-                if (
-                    node.namespace != graph.nodes[node.name]["ns"]
-                    or node.identifier != graph.nodes[node.name]["id"]
-                ):
+                if node.namespace != graph.nodes[node.name]["ns"] or node.identifier != graph.nodes[node.name]["id"]:
                     proper_node = Node(
                         name=node.name,
                         namespace=graph.nodes[node.name]["ns"],
@@ -776,9 +717,7 @@ class MultiInteractorsQuery:
         }
 
 
-def get_open_signed_node(
-    node: str, reverse: bool, sign: Optional[int] = None
-) -> StrNode:
+def get_open_signed_node(node: str, reverse: bool, sign: Optional[int] = None) -> StrNode:
     """Given sign and direction, return a node
 
     Assign the correct sign to the source node:

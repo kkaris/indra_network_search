@@ -22,20 +22,27 @@ functions.
 #    https://stackoverflow.com/q/54023782/10478812
 import logging
 from collections import Counter
-from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
-from networkx import DiGraph
+from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
 
-from pydantic import BaseModel, validator, Extra, constr, conint, confloat, \
-    HttpUrl, conlist
-
-from indra.explanation.pathfinding.util import EdgeFilter
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
+from indra.explanation.pathfinding.util import EdgeFilter
+from networkx import DiGraph
+from pydantic import (
+    BaseModel,
+    Extra,
+    HttpUrl,
+    confloat,
+    conint,
+    conlist,
+    constr,
+    validator,
+)
 
 from indra_network_search.rest_util import (
-    get_query_hash,
-    is_weighted,
-    is_context_weighted,
     StrNode,
+    get_query_hash,
+    is_context_weighted,
+    is_weighted,
 )
 
 try:
@@ -130,11 +137,7 @@ class FilterOptions(BaseModel):
 
     def no_stmt_filters(self):
         """Return True if the stmt filter options allow all statements"""
-        return (
-            self.belief_cutoff == 0.0
-            and len(self.stmt_filter) == 0
-            and self.curated_db_only is False
-        )
+        return self.belief_cutoff == 0.0 and len(self.stmt_filter) == 0 and self.curated_db_only is False
 
     def no_node_filters(self):
         """Return True if the node filter options allow all nodes"""
@@ -212,9 +215,7 @@ class NetworkSearchQuery(BaseModel):
 
     def is_context_weighted(self):
         """Return True if this query is context weighted"""
-        return is_context_weighted(
-            mesh_id_list=self.mesh_ids, strict_filtering=self.strict_mesh_id_filtering
-        )
+        return is_context_weighted(mesh_id_list=self.mesh_ids, strict_filtering=self.strict_mesh_id_filtering)
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
@@ -395,9 +396,7 @@ class Node(BaseModel):
             If sign is not defined, a TypeError
         """
         if self.sign is None:
-            raise TypeError(
-                "Node is unsigned, unable to produce a signed " "node tuple"
-            )
+            raise TypeError("Node is unsigned, unable to produce a signed " "node tuple")
         return self.name, self.sign
 
 
@@ -427,9 +426,7 @@ class StmtTypeSupport(BaseModel):
 
     def set_source_counts(self):
         """Updates the source count field from the set statement data"""
-        self.source_counts = sum(
-            [Counter(**sd.source_counts) for sd in self.statements], Counter()
-        )
+        self.source_counts = sum([Counter(**sd.source_counts) for sd in self.statements], Counter())
 
 
 class EdgeData(BaseModel):
@@ -439,9 +436,7 @@ class EdgeData(BaseModel):
     statements: Dict[str, StmtTypeSupport]  # key by stmt_type
     belief: confloat(ge=0, le=1)  # Aggregated belief
     weight: confloat(ge=0)  # Weight corresponding to aggregated belief weight
-    context_weight: Union[
-        str, confloat(gt=0), Literal["N/A"]
-    ] = "N/A"  # Set for context
+    context_weight: Union[str, confloat(gt=0), Literal["N/A"]] = "N/A"  # Set for context
     z_score: Optional[float] = None  # z-score
     corr_weight: Optional[confloat(gt=0.0)] = None  # Weight from z-score
     sign: Optional[conint(ge=0, le=1)]  # Used for signed paths
@@ -562,15 +557,9 @@ class MultiInteractorsRestQuery(BaseModel):
 
     nodes: List[str]
     downstream: bool
-    allowed_ns: Optional[
-        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
-    ] = None
-    stmt_types: Optional[
-        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
-    ] = None
-    source_filter: Optional[
-        List[constr(strip_whitespace=True, to_lower=True, min_length=1)]
-    ] = None
+    allowed_ns: Optional[List[constr(strip_whitespace=True, to_lower=True, min_length=1)]] = None
+    stmt_types: Optional[List[constr(strip_whitespace=True, to_lower=True, min_length=1)]] = None
+    source_filter: Optional[List[constr(strip_whitespace=True, to_lower=True, min_length=1)]] = None
     max_results: int = 50
     node_blacklist: Optional[List[str]] = None
     belief_cutoff: float = 0.0

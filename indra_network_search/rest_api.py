@@ -6,30 +6,30 @@ from datetime import date
 from os import environ
 from typing import List, Optional
 
-from fastapi import FastAPI, Query as RestQuery, BackgroundTasks
+from depmap_analysis.network_functions.net_functions import MIN_WEIGHT, bio_ontology
+from depmap_analysis.util.io_functions import file_opener
+from fastapi import BackgroundTasks, FastAPI
+from fastapi import Query as RestQuery
+from indra.databases import get_identifiers_url
 from pydantic import ValidationError
 
-from depmap_analysis.network_functions.net_functions import bio_ontology, \
-    MIN_WEIGHT
-from depmap_analysis.util.io_functions import file_opener
-from indra.databases import get_identifiers_url
 from indra_network_search import NAME, VERSION
 from indra_network_search.autocomplete import NodesTrie, Prefixes
 from indra_network_search.data_models import (
-    Results,
-    NetworkSearchQuery,
-    SubgraphRestQuery,
-    SubgraphResults,
-    Node,
     MultiInteractorsRestQuery,
     MultiInteractorsResults,
+    NetworkSearchQuery,
+    Node,
+    Results,
+    SubgraphRestQuery,
+    SubgraphResults,
 )
 from indra_network_search.data_models.rest_models import Health, ServerStatus
 from indra_network_search.rest_util import (
-    load_indra_graph,
     check_existence_and_date_s3,
-    dump_result_json_to_s3,
     dump_query_json_to_s3,
+    dump_result_json_to_s3,
+    load_indra_graph,
 )
 from indra_network_search.search_api import IndraNetworkSearchAPI
 
@@ -75,9 +75,7 @@ def get_xrefs(ns: str, id: str) -> List[List[str]]:
 
 
 @app.get("/node-name-in-graph", response_model=Optional[Node])
-def node_name_in_graph(
-    node_name: str = RestQuery(..., min_length=1, alias="node-name")
-) -> Optional[Node]:
+def node_name_in_graph(node_name: str = RestQuery(..., min_length=1, alias="node-name")) -> Optional[Node]:
     """Check if node by provided name (case sensitive) exists in graph
 
     Parameters
@@ -151,13 +149,9 @@ def get_prefix_autocomplete(
             upper_match = network_search_api.get_node(prefix.upper())
             lower_match = network_search_api.get_node(prefix.lower())
             if upper_match:
-                nodes.append(
-                    [upper_match.name, upper_match.namespace, upper_match.identifier]
-                )
+                nodes.append([upper_match.name, upper_match.namespace, upper_match.identifier])
             if lower_match:
-                nodes.append(
-                    [lower_match.name, lower_match.namespace, lower_match.identifier]
-                )
+                nodes.append([lower_match.name, lower_match.namespace, lower_match.identifier])
         else:
             nodes = []
             n1 = prefix.upper()
@@ -231,21 +225,15 @@ def query(search_query: NetworkSearchQuery, background_tasks: BackgroundTasks):
             logger.info("Result could not be validated, re-running search")
             results = network_search_api.handle_query(rest_query=search_query)
             logger.info("Uploading results to S3")
-            background_tasks.add_task(
-                dump_result_json_to_s3, query_hash, results.dict()
-            )
-            background_tasks.add_task(
-                dump_query_json_to_s3, query_hash, search_query.dict()
-            )
+            background_tasks.add_task(dump_result_json_to_s3, query_hash, results.dict())
+            background_tasks.add_task(dump_query_json_to_s3, query_hash, search_query.dict())
 
     else:
         logger.info("Performing new search")
         results = network_search_api.handle_query(rest_query=search_query)
         logger.info("Uploading results to S3")
         background_tasks.add_task(dump_result_json_to_s3, query_hash, results.dict())
-        background_tasks.add_task(
-            dump_query_json_to_s3, query_hash, search_query.dict()
-        )
+        background_tasks.add_task(dump_query_json_to_s3, query_hash, search_query.dict())
 
     return results
 
@@ -253,9 +241,7 @@ def query(search_query: NetworkSearchQuery, background_tasks: BackgroundTasks):
 @app.post("/multi_interactors", response_model=MultiInteractorsResults)
 def multi_interactors(search_query: MultiInteractorsRestQuery):
     logger.info(f"Got multi interactors query with {len(search_query.nodes)} nodes")
-    results = network_search_api.handle_multi_interactors_query(
-        multi_interactors_rest_query=search_query
-    )
+    results = network_search_api.handle_multi_interactors_query(multi_interactors_rest_query=search_query)
     logger.info("Multi interactors query resolved")
     return results
 
@@ -274,9 +260,7 @@ def sub_graph(search_query: SubgraphRestQuery):
     SubgraphResults
     """
     logger.info(f"Got subgraph query with {len(search_query.nodes)} nodes")
-    subgraph_results = network_search_api.handle_subgraph_query(
-        subgraph_rest_query=search_query
-    )
+    subgraph_results = network_search_api.handle_subgraph_query(subgraph_rest_query=search_query)
     logger.info("Subgraph query resolved")
     return subgraph_results
 
@@ -307,15 +291,10 @@ async def startup_event():
         )
 
         try:
-            assert all(
-                data["weight"] >= MIN_WEIGHT
-                for _, _, data in dir_graph.edges(data=True)
-            )
+            assert all(data["weight"] >= MIN_WEIGHT for _, _, data in dir_graph.edges(data=True))
             logger.info("Edge belief weights OK")
         except AssertionError:
-            logger.warning(
-                f"Edge weights below {MIN_WEIGHT} detected, resetting to {MIN_WEIGHT}"
-            )
+            logger.warning(f"Edge weights below {MIN_WEIGHT} detected, resetting to {MIN_WEIGHT}")
             # Reset unsigned graph edge weights
             for _, _, data in dir_graph.edges(data=True):
                 if data["weight"] < MIN_WEIGHT:
@@ -343,9 +322,7 @@ async def startup_event():
 
     # Setup search API
     logger.info("Setting up IndraNetworkSearchAPI with signed and unsigned graphs")
-    network_search_api = IndraNetworkSearchAPI(
-        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
-    )
+    network_search_api = IndraNetworkSearchAPI(unsigned_graph=dir_graph, signed_node_graph=sign_node_graph)
     logger.info("Service is available")
     STATUS.status = "available"
     HEALTH.status = "available"

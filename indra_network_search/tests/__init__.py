@@ -10,6 +10,7 @@ from depmap_analysis.network_functions.net_functions import (
     z_sc_weight,
 )
 from indra.databases import get_identifiers_url
+
 from indra_network_search.data_models import Node
 
 __all__ = [
@@ -391,17 +392,13 @@ for edge, v in edge_data.items():
     if "BRCA1" == edge[0] and edge[1] != "BRCA":
         parallel_edge = ("HDAC3", edge[1])
         vc = deepcopy(v)
-        vc["statements"][0]["english"] = v["statements"][0]["english"].replace(
-            "BRCA1", "HDAC3"
-        )
+        vc["statements"][0]["english"] = v["statements"][0]["english"].replace("BRCA1", "HDAC3")
         more_edge_data[parallel_edge] = v
 
     if "CHEK1" == edge[1] and edge[0] != "BRCA":
         parallel_edge = (edge[0], "H2AZ1")
         vc = deepcopy(v)
-        vc["statements"][0]["english"] = v["statements"][0]["english"].replace(
-            "CHEK1", "H2AZ1"
-        )
+        vc["statements"][0]["english"] = v["statements"][0]["english"].replace("CHEK1", "H2AZ1")
         more_edge_data[parallel_edge] = v
 hash_bl_edge1 = ("BRCA1", "AR")
 hash_bl_edge2 = ("AR", "CHEK1")

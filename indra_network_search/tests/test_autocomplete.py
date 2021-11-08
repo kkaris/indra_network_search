@@ -1,5 +1,6 @@
 import pandas as pd
 from depmap_analysis.network_functions.net_functions import sif_dump_df_to_digraph
+
 from indra_network_search.autocomplete import NodesTrie
 
 
