@@ -188,12 +188,27 @@ DepMap z-score weighted
 ~~~~~~~~~~~~~~~~~~~~~~~
 The z-score edge weight is focused around prioritizing edges between human
 genes that have been targeted in knockout screens performed at the Broad
-Institute's Dependency Map project. The z-score is obtained from first
-calculating the pearson correlation between all pairs of genes in the gene
-knockout screen. Then the log of the p-values of the correlations are
-calculated using the CDF of the beta distribution. Finally the strength of the
-z-scores are obtained from the p-values and the signs are recuperated from the
-original correlation matrix.
+Institute's Dependency Map project. Stouffer's method is used to get z-scores
+from the p-values of each correlation. The calculation is done on the log of
+the p-values for increased precision:
+
+.. math::
+    \log (p) = \log (2) + \text{logcdf}_{\text{beta}} \left( -\left| \mathbf{R} \right| \right)
+
+Here, :math:`\mathbf{R}` is the correlation matrix of the gene expression data
+and :math:`\text{logcdf}_{\text{beta}}` is the log of the cumulative
+distribution function of the beta distribution. To get the z-score, we use
+the inverse of the log of the normal distribution's CDF and then recover the
+sign from the original correlations:
+
+.. math::
+    \begin{align}
+        \left| z_e \right| = & f \left( \log(p) - \log(2) \right) \\
+        z_e = & \text{sign} \left( \mathbf{R} \right)^{\text{T}} \left| z_e \right|
+    \end{align}
+
+with :math:`f` being the inverse of the log of the normal distribution's CDF and
+`sign` maps the a value to its sign.
 
 The edge weight, assuming both nodes are human genes, is calculated by
 normalizing the difference between the z-score associated with a
@@ -204,7 +219,7 @@ entities, the z-score weight is set to 1:
 .. math::
     w_e =
     \begin{cases}
-      1                      & \quad \text{if } z_e = z_0\\
+      1                      & \quad \text{if } z_e = z_0 \text{(self-correlation)} \\
       \frac{ z_0 - \left| z_e \right| }{z_0}  & \quad \text{if } z_e \neq z_0
     \end{cases}
 
