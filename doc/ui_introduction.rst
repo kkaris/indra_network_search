@@ -219,7 +219,7 @@ entities, the z-score weight is set to 1:
 .. math::
     w_e =
     \begin{cases}
-      1                      & \quad \text{if } z_e = z_0 \text{self-correlation} \\
+      1                      & \quad \text{if } z_e = z_0 \text{(self-correlation)} \\
       \frac{ z_0 - \left| z_e \right| }{z_0}  & \quad \text{if } z_e \neq z_0
     \end{cases}
 
