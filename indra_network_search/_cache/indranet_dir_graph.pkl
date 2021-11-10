@@ -1,0 +1,1 @@
+/home/klas/repos/depmap_analysis/input_data/db/2021-08-09/graphs/indranet_dir_graph.pkl
