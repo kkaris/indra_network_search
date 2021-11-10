@@ -205,6 +205,7 @@ sign from the original correlations:
     \begin{align}
         \left| z_e \right| = & f \left( \log(p) - \log(2) \right) \\
         z_e = & \sign \left( \mathbf{R} \right)^{\text{T}} \left| z_e \right|
+    \end{align}
 
 with :math:`f` being the inverse of the log of the normal distribution's CDF.
 
