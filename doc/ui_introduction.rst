@@ -204,10 +204,11 @@ sign from the original correlations:
 .. math::
     \begin{align}
         \left| z_e \right| = & f \left( \log(p) - \log(2) \right) \\
-        z_e = & \sign \left( \mathbf{R} \right)^{\text{T}} \left| z_e \right|
+        z_e = & \text{sign} \left( \mathbf{R} \right)^{\text{T}} \left| z_e \right|
     \end{align}
 
-with :math:`f` being the inverse of the log of the normal distribution's CDF.
+with :math:`f` being the inverse of the log of the normal distribution's CDF and
+`sign` maps the a value to its sign.
 
 The edge weight, assuming both nodes are human genes, is calculated by
 normalizing the difference between the z-score associated with a
