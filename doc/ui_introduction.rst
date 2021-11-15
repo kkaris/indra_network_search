@@ -193,22 +193,25 @@ from the p-values of each correlation. The calculation is done on the log of
 the p-values for increased precision:
 
 .. math::
-    \log (p) = \log (2) + \text{logcdf}_{\text{beta}} \left( -\left| \mathbf{R} \right| \right)
+    \log (\mathbf{p}) = \log (2) + \text{logcdf}_{\text{beta}} \left( -\left| \mathbf{R} \right| \right)
 
-Here, :math:`\mathbf{R}` is the correlation matrix of the gene expression data
-and :math:`\text{logcdf}_{\text{beta}}` is the log of the cumulative
+Here, :math:`\mathbf{R}` is the correlation matrix of the gene expression
+data, :math:`\log (\mathbf{p})` is the matrix containing the log of the
+p-values, and :math:`\text{logcdf}_{\text{beta}}` is the log of the cumulative
 distribution function of the beta distribution. To get the z-score, we use
 the inverse of the log of the normal distribution's CDF and then recover the
 sign from the original correlations:
 
 .. math::
     \begin{align}
-        \left| z_e \right| = & f \left( \log(p) - \log(2) \right) \\
-        z_e = & \text{sign} \left( \mathbf{R} \right)^{\text{T}} \left| z_e \right|
+        \left| \mathbf{z_e} \right| = & f \left( \log (\mathbf{p}) - \log(2) \right) \\
+        \mathbf{z_e} = & \text{sign} \left( \mathbf{R} \right)^{\text{T}} \left| \mathbf{z_e} \right|
     \end{align}
 
-with :math:`f` being the inverse of the log of the normal distribution's CDF and
-`sign` maps the a value to its sign.
+with :math:`f` being the inverse of the log of the normal distribution's CDF,
+:math:`\left| \mathbf{z_e} \right|` being the matrix of z-score magnitides,
+:math:`\mathbf{z_e}` being the matrix of z-scores with sign and
+:math:`\text{sign}()` mapping values to their signs.
 
 The edge weight, assuming both nodes are human genes, is calculated by
 normalizing the difference between the z-score associated with a
