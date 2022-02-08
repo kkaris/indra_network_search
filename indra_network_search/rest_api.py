@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 DEBUG = environ.get("API_DEBUG") == "1"
 USE_CACHE = environ.get("USE_CACHE") == "1"
 HEALTH = Health(status="booting")
-STATUS = ServerStatus(status="booting", graph_date="2021-08-09")
+STATUS = ServerStatus(status="booting", graph_date="2022-01-11")
 network_search_api: IndraNetworkSearchAPI
 nsid_trie: NodesTrie
 nodes_trie: NodesTrie
