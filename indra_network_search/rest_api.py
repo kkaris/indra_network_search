@@ -33,15 +33,24 @@ from indra_network_search.rest_util import (
 )
 from indra_network_search.search_api import IndraNetworkSearchAPI
 
-from . import NAME, VERSION
+logger = logging.getLogger(__name__)
+
+try:
+    from indra_network_search import NAME, VERSION
+except Exception:
+    logger.info("Absolute import failed, trying relative import")
+    try:
+        from . import NAME, VERSION
+    except Exception:
+        logger.info("Relative import failed, using default name and version")
+        NAME = "INDRA Network Search"
+        VERSION = "1.0.0"
 
 app = FastAPI(
     title=NAME,
     root_path="/api",
     version=VERSION,
 )
-
-logger = logging.getLogger(__name__)
 
 DEBUG = environ.get("API_DEBUG") == "1"
 USE_CACHE = environ.get("USE_CACHE") == "1"
