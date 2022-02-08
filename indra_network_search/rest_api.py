@@ -13,7 +13,6 @@ from fastapi import Query as RestQuery
 from indra.databases import get_identifiers_url
 from pydantic import ValidationError
 
-from . import NAME, VERSION
 from indra_network_search.autocomplete import NodesTrie, Prefixes
 from indra_network_search.data_models import (
     MultiInteractorsRestQuery,
@@ -32,6 +31,8 @@ from indra_network_search.rest_util import (
     load_indra_graph,
 )
 from indra_network_search.search_api import IndraNetworkSearchAPI
+
+from . import NAME, VERSION
 
 app = FastAPI(
     title=NAME,
