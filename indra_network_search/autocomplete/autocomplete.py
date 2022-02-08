@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple, Union
 
 from networkx import DiGraph, MultiDiGraph
 from pytrie import SortedStringTrie
+from tqdm import tqdm
 
 # Derived types
 Prefixes = List[Tuple[str, str, str]]
@@ -37,7 +38,8 @@ class NodesTrie(SortedStringTrie):
         """
         _is_str_nodes(graph)
         name_indexing = {}
-        for node in graph.nodes:
+
+        for node in tqdm(graph.nodes, desc="Building node name index"):
             # Get node name in lowercase
             node_name = node.lower()
             if node_name in name_indexing:
@@ -83,7 +85,7 @@ class NodesTrie(SortedStringTrie):
                     graph.nodes[n]["id"],
                     graph.degree(n),
                 )
-                for n in graph.nodes
+                for n in tqdm(graph.nodes, desc="Building node grounding autocomplete index")
             }
         )
 

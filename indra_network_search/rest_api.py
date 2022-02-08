@@ -12,6 +12,7 @@ from fastapi import BackgroundTasks, FastAPI
 from fastapi import Query as RestQuery
 from indra.databases import get_identifiers_url
 from pydantic import ValidationError
+from tqdm import tqdm
 
 from indra_network_search.autocomplete import NodesTrie, Prefixes
 from indra_network_search.data_models import (
@@ -298,7 +299,7 @@ def startup_event():
         except AssertionError:
             logger.warning(f"Edge weights below {MIN_WEIGHT} detected, resetting to {MIN_WEIGHT}")
             # Reset unsigned graph edge weights
-            for _, _, data in dir_graph.edges(data=True):
+            for _, _, data in tqdm(dir_graph.edges(data=True), desc="Resetting edge weights"):
                 if data["weight"] < MIN_WEIGHT:
                     data["weight"] = MIN_WEIGHT
 
@@ -320,7 +321,8 @@ def startup_event():
     STATUS.signed_nodes = len(sign_node_graph.nodes)
     STATUS.signed_edges = len(sign_node_graph.edges)
     dt = dir_graph.graph.get("date")
-    STATUS.graph_date = date.fromisoformat(dt) if dt else None
+    if dt:
+        STATUS.graph_date = date.fromisoformat(dt)
 
     # Setup search API
     logger.info("Setting up IndraNetworkSearchAPI with signed and unsigned graphs")
