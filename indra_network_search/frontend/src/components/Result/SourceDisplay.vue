@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import sourceList from '../../assets/source_list.json';
   export default {
     name: "SourceDisplay",
     props: {
@@ -52,40 +53,7 @@
     },
     data() {
       return {
-        sources: {
-          'databases': [
-              'fplx',
-              'psp',
-              'cbn',
-              'pc',
-              'bel_lc',
-              'signor',
-              'biogrid',
-              'lincs_drug',
-              'tas',
-              'hprd',
-              'trrust',
-              'ctd',
-              'vhn',
-              'pe',
-              'drugbank',
-              'omnipath',
-              'conib',
-              'crog',
-              'dgi',
-          ],
-          'reading': [
-              'rlimsp',
-              'isi',
-              'tees',
-              'geneways',
-              'eidos',
-              'trips',
-              'medscan',
-              'sparser',
-              'reach'
-          ]
-        }
+        sources: sourceList,
       }
     },
     computed: {

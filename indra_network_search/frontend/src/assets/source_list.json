@@ -1,0 +1,38 @@
+{
+  "databases": [
+    "fplx",
+    "psp",
+    "cbn",
+    "pc",
+    "bel_lc",
+    "signor",
+    "biogrid",
+    "tas",
+    "hprd",
+    "trrust",
+    "ctd",
+    "vhn",
+    "pe",
+    "drugbank",
+    "omnipath",
+    "conib",
+    "crog",
+    "dgi",
+    "minerva",
+    "creeds",
+    "ubibrowser",
+    "acsn"
+  ],
+  "reading": [
+    "geneways",
+    "tees",
+    "gnbr",
+    "isi",
+    "trips",
+    "rlimsp",
+    "medscan",
+    "eidos",
+    "sparser",
+    "reach"
+  ]
+}
