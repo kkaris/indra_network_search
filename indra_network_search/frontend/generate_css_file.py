@@ -1,3 +1,9 @@
+"""
+This script generates a new CSS file and a new json resource file.
+It should be run when new sources have been added to INDRA and the CSS file
+and json resource file need to be updated to reflect the new sources.
+"""
+
 import logging
 from pathlib import Path
 
@@ -10,9 +16,11 @@ SOURCE_PATH = ASSETS.joinpath("source_list.json")
 
 def update_sources_list_json():
     """Update the sources list JSON file read by SourceDisplay.vue."""
-    from indra_db_service.api import sources_dict
     import json
-    with SOURCE_PATH.open('w') as fh:
+
+    from indra_db_service.api import sources_dict
+
+    with SOURCE_PATH.open("w") as fh:
         json.dump(sources_dict, fh, indent=2)
 
 
