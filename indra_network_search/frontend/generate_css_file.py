@@ -5,6 +5,7 @@ and json resource file need to be updated to reflect the new sources.
 """
 
 import logging
+from copy import deepcopy
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -20,8 +21,11 @@ def update_sources_list_json():
 
     from indra_db_service.api import sources_dict
 
+    mod_sources = deepcopy(sources_dict)
+    mod_sources["databases"] = ["fplx"] + sources_dict["databases"]
+
     with SOURCE_PATH.open("w") as fh:
-        json.dump(sources_dict, fh, indent=2)
+        json.dump(mod_sources, fh, indent=2)
 
 
 def main():
