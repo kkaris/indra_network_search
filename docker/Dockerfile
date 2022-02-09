@@ -10,9 +10,9 @@ RUN apt-get update && \
         graphviz graphviz-dev libpq-dev && \
     ln -s /usr/bin/python3 /usr/bin/python
 
-RUN git clone -b package https://github.com/indralab/indra_network_search.git && \
+RUN git clone https://github.com/indralab/indra_network_search.git && \
     cd indra_network_search && \
-    pip install -e . && \
+    pip install . && \
     cd .. && \
     mkdir -p $NETWORK_CACHE && \
     pip install gunicorn uvicorn termcolor cachetools && \
@@ -23,7 +23,7 @@ ADD indranet_dir_graph.pkl $NETWORK_CACHE
 ADD indranet_sign_edge_graph.pkl $NETWORK_CACHE
 ADD indranet_sign_node_graph.pkl $NETWORK_CACHE
 
-ENV PYTHONPATH /sw/depmap_analysis
+ENV PYTHONPATH /sw/depmap_analysis:/sw/indra_network_search
 ENV USE_CACHE 1
 
 ENTRYPOINT ["gunicorn", "-w", "1", "-b", "0.0.0.0:8000", "-t", "600", "-k", "uvicorn.workers.UvicornWorker", "indra_network_search.rest_api:app"]
