@@ -23,7 +23,7 @@ from typing import (
     Union,
 )
 
-from depmap_analysis.network_functions.famplex_functions import get_identifiers_url
+from indra.databases.identifiers import get_identifiers_url
 from indra.explanation.pathfinding import (
     bfs_search,
     open_dijkstra_search,
