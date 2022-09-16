@@ -77,6 +77,7 @@ __all__ = [
     "SubgraphResults",
     "MultiInteractorsResults",
     "DEFAULT_TIMEOUT",
+    "MAX_TIMEOUT",
     "WEIGHT_NAME_MAPPING",
     "basemodels_equal",
     "basemodel_in_iterable",
@@ -89,6 +90,7 @@ logger = logging.getLogger(__name__)
 
 # Set defaults
 DEFAULT_TIMEOUT = 30
+MAX_TIMEOUT = 590  # Less than timeout on the load balancer and nginx
 WEIGHT_NAME_MAPPING = {
     "belief": "weight",
     "context": "context_weight",
