@@ -1,5 +1,5 @@
 from inspect import signature
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from indra.assemblers.indranet.net import default_sign_dict
 from indra.explanation.model_checker.model_checker import signed_edges_to_signed_nodes
@@ -94,6 +94,13 @@ def _setup_signed_node_graph(large: bool) -> DiGraph:
         else:
             continue
     return signed_edges_to_signed_nodes(graph=seg, copy_edge_data=True, prune_nodes=True)
+
+
+def _add_graph_meta(g: Union[DiGraph, MultiDiGraph]):
+    ns_id_to_nodename = {}
+    for name, data in g.nodes(data=True):
+        ns_id_to_nodename[(data["ns"], data["id"])] = name
+    g.graph["node_by_ns_id"] = ns_id_to_nodename
 
 
 def _setup_api(large: bool) -> IndraNetworkSearchAPI:
@@ -346,3 +353,6 @@ signed_node_graph = _setup_signed_node_graph(False)
 exp_signed_node_graph = _setup_signed_node_graph(True)
 search_api = _setup_api(False)
 exp_search_api = _setup_api(True)
+
+for graph in [unsigned_graph, expanded_unsigned_graph, signed_node_graph, exp_signed_node_graph]:
+    _add_graph_meta(graph)

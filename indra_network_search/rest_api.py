@@ -278,12 +278,12 @@ def startup_event():
     #  - https://www.starlette.io/events/
     if DEBUG:
         from indra_network_search.tests.util import (
-            _setup_graph,
-            _setup_signed_node_graph,
+            unsigned_graph,
+            signed_node_graph,
         )
 
-        dir_graph = _setup_graph()
-        sign_node_graph = _setup_signed_node_graph(False)
+        dir_graph = unsigned_graph
+        sign_node_graph = signed_node_graph
     else:
         # ToDo The file IO has to be done awaited to make this function async
         dir_graph, _, _, sign_node_graph = load_indra_graph(
