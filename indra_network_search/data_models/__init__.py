@@ -573,6 +573,7 @@ class SubgraphRestQuery(BaseModel):
     """Subgraph query"""
 
     nodes: conlist(item_type=Node, min_items=1, max_items=4000)
+    timeout: confloat(ge=1, le=MAX_TIMEOUT) = MAX_TIMEOUT
 
 
 class SubgraphOptions(BaseModel):

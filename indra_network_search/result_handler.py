@@ -858,12 +858,14 @@ class SubgraphResultManager(ResultManager):
         nodes_in_graph: List[Node],
         not_in_graph: List[Node],
         ev_limit: int = 10,
+        timeout: float = MAX_TIMEOUT,
     ):
         super().__init__(
             path_generator=path_generator,
             graph=graph,
             filter_options=filter_options,
             input_nodes=original_nodes,
+            timeout=timeout
         )
         self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
         self._available_nodes: Dict[str, Node] = {n.name: n for n in nodes_in_graph}

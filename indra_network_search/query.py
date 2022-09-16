@@ -671,6 +671,7 @@ class SubgraphQuery:
             "original_nodes": self.query.nodes,
             "nodes_in_graph": self._nodes_in_graph,
             "not_in_graph": self._not_in_graph,
+            "timeout": self.query.timeout
         }
 
 
