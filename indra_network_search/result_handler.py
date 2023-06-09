@@ -733,7 +733,7 @@ class SharedInteractorsResultManager(UIResultManager):
         target_edges: List[EdgeData] = []
         for (s1, s2), (t1, t2) in self.path_gen:
             if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
-                logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
+                logger.info(f"Timeout reached ({self.timeout} seconds), breaking results loop")
                 self.timed_out = True
                 break
             source_edge = self._get_edge_data(a=s1, b=s2)

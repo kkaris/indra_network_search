@@ -20,6 +20,7 @@ functions.
 #  - In FilterOptions, set overall weighted based on values of weighted
 #    context weighted. See here for more info:
 #    https://stackoverflow.com/q/54023782/10478812
+#  - Make the is_empty method also look into the children of the object?
 import logging
 from collections import Counter
 from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
