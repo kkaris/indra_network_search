@@ -23,7 +23,7 @@ from typing import (
     Union,
 )
 
-from depmap_analysis.network_functions.famplex_functions import get_identifiers_url
+from indra.databases.identifiers import get_identifiers_url
 from indra.explanation.pathfinding import (
     bfs_search,
     open_dijkstra_search,
@@ -733,7 +733,7 @@ class SharedInteractorsResultManager(UIResultManager):
         target_edges: List[EdgeData] = []
         for (s1, s2), (t1, t2) in self.path_gen:
             if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
-                logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
+                logger.info(f"Timeout reached ({self.timeout} seconds), breaking results loop")
                 self.timed_out = True
                 break
             source_edge = self._get_edge_data(a=s1, b=s2)
@@ -858,12 +858,14 @@ class SubgraphResultManager(ResultManager):
         nodes_in_graph: List[Node],
         not_in_graph: List[Node],
         ev_limit: int = 10,
+        timeout: float = MAX_TIMEOUT,
     ):
         super().__init__(
             path_generator=path_generator,
             graph=graph,
             filter_options=filter_options,
             input_nodes=original_nodes,
+            timeout=timeout
         )
         self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
         self._available_nodes: Dict[str, Node] = {n.name: n for n in nodes_in_graph}

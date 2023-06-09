@@ -25,7 +25,7 @@
     </p>
     <p>
       This project's backend is powered by <a href="https://fastapi.tiangolo.com/" target="_blank">FastAPI</a>.
-      The frontend is made 100 % in <a href="https://v3.vuejs.org/" target="_blank">Vue 3</a>.
+      The frontend is made 100 % in <a href="https://vuejs.org/" target="_blank">Vue 3</a>.
     </p>
   </div>
 </template>

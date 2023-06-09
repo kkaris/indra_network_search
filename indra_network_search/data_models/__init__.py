@@ -20,6 +20,7 @@ functions.
 #  - In FilterOptions, set overall weighted based on values of weighted
 #    context weighted. See here for more info:
 #    https://stackoverflow.com/q/54023782/10478812
+#  - Make the is_empty method also look into the children of the object?
 import logging
 from collections import Counter
 from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
@@ -77,6 +78,7 @@ __all__ = [
     "SubgraphResults",
     "MultiInteractorsResults",
     "DEFAULT_TIMEOUT",
+    "MAX_TIMEOUT",
     "WEIGHT_NAME_MAPPING",
     "basemodels_equal",
     "basemodel_in_iterable",
@@ -89,6 +91,7 @@ logger = logging.getLogger(__name__)
 
 # Set defaults
 DEFAULT_TIMEOUT = 30
+MAX_TIMEOUT = 590  # Less than timeout on the load balancer and nginx
 WEIGHT_NAME_MAPPING = {
     "belief": "weight",
     "context": "context_weight",
@@ -571,6 +574,7 @@ class SubgraphRestQuery(BaseModel):
     """Subgraph query"""
 
     nodes: conlist(item_type=Node, min_items=1, max_items=4000)
+    timeout: confloat(ge=1, le=MAX_TIMEOUT) = MAX_TIMEOUT
 
 
 class SubgraphOptions(BaseModel):
