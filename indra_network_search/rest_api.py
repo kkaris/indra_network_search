@@ -12,6 +12,7 @@ from fastapi import BackgroundTasks, FastAPI
 from fastapi import Query as RestQuery
 from indra.databases import get_identifiers_url
 from pydantic import ValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from tqdm import tqdm
 
 from indra_network_search.autocomplete import NodesTrie, Prefixes
@@ -42,6 +43,15 @@ app = FastAPI(
     title=NAME,
     root_path="/api",
     version=VERSION,
+)
+
+# Add cors middleware for https://discovery.indra.bio
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://discovery.indra.bio"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 DEBUG = environ.get("API_DEBUG") == "1"
