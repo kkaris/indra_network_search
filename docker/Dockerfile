@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:20.04
 
 ENV DIRPATH /sw
 WORKDIR $DIRPATH
@@ -20,7 +20,6 @@ RUN git clone https://github.com/indralab/indra_network_search.git && \
     python -m indra.ontology.bio build
 
 ADD indranet_dir_graph.pkl $NETWORK_CACHE
-ADD indranet_sign_edge_graph.pkl $NETWORK_CACHE
 ADD indranet_sign_node_graph.pkl $NETWORK_CACHE
 
 ENV PYTHONPATH /sw/depmap_analysis:/sw/indra_network_search
