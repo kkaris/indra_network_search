@@ -138,9 +138,17 @@ class UIQuery(Query):
         super().__init__(query=query)
         self.hash_blacklist = hash_blacklist or set()
 
-    def _get_source_target(self) -> Tuple[StrNode, StrNode]:
-        """Use for source-target searches"""
-        if self.query.sign is not None:
+    def _get_source_target(self, no_sign: bool = False) -> Tuple[StrNode, StrNode]:
+        """Use for source-target searches
+
+        Parameters
+        ----------
+        no_sign :
+            Ignore the sign of the query. Used for e.g. shared parents and the
+            query is signed. If False, the sign of the query is used (+, - or
+            None). If True, the sign is ignored.
+        """
+        if self.query.sign is not None and not no_sign:
             if self.query.get_int_sign() == 0:
                 return (self.query.source, 0), (self.query.target, 0)
             elif self.query.get_int_sign() == 1:
@@ -562,7 +570,7 @@ class OntologyQuery(UIQuery):
         :
             The arguments for the Ontology Result manger
         """
-        source, target = self._get_source_target()
+        source, target = self._get_source_target(no_sign=True)
         return {
             "filter_options": self.query.get_filter_options(),
             "source": source,
