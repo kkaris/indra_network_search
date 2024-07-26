@@ -399,7 +399,7 @@ class Node(BaseModel):
             If sign is not defined, a TypeError
         """
         if self.sign is None:
-            raise TypeError("Node is unsigned, unable to produce a signed " "node tuple")
+            raise TypeError("Node is unsigned, unable to produce a signed node tuple")
         return self.name, self.sign
 
 
