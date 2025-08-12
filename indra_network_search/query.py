@@ -225,8 +225,8 @@ class PathQuery(UIQuery):
     def _get_mesh_options(self, get_func: bool = True) -> Tuple[Set, Union[Callable, None]]:
         """Get the necessary mesh options"""
         if self.query.mesh_ids is None or len(self.query.mesh_ids) == 0:
-            raise InvalidParametersError("No mesh ids provided, but method " "for getting mesh options was called")
-        hash_mesh_dict: Dict[Any, Dict] = get_mesh_ref_counts(self.query.mesh_ids)
+            raise InvalidParametersError("No mesh ids provided, but method for getting mesh options was called")
+        hash_mesh_dict: Dict[int, Dict[str, int]] = get_mesh_ref_counts(self.query.mesh_ids)
         related_hashes: Set = set(hash_mesh_dict.keys())
         ref_counts_from_hashes = _get_ref_counts_func(hash_mesh_dict) if get_func else None
         return related_hashes, ref_counts_from_hashes
