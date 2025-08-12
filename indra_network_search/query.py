@@ -551,7 +551,7 @@ class OntologyQuery(UIQuery):
         Parameters
         ----------
         graph :
-            The graph used in the search. Must contains node attributes 'ns'
+            The graph used in the search. Must contain node attributes 'ns'
             and 'id' for each node.
 
         Returns
