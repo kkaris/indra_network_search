@@ -491,7 +491,7 @@ class SharedRegulatorsQuery(SharedInteractorsQuery):
             # shared regulators must not be requested if
             # query.shared_regulators == False
             raise InvalidParametersError(
-                "Request for shared regulators in " "query does not match class " "attribute reverse"
+                "Request for shared regulators in query does not match class attribute reverse"
             )
 
         super().__init__(query=query, hash_blacklist=hash_blacklist)
