@@ -8,7 +8,7 @@ The result manager deals with things like:
 
 """
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from itertools import product
 from typing import (
     Any,
@@ -274,7 +274,7 @@ class ResultManager:
     def _time_results(self):
         # This method executes and times the result assembly
         if self.start_time is None:
-            self.start_time = datetime.utcnow()
+            self.start_time = datetime.now(UTC)
         return self._get_results()
 
     def get_results(self):
@@ -423,7 +423,7 @@ class PathResultManager(UIResultManager):
             weight = self.filter_options.weighted
 
         while True:
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+            if self.timeout and datetime.now(UTC) - self.start_time > timedelta(seconds=self.timeout):
                 logger.info(f"Timeout reached ({self.timeout} seconds), breaking results loop")
                 self.timed_out = True
                 break
@@ -732,7 +732,7 @@ class SharedInteractorsResultManager(UIResultManager):
         source_edges: List[EdgeData] = []
         target_edges: List[EdgeData] = []
         for (s1, s2), (t1, t2) in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+            if self.timeout and datetime.now(UTC) - self.start_time > timedelta(seconds=self.timeout):
                 logger.info(f"Timeout reached ({self.timeout} seconds), breaking results loop")
                 self.timed_out = True
                 break
@@ -797,7 +797,7 @@ class OntologyResultManager(UIResultManager):
 
     def _get_parents(self):
         for name, ns, _id, id_url in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+            if self.timeout and datetime.now(UTC) - self.start_time > timedelta(seconds=self.timeout):
                 logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
@@ -947,11 +947,11 @@ class SubgraphResultManager(ResultManager):
         logger.info(f"Generating output data for subgraph with " f"{len(self._available_nodes)} eligible nodes")
         # Loop edges
         for a, b in self.path_gen:
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+            if self.timeout and datetime.now(UTC) - self.start_time > timedelta(seconds=self.timeout):
                 logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+            if self.timeout and datetime.now(UTC) - self.start_time > timedelta(seconds=self.timeout):
                 logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
@@ -1048,7 +1048,7 @@ class MultiInteractorsResultManager(ResultManager):
 
     def _loop_edges(self):
         for s, t in self._get_edge_iter():
-            if self.timeout and datetime.utcnow() - self.start_time > timedelta(seconds=self.timeout):
+            if self.timeout and datetime.now(UTC) - self.start_time > timedelta(seconds=self.timeout):
                 logger.info(f"Timeout reached ({self.timeout} seconds), " f"breaking results loop")
                 self.timed_out = True
                 break
