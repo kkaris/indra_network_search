@@ -29,4 +29,4 @@ jobs:
       run: |
         export NOSEATTR="!notravis"
         export PYTHONPATH=$PYTHONPATH:depmap_analysis
-        nosetests -v -a $NOSEATTR indra_network_search/tests
+        pytest -v -m "not nogha" indra_network_search/tests
