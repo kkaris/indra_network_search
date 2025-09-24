@@ -102,6 +102,7 @@ class Query:
         """
         return ApiOptions(
             sign=self.query.get_int_sign(),
+            fplx_expand=self.query.fplx_expand,
             user_timeout=self.query.user_timeout,
             two_way=self.query.two_way,
             shared_regulators=self.query.shared_regulators,

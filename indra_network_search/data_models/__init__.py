@@ -105,6 +105,7 @@ class ApiOptions(BaseModel):
     """Options that determine API behaviour"""
 
     sign: Optional[int] = None
+    fplx_expand: Optional[bool] = False
     user_timeout: Optional[Union[float, bool]] = False
     two_way: Optional[bool] = False
     shared_regulators: Optional[bool] = False
@@ -161,6 +162,7 @@ class NetworkSearchQuery(BaseModel):
     weighted: Literal["belief", "context", "z_score", "unweighted"] = "unweighted"
     belief_cutoff: Union[float, bool] = 0.0
     curated_db_only: bool = False
+    fplx_expand: bool = False
     k_shortest: int = 50
     max_per_node: int = 5
     cull_best_node: Optional[int] = None
