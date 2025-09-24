@@ -59,7 +59,7 @@ DEBUG = (environ.get("API_DEBUG") or "").lower() in TRUTHINESS
 USE_GRAPH_CACHE = environ.get("USE_CACHE") in TRUTHINESS
 CACHE_RESULTS = environ.get("CACHE_RESULTS") in TRUTHINESS
 HEALTH = Health(status="booting")
-STATUS = ServerStatus(status="booting", graph_date="2023-07-26")
+STATUS = ServerStatus(status="booting", graph_date="2025-08-05")
 network_search_api: IndraNetworkSearchAPI
 nsid_trie: NodesTrie
 nodes_trie: NodesTrie
