@@ -31,6 +31,5 @@ jobs:
         git clone https://github.com/gyorilab/depmap_analysis.git
     - name: Run unit tests
       run: |
-        export NOSEATTR="!notravis"
         export PYTHONPATH=$PYTHONPATH:depmap_analysis
         pytest -v -m "not nogha" indra_network_search/tests
