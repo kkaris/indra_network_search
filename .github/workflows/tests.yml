@@ -29,9 +29,6 @@ jobs:
         pip install -e .[tests]
         pip install termcolor cachetools httpx
         git clone https://github.com/gyorilab/depmap_analysis.git
-        cd depmap_analysis
-        git checkout graphs-from-cogex
-        cd ..
     - name: Run unit tests
       run: |
         export PYTHONPATH=$PYTHONPATH:depmap_analysis
