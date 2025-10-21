@@ -11,7 +11,6 @@ def test_stmt_data():
         "weight": 1e-15,
         "curated": True,
         "english": "FPLX:FANC is an ontological parent of HGNC:1100",
-        "z_score": 0,
         "corr_weight": 1,
     }
     stmt_data = StmtData(db_url_hash=stmt_dict["stmt_hash"], **stmt_dict)

@@ -24,6 +24,7 @@ functions.
 import logging
 from collections import Counter
 from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple, Union
+from urllib.parse import parse_qsl
 
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding.util import EdgeFilter
@@ -196,6 +197,19 @@ class NetworkSearchQuery(BaseModel):
         if isinstance(cbn, int) and cbn < 2:
             raise ValueError("cull_best_node must be integer > 1 if provided")
         return cbn
+
+    @classmethod
+    def from_share_url(cls, share_url: str):
+        """Create a NetworkSearchQuery from a share URL"""
+        # Parse the URL - it has the form:
+        # https://network.indra.bio/#/?key1=val1&key2=val2...
+        # We only need the part after #/?
+        if "#/?" not in share_url:
+            raise ValueError("Not a valid share URL")
+        share_url_qs = share_url.split("#/?", 1)[1]
+
+        query_dict = dict(parse_qsl(share_url_qs))
+        return cls(**query_dict)
 
     class Config:
         allow_mutation = False  # Error for any attempt to change attributes
@@ -399,7 +413,7 @@ class Node(BaseModel):
             If sign is not defined, a TypeError
         """
         if self.sign is None:
-            raise TypeError("Node is unsigned, unable to produce a signed " "node tuple")
+            raise TypeError("Node is unsigned, unable to produce a signed node tuple")
         return self.name, self.sign
 
 
@@ -441,7 +455,8 @@ class EdgeData(BaseModel):
     weight: confloat(ge=0)  # Weight corresponding to aggregated belief weight
     context_weight: Union[str, confloat(gt=0), Literal["N/A"]] = "N/A"  # Set for context
     z_score: Optional[float] = None  # z-score
-    corr_weight: Optional[confloat(gt=0.0)] = None  # Weight from z-score
+    logp: Optional[float] = None  # log p-value
+    corr_weight: Optional[confloat(gt=0.0)] = None  # Weight from z-score or logp
     sign: Optional[conint(ge=0, le=1)]  # Used for signed paths
     db_url_edge: str  # Linkout to subj-obj level
     source_counts: Dict[str, int] = {}

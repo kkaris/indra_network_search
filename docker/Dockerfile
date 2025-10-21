@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV DIRPATH /sw
 WORKDIR $DIRPATH
@@ -15,7 +15,7 @@ RUN git clone https://github.com/indralab/indra_network_search.git && \
     pip install . && \
     cd .. && \
     mkdir -p $NETWORK_CACHE && \
-    pip install gunicorn uvicorn termcolor cachetools && \
+    pip install gunicorn uvicorn termcolor cachetools 'SQLAlchemy<1.4' pyyaml && \
     git clone https://github.com/indralab/depmap_analysis.git && \
     python -m indra.ontology.bio build
 
@@ -24,5 +24,7 @@ ADD indranet_sign_node_graph.pkl $NETWORK_CACHE
 
 ENV PYTHONPATH /sw/depmap_analysis:/sw/indra_network_search
 ENV USE_CACHE 1
+ENV DUMPS_BUCKET "bigmech"
+ENV CACHE_RESULTS 1
 
 ENTRYPOINT ["gunicorn", "-w", "1", "-b", "0.0.0.0:8000", "-t", "600", "-k", "uvicorn.workers.UvicornWorker", "indra_network_search.rest_api:app"]

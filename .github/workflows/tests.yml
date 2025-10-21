@@ -5,18 +5,22 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.13']
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml','**/requirements.txt','**/setup.py') }}
         restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
           ${{ runner.os }}-pip-
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -24,9 +28,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[tests]
         pip install termcolor cachetools httpx
-        git clone https://github.com/indralab/depmap_analysis.git
+        git clone https://github.com/gyorilab/depmap_analysis.git
     - name: Run unit tests
       run: |
-        export NOSEATTR="!notravis"
         export PYTHONPATH=$PYTHONPATH:depmap_analysis
-        nosetests -v -a $NOSEATTR indra_network_search/tests
+        pytest -v -m "not nogha" indra_network_search/tests

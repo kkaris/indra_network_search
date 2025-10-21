@@ -408,6 +408,15 @@ def test_ssp_belief_weighted():
     )
 
 
+def test_ssp_signed_belief_weighted():
+    # Only tests that the query is actually allowed to run, not the result
+    from indra_network_search.search_api import IndraNetworkSearchAPI
+    nsq = NetworkSearchQuery(source='BRCA1', target='BRCA2', weighted='belief', sign=1)
+    network_search_api = IndraNetworkSearchAPI(unsigned_graph=unsigned_graph, signed_node_graph=signed_node_graph)
+    results = network_search_api.handle_query(rest_query=nsq)
+    # Todo: test result
+
+
 def test_ssp_z_score_weighted():
     # Create rest query - belief weighted
     brca1 = Node(name="BRCA1", namespace="HGNC", identifier="1100")

@@ -1,11 +1,11 @@
 """
 Test helpers and functions related to the query module
 """
+import pytest
 from inspect import signature
 from typing import Callable, Set
 
 import networkx as nx
-from nose.plugins.attrib import attr
 
 from indra_network_search.data_models import NetworkSearchQuery
 from indra_network_search.query import (
@@ -84,7 +84,7 @@ def test_belief_weighted_ssp_query():
     _match_args(set(options.keys()), alg_func_mapping[sspq_w.alg_name])
 
 
-@attr("notravis")
+@pytest.mark.nogha
 def test_context_weighted_ssp_query():
     query = NetworkSearchQuery(source="A", target="B", mesh_ids=["D000544"], strict_mesh_id_filtering=False)
     sspq_cw = ShortestSimplePathsQuery(query)
@@ -92,7 +92,7 @@ def test_context_weighted_ssp_query():
     _match_args(set(options.keys()), alg_func_mapping[sspq_cw.alg_name])
 
 
-@attr("notravis")
+@pytest.mark.nogha
 def test_strict_context_ssp_query():
     query = NetworkSearchQuery(source="A", target="B", mesh_ids=["D000544"], strict_mesh_id_filtering=True)
     sspq_cs = ShortestSimplePathsQuery(query)
@@ -108,7 +108,7 @@ def test_breadth_first_search_query():
     _match_args(run_options=options, alg_fun=alg_func_mapping[bfsq.alg_name])
 
 
-@attr("notravis")
+@pytest.mark.nogha
 def test_strict_context_bfs_query():
     graph = nx.DiGraph()
     graph.add_nodes_from([("A", {"ns": "HGNC", "id": "0"}), ("B", {"ns": "HGNC", "id": "1"})])
@@ -127,7 +127,7 @@ def test_dijkstra_belief_weight_query():
     _match_args(run_options=options, alg_fun=alg_func_mapping[dijq.alg_name])
 
 
-@attr("notravis")
+@pytest.mark.nogha
 def test_dijkstra_context_weight_query():
     query = NetworkSearchQuery(source="A", mesh_ids=["D000544"], strict_mesh_id_filtering=False)
     dijq = DijkstraQuery(query)

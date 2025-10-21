@@ -138,9 +138,17 @@ class UIQuery(Query):
         super().__init__(query=query)
         self.hash_blacklist = hash_blacklist or set()
 
-    def _get_source_target(self) -> Tuple[StrNode, StrNode]:
-        """Use for source-target searches"""
-        if self.query.sign is not None:
+    def _get_source_target(self, no_sign: bool = False) -> Tuple[StrNode, StrNode]:
+        """Use for source-target searches
+
+        Parameters
+        ----------
+        no_sign :
+            Ignore the sign of the query. Used for e.g. shared parents and the
+            query is signed. If False, the sign of the query is used (+, - or
+            None). If True, the sign is ignored.
+        """
+        if self.query.sign is not None and not no_sign:
             if self.query.get_int_sign() == 0:
                 return (self.query.source, 0), (self.query.target, 0)
             elif self.query.get_int_sign() == 1:
@@ -217,8 +225,8 @@ class PathQuery(UIQuery):
     def _get_mesh_options(self, get_func: bool = True) -> Tuple[Set, Union[Callable, None]]:
         """Get the necessary mesh options"""
         if self.query.mesh_ids is None or len(self.query.mesh_ids) == 0:
-            raise InvalidParametersError("No mesh ids provided, but method " "for getting mesh options was called")
-        hash_mesh_dict: Dict[Any, Dict] = get_mesh_ref_counts(self.query.mesh_ids)
+            raise InvalidParametersError("No mesh ids provided, but method for getting mesh options was called")
+        hash_mesh_dict: Dict[int, Dict[str, int]] = get_mesh_ref_counts(self.query.mesh_ids)
         related_hashes: Set = set(hash_mesh_dict.keys())
         ref_counts_from_hashes = _get_ref_counts_func(hash_mesh_dict) if get_func else None
         return related_hashes, ref_counts_from_hashes
@@ -484,7 +492,7 @@ class SharedRegulatorsQuery(SharedInteractorsQuery):
             # shared regulators must not be requested if
             # query.shared_regulators == False
             raise InvalidParametersError(
-                "Request for shared regulators in " "query does not match class " "attribute reverse"
+                "Request for shared regulators in query does not match class attribute reverse"
             )
 
         super().__init__(query=query, hash_blacklist=hash_blacklist)
@@ -543,7 +551,7 @@ class OntologyQuery(UIQuery):
         Parameters
         ----------
         graph :
-            The graph used in the search. Must contains node attributes 'ns'
+            The graph used in the search. Must contain node attributes 'ns'
             and 'id' for each node.
 
         Returns
@@ -562,7 +570,7 @@ class OntologyQuery(UIQuery):
         :
             The arguments for the Ontology Result manger
         """
-        source, target = self._get_source_target()
+        source, target = self._get_source_target(no_sign=True)
         return {
             "filter_options": self.query.get_filter_options(),
             "source": source,
